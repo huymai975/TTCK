@@ -11,18 +11,18 @@ namespace WebAppBookingBoat.Repository
         {
         }
 
-        public DbSet<TaiKhoan> TaiKhoans { get; set; } = default!;
-        public DbSet<NhanVien> NhanViens { get; set; } = default!;
-        public DbSet<KhachHang> KhachHangs { get; set; } = default!;
-        public DbSet<Tau> Taus { get; set; } = default!;
-        public DbSet<Ghe> Ghes { get; set; } = default!;
-        public DbSet<TuyenDuong> TuyenDuongs { get; set; } = default!;
-        public DbSet<LichTrinh> LichTrinhs { get; set; } = default!;
-        public DbSet<KhuyenMai> KhuyenMais { get; set; } = default!;
-        public DbSet<HoaDon> HoaDons { get; set; } = default!;
-        public DbSet<Ve> Ves { get; set; } = default!;
-        public DbSet<DanhGia> DanhGias { get; set; } = default!;
-        public DbSet<Log> Logs { get; set; } = default!;
+        public DbSet<TaiKhoan> TaiKhoans { get; set; } 
+        public DbSet<NhanVien> NhanViens { get; set; } 
+        public DbSet<KhachHang> KhachHangs { get; set; } 
+        public DbSet<Tau> Taus { get; set; } 
+        public DbSet<Ghe> Ghes { get; set; } 
+        public DbSet<TuyenDuong> TuyenDuongs { get; set; } 
+        public DbSet<LichTrinh> LichTrinhs { get; set; } 
+        public DbSet<KhuyenMai> KhuyenMais { get; set; } 
+        public DbSet<HoaDon> HoaDons { get; set; } 
+        public DbSet<Ve> Ves { get; set; } 
+        public DbSet<DanhGia> DanhGias { get; set; } 
+        public DbSet<Log> Logs { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
