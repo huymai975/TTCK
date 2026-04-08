@@ -28,6 +28,14 @@ namespace WebAppBookingBoat.Models
         [Display(Name = "Điểm đến")]
         public string DiemDen { get; set; } = default!;
 
+        [StringLength(255)]
+        [Display(Name = "Hình ảnh điểm đến")]
+        public string? HinhAnh { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Tải ảnh lên")]
+        public IFormFile? ImageFile { get; set; }
+
         [Range(0, 10000, ErrorMessage = "Khoảng cách phải là số dương")]
         [Display(Name = "Khoảng cách (km)")]
         public double KhoangCach { get; set; }

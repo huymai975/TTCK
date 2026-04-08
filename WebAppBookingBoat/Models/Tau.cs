@@ -18,6 +18,14 @@ namespace WebAppBookingBoat.Models
         // Đã được siết Unique trong DbContext
         public string TenTau { get; set; } = default!;
 
+        [StringLength(255)]
+        [Display(Name = "Hình ảnh tàu")]
+        public string? HinhAnh { get; set; } // Lưu tên file: tau-01.jpg
+
+        [NotMapped]
+        [Display(Name = "Tải ảnh lên")]
+        public IFormFile? ImageFile { get; set; } // Phục vụ lúc Upload file trong Controller
+
         [Required]
         [Range(1, 1000, ErrorMessage = "Tổng số ghế phải từ 1 đến 1000")]
         [Display(Name = "Tổng số ghế")]
