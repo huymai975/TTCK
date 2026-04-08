@@ -1,7 +1,52 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\views\\taus\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\views\\taus\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\views\\taus\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\views\\taus\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\views\\taus\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\views\\taus\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\controllers\\tauscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\controllers\\tauscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\viewmodels\\tauviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\viewmodels\\tauviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\views\\_viewimports.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\views\\_viewimports.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\models\\tau.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\models\\tau.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\repository\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\repository\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|c:\\users\\admin\\documents\\dpm225422\\ttck\\ttck\\webappbookingboat\\areas\\admin\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D37BE420-C99A-4B86-A30C-4503BC231A61}|WebAppBookingBoat\\WebAppBookingBoat.csproj|solutionrelative:webappbookingboat\\areas\\admin\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +54,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -25,7 +70,143 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "TauViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\ViewModels\\TauViewModel.cs",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\ViewModels\\TauViewModel.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\ViewModels\\TauViewModel.cs",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\ViewModels\\TauViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAwAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T21:15:38.822Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Edit.cshtml",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Edit.cshtml",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Edit.cshtml",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Edit.cshtml",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAMwGQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T20:55:20.191Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Index.cshtml",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Index.cshtml",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Index.cshtml",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T20:53:45.852Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "_ViewStart.cshtml",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\_ViewStart.cshtml",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\Views\\_ViewStart.cshtml",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\_ViewStart.cshtml",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\Views\\_ViewStart.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T20:50:23.932Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "_ViewImports.cshtml",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\_ViewImports.cshtml",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\Views\\_ViewImports.cshtml",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\_ViewImports.cshtml",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\Views\\_ViewImports.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T20:50:21.458Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "_ValidationScriptsPartial.cshtml",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T20:50:14.269Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Tau.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Models\\Tau.cs",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Models\\Tau.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Models\\Tau.cs",
+              "RelativeToolTip": "WebAppBookingBoat\\Models\\Tau.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA4AAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T20:49:55.929Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Repository\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Repository\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Repository\\ApplicationDbContext.cs",
+              "RelativeToolTip": "WebAppBookingBoat\\Repository\\ApplicationDbContext.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T20:49:38.682Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\Controllers\\HomeController.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T20:46:44.693Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TausController.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Controllers\\TausController.cs",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\Controllers\\TausController.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Controllers\\TausController.cs",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\Controllers\\TausController.cs",
+              "ViewState": "AgIAADcAAAAAAAAAAAAAANMAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-08T20:36:39.346Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Create.cshtml",
+              "RelativeDocumentMoniker": "WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Create.cshtml",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\DPM225422\\TTCK\\TTCK\\WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Create.cshtml",
+              "RelativeToolTip": "WebAppBookingBoat\\Areas\\Admin\\Views\\Taus\\Create.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-08T20:35:32.738Z",
+              "EditorCaption": ""
             }
           ]
         },

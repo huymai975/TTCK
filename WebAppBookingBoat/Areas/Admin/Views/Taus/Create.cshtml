@@ -1,0 +1,93 @@
+﻿@model WebAppBookingBoat.ViewModels.TauViewModel
+
+@{
+    ViewData["Title"] = "Thêm mới tàu";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Thêm mới tàu thuyền</h1>
+    </div>
+</div>
+
+<div class="row">
+    @* Giới hạn độ rộng của form để không bị tràn màn hình (ví dụ col-md-6) *@
+    <div class="col-md-6 offset-md-3">
+        <form asp-action="Create" enctype="multipart/form-data" class="shadow-sm p-4 border rounded bg-white">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            @* 1. Tên tàu *@
+            <div class="form-group mb-4">
+                <label asp-for="TenTau" class="control-label fw-bold mb-1 d-block"></label>
+                <input asp-for="TenTau" class="form-control" placeholder="Nhập tên tàu..." />
+                <span asp-validation-for="TenTau" class="text-danger"></span>
+            </div>
+
+            @* 2. Hình ảnh *@
+            <div class="form-group mb-4">
+                <label asp-for="ImageFile" class="control-label fw-bold mb-1 d-block">Hình ảnh tàu</label>
+                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+
+            @* 3. Số ghế thường *@
+            <div class="form-group mb-4">
+                <label asp-for="SoGheThuong" class="control-label fw-bold mb-1 d-block"></label>
+                <input asp-for="SoGheThuong" class="form-control" id="SoGheThuong" placeholder="0" />
+                <span asp-validation-for="SoGheThuong" class="text-danger"></span>
+            </div>
+
+            @* 4. Số ghế VIP *@
+            <div class="form-group mb-4">
+                <label asp-for="SoGheVIP" class="control-label fw-bold mb-1 d-block"></label>
+                <input asp-for="SoGheVIP" class="form-control" id="SoGheVIP" placeholder="0" />
+                <span asp-validation-for="SoGheVIP" class="text-danger"></span>
+            </div>
+
+            @* 5. Tổng số ghế (Readonly) *@
+            <div class="form-group mb-4">
+                <label asp-for="TongSoGhe" class="control-label fw-bold mb-1 d-block text-danger"></label>
+                <input asp-for="TongSoGhe" class="form-control bg-light" id="TongSoGhe" readonly />
+                <div class="form-text mt-1 text-muted">Hệ thống tự động tính: Thường + VIP</div>
+            </div>
+
+            @* 6. Trạng thái *@
+            <div class="form-group mb-4 form-check">
+                <input class="form-check-input" asp-for="TrangThai" checked />
+                <label class="form-check-label fw-bold" asp-for="TrangThai">
+                    Đang hoạt động
+                </label>
+            </div>
+
+            <hr />
+
+            @* Nút bấm *@
+            <div class="form-group d-flex justify-content-between align-items-center">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+                <button type="submit" class="btn btn-success px-5">
+                    Thêm mới
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            function tinhTong() {
+                let thuong = parseInt($("#SoGheThuong").val()) || 0;
+                let vip = parseInt($("#SoGheVIP").val()) || 0;
+                $("#TongSoGhe").val(thuong + vip);
+            }
+            $("#SoGheThuong, #SoGheVIP").on("input", function () {
+                tinhTong();
+            });
+        });
+    </script>
+}
