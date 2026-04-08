@@ -48,6 +48,9 @@ wwwroot\images\person_3_sq.jpg
 wwwroot\images\person_4.jpg
 wwwroot\images\person_4_sq.jpg
 wwwroot\images\person_5.jpg
+wwwroot\images\tau\44eae152-587f-43d9-8a88-d7dac8b5ef20.jpg
+wwwroot\images\tau\tau01.jpg
+wwwroot\images\tau\tau02.jpg
 wwwroot\images\undraw_posting_photo.svg
 wwwroot\images\undraw_profile.svg
 wwwroot\images\undraw_profile_1.svg

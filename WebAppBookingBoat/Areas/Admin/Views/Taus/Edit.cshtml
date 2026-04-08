@@ -1,59 +1,101 @@
-﻿@model WebAppBookingBoat.Models.Tau
+﻿@model WebAppBookingBoat.ViewModels.TauViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Chỉnh sửa tàu";
 }
 
-<h1>Edit</h1>
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa thông tin tàu thuyền</h1>
+    </div>
+</div>
 
-<h4>Tau</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6 offset-md-3">
+        <form asp-action="Edit" enctype="multipart/form-data" class="shadow-sm p-4 border rounded bg-white">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            @* 1. Quan trọng: Giữ lại ID và Tên ảnh cũ *@
             <input type="hidden" asp-for="MaTau" />
-            <div class="form-group">
-                <label asp-for="TenTau" class="control-label"></label>
+            <input type="hidden" asp-for="HinhAnhCu" /> @* Sửa từ HinhAnh thành HinhAnhCu *@
+
+            @* 2. Tên tàu *@
+            <div class="form-group mb-4">
+                <label asp-for="TenTau" class="control-label fw-bold mb-1 d-block"></label>
                 <input asp-for="TenTau" class="form-control" />
                 <span asp-validation-for="TenTau" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="HinhAnh" class="control-label"></label>
-                <input asp-for="HinhAnh" class="form-control" />
-                <span asp-validation-for="HinhAnh" class="text-danger"></span>
+
+            @* 3. Xử lý ảnh hiện tại và ảnh mới *@
+            <div class="form-group mb-4">
+                <label class="fw-bold mb-1 d-block">Ảnh hiện tại</label>
+                <div class="mb-2">
+                    @* Sửa đường dẫn ảnh dùng HinhAnhCu *@
+                    @if (!string.IsNullOrEmpty(Model.HinhAnhCu))
+                    {
+                        <img src="~/images/tau/@Model.HinhAnhCu" width="150" class="img-thumbnail" alt="Ảnh tàu" />
+                    }
+                    else
+                    {
+                        <img src="~/images/tau/default-boat.jpg" width="150" class="img-thumbnail" alt="Ảnh mặc định" />
+                    }
+                </div>
+                <label asp-for="ImageFile" class="control-label fw-bold mb-1 d-block"></label>
+                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="TongSoGhe" class="control-label"></label>
-                <input asp-for="TongSoGhe" class="form-control" />
-                <span asp-validation-for="TongSoGhe" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SoGheThuong" class="control-label"></label>
-                <input asp-for="SoGheThuong" class="form-control" />
+
+            @* 4. Ghế thường *@
+            <div class="form-group mb-4">
+                <label asp-for="SoGheThuong" class="control-label fw-bold mb-1 d-block"></label>
+                <input asp-for="SoGheThuong" class="form-control" id="SoGheThuong" />
                 <span asp-validation-for="SoGheThuong" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="SoGheVIP" class="control-label"></label>
-                <input asp-for="SoGheVIP" class="form-control" />
+
+            @* 5. Ghế VIP *@
+            <div class="form-group mb-4">
+                <label asp-for="SoGheVIP" class="control-label fw-bold mb-1 d-block"></label>
+                <input asp-for="SoGheVIP" class="form-control" id="SoGheVIP" />
                 <span asp-validation-for="SoGheVIP" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="TrangThai" /> @Html.DisplayNameFor(model => model.TrangThai)
-                </label>
+
+            @* 6. Tổng số ghế *@
+            <div class="form-group mb-4">
+                <label asp-for="TongSoGhe" class="control-label fw-bold mb-1 d-block text-danger"></label>
+                <input asp-for="TongSoGhe" class="form-control bg-light" id="TongSoGhe" readonly />
+                <small class="text-muted">Tự động cập nhật dựa trên số ghế thành phần</small>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            @* 7. Trạng thái *@
+            <div class="form-group mb-4 form-check">
+                <input class="form-check-input" asp-for="TrangThai" />
+                <label class="form-check-label fw-bold" asp-for="TrangThai">Đang hoạt động</label>
+            </div>
+
+            <hr />
+
+            <div class="form-group d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">Quay lại</a>
+                <button type="submit" class="btn btn-primary px-5">Lưu thay đổi</button>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            function tinhTong() {
+                let thuong = parseInt($("#SoGheThuong").val()) || 0;
+                let vip = parseInt($("#SoGheVIP").val()) || 0;
+                $("#TongSoGhe").val(thuong + vip);
+            }
+            $("#SoGheThuong, #SoGheVIP").on("input", function () {
+                tinhTong();
+            });
+        });
+    </script>
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿    using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
 using System.Linq;
 
@@ -42,7 +42,7 @@ namespace WebAppBookingBoat.Repository
             modelBuilder.Entity<LichTrinh>().HasIndex(lt => new { lt.MaTau, lt.NgayGioKhoiHanh }).IsUnique();
             modelBuilder.Entity<DanhGia>().HasIndex(d => d.MaVe).IsUnique();
 
-            // --- 2. CHECK CONSTRAINTS (ĐÃ CHỈNH SỬA KĨ) ---
+            // --- 2. CHECK CONSTRAINTS ---
 
             // Khách hàng
             modelBuilder.Entity<KhachHang>().ToTable(t => {
@@ -88,6 +88,11 @@ namespace WebAppBookingBoat.Repository
                 e.ToTable(t => t.HasCheckConstraint("CK_HD_Tien", "[TamTinh] >= 0 AND [SoTienGiam] >= 0 AND [TongTien] >= 0"));
                 e.ToTable(t => t.HasCheckConstraint("CK_HD_SoLuong", "[SoLuongVe] > 0"));
             });
+
+            // Tàu
+            // Ghi chú: Ràng buộc tổng số ghế phải bằng ghế thường + ghế VIP tại tầng Database
+            modelBuilder.Entity<Tau>()
+                .ToTable(t => t.HasCheckConstraint("CK_Tau_TongGhe", "[TongSoGhe] = [SoGheThuong] + [SoGheVIP]"));
 
             // --- 3. CẤU HÌNH DECIMAL ---
             foreach (var property in modelBuilder.Model.GetEntityTypes()

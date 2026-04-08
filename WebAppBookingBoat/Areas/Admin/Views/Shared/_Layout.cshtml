@@ -109,6 +109,20 @@
                 </a>
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+
+                        @* Đối tác & Nhân viên *@
+                        <h6 class="collapse-header">Đối tác & Nhân viên:</h6>
+
+                        @* Danh mục Hạ tầng & Kỹ thuật *@
+                        <h6 class="collapse-header">Hạ tầng & Kỹ thuật:</h6>
+                        <a class="collapse-item" asp-controller="Taus" asp-action="Index">Tàu thuyền</a>
+
+                        @* Danh mục Vận hành & Kinh doanh *@
+                        <h6 class="collapse-header">Vận hành & Kinh doanh:</h6>
+                        
+                        @* Danh mục Giao dịch & Phản hồi *@
+                        <h6 class="collapse-header">Giao dịch & Phản hồi:</h6>
+
                         <h6 class="collapse-header">Login Screens:</h6>
                         <a class="collapse-item" href="login.html">Login</a>
                         <a class="collapse-item" href="register.html">Register</a>
@@ -117,9 +131,6 @@
                         <h6 class="collapse-header">Other Pages:</h6>
                         <a class="collapse-item" href="404.html">404 Page</a>
                         <a class="collapse-item" href="blank.html">Blank Page</a>
-
-                        <h6 class="collapse-header">Vận hành:</h6>
-                        <a class="collapse-item" asp-controller="Taus" asp-action="Index">Tàu thuyền</a>
                     </div>
                 </div>
             </li>
@@ -428,7 +439,7 @@
     <script src="~/js/demo/chart-area-demo.js"></script>
     <script src="~/js/demo/chart-pie-demo.js"></script>
 
-
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 

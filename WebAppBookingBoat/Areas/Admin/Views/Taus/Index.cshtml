@@ -4,12 +4,18 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Trang Tàu thuyền</h1>
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Danh sách tàu thuyền</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-download fa-sm text-white-50"></i> Xuất báo cáo
+        </a>
+    </div>
 
 <div class="container">
 <p>
         <a asp-action="Create" class="btn btn-success">
-            Create New
+            Thêm mới
         </a>
 </p>
 
@@ -23,7 +29,7 @@
             <th scope="col">@Html.DisplayNameFor(model => model.SoGheThuong)</th>
             <th scope="col"> @Html.DisplayNameFor(model => model.SoGheVIP)</th>
             <th scope="col">@Html.DisplayNameFor(model => model.TrangThai)</th>
-            <th scope="col">*</th>
+            <th scope="col">Hành động</th>
         </tr>
     </thead>      
 
@@ -37,9 +43,16 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.TenTau)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.HinhAnh)
-                </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.HinhAnh))
+                        {
+                            <img src="~/images/tau/@item.HinhAnh" width="100" class="img-thumbnail" alt="Ảnh tàu" />
+                        }
+                        else
+                        {
+                            <img src="~/images/tau/default-boat.jpg" width="100" class="img-thumbnail" alt="No image" />
+                        }
+                    </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TongSoGhe)
                 </td>
@@ -53,13 +66,14 @@
                     @Html.DisplayFor(modelItem => item.TrangThai)
                 </td>
                 <td>
-                        <a asp-action="Edit" asp-route-id="@item.MaTau" class="btn btn-warning">Edit</a> 
-                        <a asp-action="Details" asp-route-id="@item.MaTau" class="btn btn-primary">Details</a> 
-                        <a asp-action="Delete" asp-route-id="@item.MaTau" class="btn btn-danger" >Delete</a>
+                        <a asp-action="Edit" asp-route-id="@item.MaTau" class="btn btn-warning">Sửa</a> 
+                        <a asp-action="Details" asp-route-id="@item.MaTau" class="btn btn-primary">Chi tiết</a> 
+                        <a asp-action="Delete" asp-route-id="@item.MaTau" class="btn btn-danger" >Xóa</a>
                 </td>
             </tr>
         } 
         </tbody>
     </table>
     <!-- Content here -->
+</div>
 </div>
