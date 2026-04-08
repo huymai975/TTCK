@@ -1,4 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using WebAppBookingBoat.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// DB Connection
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
