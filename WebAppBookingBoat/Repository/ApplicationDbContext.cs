@@ -102,6 +102,9 @@ namespace WebAppBookingBoat.Repository
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            // SeedData ở đây
+            DbInitializer.Seed(modelBuilder);
         }
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace WebAppBookingBoat.Migrations
 {
     /// <inheritdoc />
@@ -324,6 +326,120 @@ namespace WebAppBookingBoat.Migrations
                         principalColumn: "MaVe",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.InsertData(
+                table: "KhuyenMai",
+                columns: new[] { "MaKM", "NgayBatDau", "NgayKetThuc", "PhanTramGiam", "SoTienToiDaGiam", "TenChuongTrinh", "TrangThai" },
+                values: new object[,]
+                {
+                    { "KM10", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2026, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), 10.0, 50000m, "Giảm giá khai trương", true },
+                    { "SUMMER26", new DateTime(2026, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2026, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), 15.0, 100000m, "Ưu đãi mùa hè", true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TaiKhoan",
+                columns: new[] { "MaTK", "MatKhau", "NgayTao", "TenDangNhap", "TrangThai", "VaiTro" },
+                values: new object[,]
+                {
+                    { 1, "admin123", new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3049), "admin", true, "Admin" },
+                    { 2, "123456", new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3053), "nhanvien01", true, "Nhân viên" },
+                    { 3, "123456", new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3055), "khachhang01", true, "Khách hàng" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Tau",
+                columns: new[] { "MaTau", "HinhAnh", "SoGheThuong", "SoGheVIP", "TenTau", "TongSoGhe", "TrangThai" },
+                values: new object[,]
+                {
+                    { 1, "tau01.jpg", 15, 5, "Tàu Cao Tốc 01", 20, true },
+                    { 2, "tau02.jpg", 15, 5, "Tàu Express 02", 20, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TuyenDuong",
+                columns: new[] { "MaTuyen", "DiemDen", "DiemDi", "HinhAnh", "KhoangCach", "TenTuyen", "ThoiGianDuKien" },
+                values: new object[,]
+                {
+                    { 1, "Vũng Tàu", "Sài Gòn", "vungtau.jpg", 100.0, "Sài Gòn - Vũng Tàu", new TimeSpan(0, 2, 30, 0, 0) },
+                    { 2, "Phú Quốc", "Rạch Giá", "phuquoc.jpg", 120.0, "Rạch Giá - Phú Quốc", new TimeSpan(0, 2, 45, 0, 0) }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Ghe",
+                columns: new[] { "MaGhe", "LoaiGhe", "MaTau", "TenGhe" },
+                values: new object[,]
+                {
+                    { 1, "Thường", 1, "T-01" },
+                    { 2, "Thường", 1, "T-02" },
+                    { 3, "Thường", 1, "T-03" },
+                    { 4, "Thường", 1, "T-04" },
+                    { 5, "Thường", 1, "T-05" },
+                    { 6, "Thường", 1, "T-06" },
+                    { 7, "Thường", 1, "T-07" },
+                    { 8, "Thường", 1, "T-08" },
+                    { 9, "Thường", 1, "T-09" },
+                    { 10, "Thường", 1, "T-10" },
+                    { 11, "Thường", 1, "T-11" },
+                    { 12, "Thường", 1, "T-12" },
+                    { 13, "Thường", 1, "T-13" },
+                    { 14, "Thường", 1, "T-14" },
+                    { 15, "Thường", 1, "T-15" },
+                    { 16, "VIP", 1, "V-16" },
+                    { 17, "VIP", 1, "V-17" },
+                    { 18, "VIP", 1, "V-18" },
+                    { 19, "VIP", 1, "V-19" },
+                    { 20, "VIP", 1, "V-20" },
+                    { 21, "Thường", 2, "T-01" },
+                    { 22, "Thường", 2, "T-02" },
+                    { 23, "Thường", 2, "T-03" },
+                    { 24, "Thường", 2, "T-04" },
+                    { 25, "Thường", 2, "T-05" },
+                    { 26, "Thường", 2, "T-06" },
+                    { 27, "Thường", 2, "T-07" },
+                    { 28, "Thường", 2, "T-08" },
+                    { 29, "Thường", 2, "T-09" },
+                    { 30, "Thường", 2, "T-10" },
+                    { 31, "Thường", 2, "T-11" },
+                    { 32, "Thường", 2, "T-12" },
+                    { 33, "Thường", 2, "T-13" },
+                    { 34, "Thường", 2, "T-14" },
+                    { 35, "Thường", 2, "T-15" },
+                    { 36, "VIP", 2, "V-16" },
+                    { 37, "VIP", 2, "V-17" },
+                    { 38, "VIP", 2, "V-18" },
+                    { 39, "VIP", 2, "V-19" },
+                    { 40, "VIP", 2, "V-20" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "KhachHang",
+                columns: new[] { "MaKH", "DiaChi", "Email", "HoTen", "MaTK", "NgaySinh", "Sdt" },
+                values: new object[] { 1, null, "khach.tran@gmail.com", "Trần Thị Khách", 3, new DateTime(1995, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "0912345678" });
+
+            migrationBuilder.InsertData(
+                table: "LichTrinh",
+                columns: new[] { "MaLichTrinh", "GiaVeCoBan", "MaTau", "MaTuyen", "NgayGioCapBenDuKien", "NgayGioKhoiHanh", "SoGheTrong", "TrangThai" },
+                values: new object[] { 1, 200000m, 1, 1, new DateTime(2026, 4, 9, 10, 30, 0, 0, DateTimeKind.Local), new DateTime(2026, 4, 9, 8, 0, 0, 0, DateTimeKind.Local), 20, "Sắp khởi hành" });
+
+            migrationBuilder.InsertData(
+                table: "Log",
+                columns: new[] { "MaLog", "BangTacDong", "HanhDong", "MaTK", "NoiDungChiTiet", "ThoiGian" },
+                values: new object[] { 1, "Hệ thống", "Khởi tạo hệ thống", 1, "Seed dữ liệu mẫu thành công", new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3539) });
+
+            migrationBuilder.InsertData(
+                table: "NhanVien",
+                columns: new[] { "MaNV", "ChucVu", "Email", "HoTen", "Luong", "MaTK", "Sdt", "TrangThai" },
+                values: new object[] { 1, "Bán vé", "chay.nv@boat.com", "Nguyễn Văn Chạy", 0m, 2, "0987654321", true });
+
+            migrationBuilder.InsertData(
+                table: "HoaDon",
+                columns: new[] { "MaHoaDon", "MaKH", "MaKM", "MaNV", "NgayLap", "PhuongThucTT", "SoLuongVe", "SoTienGiam", "TamTinh", "TongTien", "TrangThai" },
+                values: new object[] { 1, 1, "KM10", 1, new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3477), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" });
+
+            migrationBuilder.InsertData(
+                table: "Ve",
+                columns: new[] { "MaVe", "GiaVe", "KhachHangMaKH", "MaHoaDon", "MaLichTrinh", "TrangThai" },
+                values: new object[] { 1, 180000m, null, 1, 1, "Hợp lệ" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_DanhGia_LichTrinhMaLichTrinh",
