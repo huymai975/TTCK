@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -59,7 +64,7 @@
                 <div class="row align-items-center">
                     <div class="col-6 col-lg-3">
                         <a href="index.html">
-                            <img src="images/logo.png" alt="Image" class="img-fluid">
+                            <img src="~/images/logo.png" alt="Image" class="img-fluid">
                             <!-- <strong>Water</strong>Boat -->
                         </a>
                     </div>
@@ -109,7 +114,7 @@
             </div>
 
 
-
+            @* Navbar Head *@
 
             <div class="site-navbar py-2 js-sticky-header site-navbar-target d-none pl-0 d-lg-block" role="banner">
                 <div class="container-fluid px-4">
@@ -133,37 +138,51 @@
                         <div class="navbar-right d-flex justify-content-end" style="flex: 1;">
                             <ul class="navbar-nav d-flex flex-row align-items-center mb-0" style="list-style: none;">
 
-                                <li class="nav-item dropdown no-arrow mx-2">
-                                    <a class="nav-link dropdown-toggle p-0 text-white" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fas fa-bell fa-fw"></i>
-                                        <span class="badge badge-danger badge-counter" style="font-size: 10px; position: absolute; top: -8px; right: -10px;">3+</span>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                                        <h6 class="dropdown-header">Alerts Center</h6>
-                                        <a class="dropdown-item d-flex align-items-center" href="#">Thông báo mới!</a>
-                                    </div>
-                                </li>
+                                @if (SignInManager.IsSignedIn(User))
+                                {
+                                    <li class="nav-item dropdown no-arrow mx-2">
+                                        <a class="nav-link dropdown-toggle p-0 text-white" href="#" id="alertsDropdown" data-toggle="dropdown">
+                                            <i class="fas fa-bell fa-fw"></i>
+                                            <span class="badge badge-danger badge-counter" style="font-size: 10px; position: absolute; top: -8px; right: -10px;">3+</span>
+                                        </a>
+                                    </li>
 
-                                <li class="nav-item dropdown no-arrow mx-2">
-                                    <a class="nav-link dropdown-toggle p-0 text-white" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fas fa-envelope fa-fw"></i>
-                                        <span class="badge badge-danger badge-counter" style="font-size: 10px; position: absolute; top: -8px; right: -10px;">7</span>
-                                    </a>
-                                </li>
+                                    <div class="topbar-divider d-none d-sm-block" style="width: 0; border-right: 1px solid rgba(255,255,255,0.3); height: 1.5rem; margin: 0 1rem;"></div>
 
-                                <div class="topbar-divider d-none d-sm-block" style="width: 0; border-right: 1px solid rgba(255,255,255,0.3); height: 1.5rem; margin: 0 1rem;"></div>
+                                    <li class="nav-item dropdown no-arrow">
+                                        <a class="nav-link dropdown-toggle p-0 d-flex align-items-center text-white" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="mr-2 d-none d-lg-inline text-white small">@UserManager.GetUserName(User)</span>
+                                            <img class="img-profile rounded-circle" src="~/images/person_1.jpg" width="30" height="30" style="border: 1px solid rgba(255,255,255,0.5);">
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                            <a class="dropdown-item" href="#">
+                                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Profile
+                                            </a>
+                                            <div class="dropdown-divider"></div>
 
-                                <li class="nav-item dropdown no-arrow">
-                                    <a class="nav-link dropdown-toggle p-0 d-flex align-items-center text-white" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span class="mr-2 d-none d-lg-inline text-white small">Douglas McGee</span>
-                                        <img class="img-profile rounded-circle" src="images/person_1.jpg" width="30" height="30" style="border: 1px solid rgba(255,255,255,0.5);">
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                        <a class="dropdown-item" href="#">Profile</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">Logout</a>
-                                    </div>
-                                </li>
+                                            @* Form Logout bí mật để bảo mật *@
+                                            <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item mx-2">
+                                        <a class="nav-link text-white small d-flex align-items-center" asp-controller="Account" asp-action="Login">
+                                            <i class="fas fa-sign-in-alt mr-1"></i> Đăng nhập
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-white small border rounded px-2 py-1" asp-controller="Account" asp-action="Register">
+                                            Đăng ký
+                                        </a>
+                                    </li>
+                                }
+
                             </ul>
                         </div>
 
@@ -180,7 +199,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-3">
-                        <p class="mb-4"><img src="images/logo.png" alt="Image" class="img-fluid"></p>
+                        <p class="mb-4"><img src="~/images/logo.png" alt="Image" class="img-fluid"></p>
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae nemo minima qui dolor, iusto iure.</p>
                         <p><a href="#">Learn More</a></p>
                     </div>
@@ -235,20 +254,20 @@
     <!-- loader -->
     <div id="loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" /><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#ff5e15" /></svg></div>
 
-    <script src="js/jquery-3.3.1.min.js"></script>
-    <script src="js/jquery-migrate-3.0.1.min.js"></script>
-    <script src="js/jquery-ui.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/jquery.stellar.min.js"></script>
-    <script src="js/jquery.countdown.min.js"></script>
-    <script src="js/bootstrap-datepicker.min.js"></script>
-    <script src="js/jquery.easing.1.3.js"></script>
-    <script src="js/aos.js"></script>
-    <script src="js/jquery.fancybox.min.js"></script>
-    <script src="js/jquery.sticky.js"></script>
-    <script src="js/jquery.mb.YTPlayer.min.js"></script>
+    <script src="~/js/jquery-3.3.1.min.js"></script>
+    <script src="~/js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="~/js/jquery-ui.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/owl.carousel.min.js"></script>
+    <script src="~/js/jquery.stellar.min.js"></script>
+    <script src="~/js/jquery.countdown.min.js"></script>
+    <script src="~/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/js/jquery.easing.1.3.js"></script>
+    <script src="~/js/aos.js"></script>
+    <script src="~/js/jquery.fancybox.min.js"></script>
+    <script src="~/js/jquery.sticky.js"></script>
+    <script src="~/js/jquery.mb.YTPlayer.min.js"></script>
 
     <!-- Bootstrap core JavaScript-->
     @* <script src="~/vendor/jquery/jquery.min.js"></script> *@
@@ -268,7 +287,7 @@
     <script src="~/js/demo/chart-pie-demo.js"></script>
 
 
-    <script src="js/main.js"></script>
+    <script src="~/js/main.js"></script>
 
 </body>
 

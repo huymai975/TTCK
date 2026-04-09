@@ -8,7 +8,10 @@ namespace WebAppBookingBoat.Repository
     {
         public static void Seed(ModelBuilder modelBuilder)
         {
+
             // --- 1. SEED KHUYẾN MÃI ---
+
+
             modelBuilder.Entity<KhuyenMai>().HasData(
                 new KhuyenMai
                 {
@@ -32,10 +35,13 @@ namespace WebAppBookingBoat.Repository
                 }
             );
 
+
+            
+            // ---  SEED TÀI KHOẢN ---
             // Khởi tạo Password Hasher
             var hasher = new PasswordHasher<AppUser>();
 
-            // Tạo một tài khoản mẫu
+            // Tạo một vài tài khoản mẫu
             var adminUser = new AppUser
             {
                 Id = Guid.NewGuid().ToString(), // Tạo một ID ngẫu nhiên chuẩn GUID, 
@@ -53,11 +59,11 @@ namespace WebAppBookingBoat.Repository
             var user2 = new AppUser
             {
                 Id = Guid.NewGuid().ToString(),
-                UserName = "huymai",
-                Email = "huymai@gmail.com",
+                UserName = "nhanvien1",
+                Email = "nhanvien1@booking.com",
 
-                NormalizedUserName = "HUYMAI",
-                NormalizedEmail = "HUYMAI@GMAIL.COM",
+                NormalizedUserName = "NHANVIEN1",
+                NormalizedEmail = "NHANVIEN1@BOOKING.COM",
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 ConcurrencyStamp = Guid.NewGuid().ToString()
@@ -110,6 +116,52 @@ namespace WebAppBookingBoat.Repository
             modelBuilder.Entity<AppUser>().HasData(
                 adminUser, user2, user3, user4, user5
             );
+
+
+            // ---  SEED ROLE ---
+
+
+            // THAY ĐỔI: Cấu hình ID theo thứ tự mới
+            string adminRoleId = "1";
+            string staffRoleId = "2";
+            string customerRoleId = "3";
+
+            string adminUserId = "100";
+
+            // Seed Roles vào bảng AspNetRoles
+            modelBuilder.Entity<IdentityRole>().HasData(
+                new IdentityRole { Id = adminRoleId, Name = "Admin", NormalizedName = "ADMIN" },
+                new IdentityRole { Id = staffRoleId, Name = "Nhân viên", NormalizedName = "NHÂN VIÊN" },
+                new IdentityRole { Id = customerRoleId, Name = "Khách hàng", NormalizedName = "KHÁCH HÀNG" }
+            );
+
+            // Seed tài khoản Admin (giữ nguyên ID 100)
+            //var hasher = new PasswordHasher<AppUser>();
+            //var admin = new AppUser
+            //{
+            //    Id = adminUserId,
+            //    UserName = "admin@booking.com",
+            //    NormalizedUserName = "ADMIN@BOOKING.COM",
+            //    EmailConfirmed = true,
+            //    SecurityStamp = Guid.NewGuid().ToString()
+            //};
+            //admin.PasswordHash = hasher.HashPassword(admin, "1234567");
+            //modelBuilder.Entity<AppUser>().HasData(admin);
+
+            // Gán quyền Admin (RoleId = 1) 
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+            {
+                RoleId = adminRoleId,
+                UserId = adminUser.Id
+            });
+            // Gán quyền Nhân viên (RoleId = 2) 
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+            {
+                RoleId = staffRoleId, 
+                UserId = user2.Id  
+            });
+
+
 
             //--- 3. SEED NHÂN VIÊN ---
             modelBuilder.Entity<NhanVien>().HasData(
