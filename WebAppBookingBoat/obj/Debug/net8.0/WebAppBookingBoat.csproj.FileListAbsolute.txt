@@ -44,6 +44,9 @@ C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Azure.Core.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Humanizer.dll
+C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.AspNetCore.Razor.Language.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Build.dll
@@ -70,6 +73,8 @@ C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
+C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Microsoft.Extensions.Options.dll

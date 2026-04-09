@@ -10,7 +10,7 @@ namespace WebAppBookingBoat.ViewModels
 
         [Required(ErrorMessage = "Tên tàu không được để trống")]
         [Display(Name = "Tên tàu")]
-        public string TenTau { get; set; }
+        public string? TenTau { get; set; }
 
         // Dùng để nhận file từ Form (Create bắt buộc, Edit không)
         [Display(Name = "Hình ảnh tàu")]
