@@ -12,7 +12,7 @@ using WebAppBookingBoat.Repository;
 namespace WebAppBookingBoat.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260408140315_InitialCreate")]
+    [Migration("20260409153429_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,10 +20,290 @@ namespace WebAppBookingBoat.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.22")
+                .HasAnnotation("ProductVersion", "8.0.23")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("WebAppBookingBoat.Models.AppUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "0e167202-57bc-4753-90e7-4d251a85c743",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "3a468631-2bec-4973-b20a-af377e000ac6",
+                            Email = "admin@booking.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@BOOKING.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDNsGrDXpmBh72FxKikC4lqXVK0NglivsTNJvhEl5KTyFosfZhbXzdgBI6ySFZCLuw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "1641b3b8-6d80-4f46-a638-29a4aaa093a3",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        },
+                        new
+                        {
+                            Id = "0d561bc1-98aa-4438-aadd-7e73fba2f7f9",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "3feed63a-9fdb-407d-acb6-316facbd57f2",
+                            Email = "huymai@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "HUYMAI@GMAIL.COM",
+                            NormalizedUserName = "HUYMAI",
+                            PasswordHash = "AQAAAAIAAYagAAAAEErDT+LWptpZyX7Uox4L1UOvVK0JmE500yI/Bfo50Dr+jqZNPsEZpATTWqu7bu36vw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "365c5993-ab44-4eee-86d2-bc39cab4be28",
+                            TwoFactorEnabled = false,
+                            UserName = "huymai"
+                        },
+                        new
+                        {
+                            Id = "3ba4a018-0d5e-41ea-8e9b-fd7119cd8138",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "69bd096b-839f-476d-b4ca-6b4f7c70b45f",
+                            Email = "khachhang1@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "KHACHHANG1@GMAIL.COM",
+                            NormalizedUserName = "KHACHHANG1",
+                            PasswordHash = "AQAAAAIAAYagAAAAEO+888ASBqI2m1rsgUqPmpF82R18pqJWN7/kEyopnnZkWmtJpfBl9HDBEHFr26QVDg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "b707dd05-8ffe-4c38-aef1-2305d1b58058",
+                            TwoFactorEnabled = false,
+                            UserName = "khachhang1"
+                        },
+                        new
+                        {
+                            Id = "21a63afc-f2da-445c-b426-2c1fb9178af0",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "4e824a5a-544d-499d-a982-323653a7894b",
+                            Email = "khachhang2@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "KHACHHANG2@GMAIL.COM",
+                            NormalizedUserName = "KHACHHANG2",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPs2Pi/Rf8LATsXQ6Kik2m6mLzbHWJsPOemXrn9FUjMgEErSQaOMkucI/tWtjYbD9A==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "0ecfda33-003e-407f-86b5-a791c061cf17",
+                            TwoFactorEnabled = false,
+                            UserName = "khachhang2"
+                        },
+                        new
+                        {
+                            Id = "2d73a84e-3ddf-4715-b93b-88cbfd434144",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "bd27d904-e618-457c-9726-9cd58a9982d4",
+                            Email = "testuser@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TESTUSER@GMAIL.COM",
+                            NormalizedUserName = "TESTUSER",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJb9DUhdu8ul0EK5M5U+o+AhV2ewG2Yn9RHXc4BwR6nfZCnqu2iaFK5UI6xRLq3YsQ==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "42d25828-ee47-4603-82a0-d5c32efe49ec",
+                            TwoFactorEnabled = false,
+                            UserName = "testuser"
+                        });
+                });
 
             modelBuilder.Entity("WebAppBookingBoat.Models.DanhGia", b =>
                 {
@@ -448,7 +728,7 @@ namespace WebAppBookingBoat.Migrations
                             MaKH = 1,
                             MaKM = "KM10",
                             MaNV = 1,
-                            NgayLap = new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3477),
+                            NgayLap = new DateTime(2026, 4, 9, 22, 34, 27, 829, DateTimeKind.Local).AddTicks(6607),
                             PhuongThucTT = "Tiền mặt",
                             SoLuongVe = 1,
                             SoTienGiam = 20000m,
@@ -480,8 +760,8 @@ namespace WebAppBookingBoat.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("MaTK")
-                        .HasColumnType("int");
+                    b.Property<string>("MaTK")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("NgaySinh")
                         .HasColumnType("datetime2");
@@ -516,7 +796,7 @@ namespace WebAppBookingBoat.Migrations
                             MaKH = 1,
                             Email = "khach.tran@gmail.com",
                             HoTen = "Trần Thị Khách",
-                            MaTK = 3,
+                            MaTK = "0e167202-57bc-4753-90e7-4d251a85c743",
                             NgaySinh = new DateTime(1995, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Sdt = "0912345678"
                         });
@@ -634,8 +914,8 @@ namespace WebAppBookingBoat.Migrations
                             GiaVeCoBan = 200000m,
                             MaTau = 1,
                             MaTuyen = 1,
-                            NgayGioCapBenDuKien = new DateTime(2026, 4, 9, 10, 30, 0, 0, DateTimeKind.Local),
-                            NgayGioKhoiHanh = new DateTime(2026, 4, 9, 8, 0, 0, 0, DateTimeKind.Local),
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 10, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 10, 8, 0, 0, 0, DateTimeKind.Local),
                             SoGheTrong = 20,
                             TrangThai = "Sắp khởi hành"
                         });
@@ -659,8 +939,9 @@ namespace WebAppBookingBoat.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("MaTK")
-                        .HasColumnType("int");
+                    b.Property<string>("MaTK")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("NoiDungChiTiet")
                         .HasColumnType("nvarchar(max)");
@@ -680,9 +961,9 @@ namespace WebAppBookingBoat.Migrations
                             MaLog = 1,
                             BangTacDong = "Hệ thống",
                             HanhDong = "Khởi tạo hệ thống",
-                            MaTK = 1,
+                            MaTK = "0e167202-57bc-4753-90e7-4d251a85c743",
                             NoiDungChiTiet = "Seed dữ liệu mẫu thành công",
-                            ThoiGian = new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3539)
+                            ThoiGian = new DateTime(2026, 4, 9, 22, 34, 27, 829, DateTimeKind.Local).AddTicks(6742)
                         });
                 });
 
@@ -711,8 +992,9 @@ namespace WebAppBookingBoat.Migrations
                     b.Property<decimal>("Luong")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("MaTK")
-                        .HasColumnType("int");
+                    b.Property<string>("MaTK")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Sdt")
                         .IsRequired()
@@ -728,8 +1010,7 @@ namespace WebAppBookingBoat.Migrations
                         .IsUnique();
 
                     b.HasIndex("MaTK")
-                        .IsUnique()
-                        .HasFilter("[MaTK] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("Sdt")
                         .IsUnique();
@@ -749,78 +1030,9 @@ namespace WebAppBookingBoat.Migrations
                             Email = "chay.nv@boat.com",
                             HoTen = "Nguyễn Văn Chạy",
                             Luong = 0m,
-                            MaTK = 2,
+                            MaTK = "0e167202-57bc-4753-90e7-4d251a85c743",
                             Sdt = "0987654321",
                             TrangThai = true
-                        });
-                });
-
-            modelBuilder.Entity("WebAppBookingBoat.Models.TaiKhoan", b =>
-                {
-                    b.Property<int>("MaTK")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaTK"));
-
-                    b.Property<string>("MatKhau")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTime>("NgayTao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("TenDangNhap")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("TrangThai")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("VaiTro")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("MaTK");
-
-                    b.HasIndex("TenDangNhap")
-                        .IsUnique();
-
-                    b.ToTable("TaiKhoan", t =>
-                        {
-                            t.HasCheckConstraint("CK_TK_VaiTro", "[VaiTro] IN (N'Admin', N'Nhân viên', N'Khách hàng')");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            MaTK = 1,
-                            MatKhau = "admin123",
-                            NgayTao = new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3049),
-                            TenDangNhap = "admin",
-                            TrangThai = true,
-                            VaiTro = "Admin"
-                        },
-                        new
-                        {
-                            MaTK = 2,
-                            MatKhau = "123456",
-                            NgayTao = new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3053),
-                            TenDangNhap = "nhanvien01",
-                            TrangThai = true,
-                            VaiTro = "Nhân viên"
-                        },
-                        new
-                        {
-                            MaTK = 3,
-                            MatKhau = "123456",
-                            NgayTao = new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3055),
-                            TenDangNhap = "khachhang01",
-                            TrangThai = true,
-                            VaiTro = "Khách hàng"
                         });
                 });
 
@@ -858,7 +1070,10 @@ namespace WebAppBookingBoat.Migrations
                     b.HasIndex("TenTau")
                         .IsUnique();
 
-                    b.ToTable("Tau");
+                    b.ToTable("Tau", t =>
+                        {
+                            t.HasCheckConstraint("CK_Tau_TongGhe", "[TongSoGhe] = [SoGheThuong] + [SoGheVIP]");
+                        });
 
                     b.HasData(
                         new
@@ -992,6 +1207,57 @@ namespace WebAppBookingBoat.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("WebAppBookingBoat.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("WebAppBookingBoat.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebAppBookingBoat.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("WebAppBookingBoat.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WebAppBookingBoat.Models.DanhGia", b =>
                 {
                     b.HasOne("WebAppBookingBoat.Models.LichTrinh", null)
@@ -1046,12 +1312,12 @@ namespace WebAppBookingBoat.Migrations
 
             modelBuilder.Entity("WebAppBookingBoat.Models.KhachHang", b =>
                 {
-                    b.HasOne("WebAppBookingBoat.Models.TaiKhoan", "TaiKhoan")
-                        .WithOne("KhachHang")
-                        .HasForeignKey("WebAppBookingBoat.Models.KhachHang", "MaTK")
+                    b.HasOne("WebAppBookingBoat.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("MaTK")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("TaiKhoan");
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("WebAppBookingBoat.Models.LichTrinh", b =>
@@ -1075,23 +1341,24 @@ namespace WebAppBookingBoat.Migrations
 
             modelBuilder.Entity("WebAppBookingBoat.Models.Log", b =>
                 {
-                    b.HasOne("WebAppBookingBoat.Models.TaiKhoan", "TaiKhoan")
-                        .WithMany("Logs")
+                    b.HasOne("WebAppBookingBoat.Models.AppUser", "AppUser")
+                        .WithMany()
                         .HasForeignKey("MaTK")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("TaiKhoan");
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("WebAppBookingBoat.Models.NhanVien", b =>
                 {
-                    b.HasOne("WebAppBookingBoat.Models.TaiKhoan", "TaiKhoan")
-                        .WithOne("NhanVien")
-                        .HasForeignKey("WebAppBookingBoat.Models.NhanVien", "MaTK")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.HasOne("WebAppBookingBoat.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("MaTK")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("TaiKhoan");
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("WebAppBookingBoat.Models.Ve", b =>
@@ -1145,15 +1412,6 @@ namespace WebAppBookingBoat.Migrations
             modelBuilder.Entity("WebAppBookingBoat.Models.NhanVien", b =>
                 {
                     b.Navigation("HoaDons");
-                });
-
-            modelBuilder.Entity("WebAppBookingBoat.Models.TaiKhoan", b =>
-                {
-                    b.Navigation("KhachHang");
-
-                    b.Navigation("Logs");
-
-                    b.Navigation("NhanVien");
                 });
 
             modelBuilder.Entity("WebAppBookingBoat.Models.Tau", b =>

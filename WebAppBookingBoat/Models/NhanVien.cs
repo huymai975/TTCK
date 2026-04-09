@@ -12,13 +12,13 @@ namespace WebAppBookingBoat.Models
         [Display(Name = "Mã nhân viên")]
         public int MaNV { get; set; }
 
-        // --- Khóa ngoại nối với TaiKhoan (1-1 hoặc 0..1) ---
-        // Để int? nếu bạn muốn tạo hồ sơ nhân viên trước khi cấp tài khoản
         [Display(Name = "Mã tài khoản")]
-        public int? MaTK { get; set; }
+        // Tên cột trong bảng KhachHang của bạn
+        public string MaTK { get; set; } = null!;
 
+        // Khai báo thuộc tính dẫn hướng trỏ tới lớp AppUser
         [ForeignKey("MaTK")]
-        public virtual TaiKhoan? TaiKhoan { get; set; }
+        public virtual AppUser AppUser { get; set; } = null!;
 
         // --- Thông tin cá nhân ---
         [Required(ErrorMessage = "Họ tên không được để trống")]

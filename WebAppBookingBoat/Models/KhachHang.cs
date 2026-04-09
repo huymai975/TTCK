@@ -12,13 +12,13 @@ namespace WebAppBookingBoat.Models
         [Display(Name = "Mã khách hàng")]
         public int MaKH { get; set; }
 
-        // --- Khóa ngoại trỏ về bảng TaiKhoan (0..1) ---
+        // --- Khóa ngoại trỏ về Identity (AspNetUsers) ---
+        // Thêm dấu ? để cho phép NULL (dành cho khách vãng lai)
         [Display(Name = "Mã tài khoản")]
-        public int? MaTK { get; set; }
-
+        public string? MaTK { get; set; }
+        // Cho phép null để EF không bắt buộc phải có tài khoản khi lưu
         [ForeignKey("MaTK")]
-        // Dùng dấu ? vì khách vãng lai sẽ không có TaiKhoan
-        public virtual TaiKhoan? TaiKhoan { get; set; }
+        public virtual AppUser? AppUser { get; set; }
 
         // --- Thông tin cá nhân ---
         [Required(ErrorMessage = "Họ tên không được để trống")]
@@ -33,24 +33,20 @@ namespace WebAppBookingBoat.Models
         [Required(ErrorMessage = "Số điện thoại không được để trống")]
         [StringLength(15)]
         [Display(Name = "Số điện thoại")]
-        // DB siết: CK_KH_Sdt_Format (>=10 số, chỉ chứa số)
         public string Sdt { get; set; } = default!;
 
-        [Required(ErrorMessage = "Email không được để trống")] // Thêm nếu bắt buộc
+        // Đối với khách vãng lai, Email là thông tin liên lạc quan trọng thay cho tài khoản
+        [Required(ErrorMessage = "Email không được để trống")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
         [StringLength(100)]
-        // DB siết: CK_KH_Email_Format (_@_._)
         public string Email { get; set; } = default!;
 
         [StringLength(255)]
         [Display(Name = "Địa chỉ")]
-        public string? DiaChi { get; set; } // Để ? nếu địa chỉ không bắt buộc
+        public string? DiaChi { get; set; }
 
         // --- Mối quan hệ ---
-
-        // Khởi tạo sẵn List để tránh lỗi NullReferenceException
         public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
-
         public virtual ICollection<Ve> Ves { get; set; } = new List<Ve>();
     }
 }

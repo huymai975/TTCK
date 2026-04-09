@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
 
 namespace WebAppBookingBoat.Repository
@@ -7,7 +8,10 @@ namespace WebAppBookingBoat.Repository
     {
         public static void Seed(ModelBuilder modelBuilder)
         {
+
             // --- 1. SEED KHUYẾN MÃI ---
+
+
             modelBuilder.Entity<KhuyenMai>().HasData(
                 new KhuyenMai
                 {
@@ -31,21 +35,127 @@ namespace WebAppBookingBoat.Repository
                 }
             );
 
-            // --- 2. SEED TÀI KHOẢN ---
-            //modelBuilder.Entity<TaiKhoan>().HasData(
-            //    new TaiKhoan { MaTK = 1, TenDangNhap = "admin", MatKhau = "admin123", VaiTro = "Admin", NgayTao = DateTime.Now },
-            //    new TaiKhoan { MaTK = 2, TenDangNhap = "nhanvien01", MatKhau = "123456", VaiTro = "Nhân viên", NgayTao = DateTime.Now },
-            //    new TaiKhoan { MaTK = 3, TenDangNhap = "khachhang01", MatKhau = "123456", VaiTro = "Khách hàng", NgayTao = DateTime.Now }
-            //);
 
-            // --- 3. SEED NHÂN VIÊN ---
+
+            // ---  SEED TÀI KHOẢN ---
+            // Khởi tạo Password Hasher
+            var hasher = new PasswordHasher<AppUser>();
+
+            // Tạo một vài tài khoản mẫu
+            var adminUser = new AppUser
+            {
+                Id = Guid.NewGuid().ToString(), // Tạo một ID ngẫu nhiên chuẩn GUID, 
+                UserName = "admin",
+                Email = "admin@booking.com",
+
+                NormalizedUserName = "ADMIN",
+                NormalizedEmail = "ADMIN@BOOKING.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString()
+            };
+            adminUser.PasswordHash = hasher.HashPassword(adminUser, "1234");
+
+            var user2 = new AppUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = "nhanvien1",
+                Email = "nhanvien1@booking.com",
+
+                NormalizedUserName = "NHANVIEN1",
+                NormalizedEmail = "NHANVIEN1@BOOKING.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString()
+            };
+            user2.PasswordHash = hasher.HashPassword(user2, "1234");
+
+            var user3 = new AppUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = "khachhang1",
+                Email = "khachhang1@gmail.com",
+
+                NormalizedUserName = "KHACHHANG1",
+                NormalizedEmail = "KHACHHANG1@GMAIL.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString()
+            };
+            user3.PasswordHash = hasher.HashPassword(user3, "1234");
+
+            var user4 = new AppUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = "khachhang2",
+                Email = "khachhang2@gmail.com",
+
+                NormalizedUserName = "KHACHHANG2",
+                NormalizedEmail = "KHACHHANG2@GMAIL.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString()
+            };
+            user4.PasswordHash = hasher.HashPassword(user4, "1234");
+
+            var user5 = new AppUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = "testuser",
+                Email = "testuser@gmail.com",
+
+                NormalizedUserName = "TESTUSER",
+                NormalizedEmail = "TESTUSER@GMAIL.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString()
+            };
+            user5.PasswordHash = hasher.HashPassword(user5, "1234");
+
+            // Đưa vào Database
+            modelBuilder.Entity<AppUser>().HasData(
+                adminUser, user2, user3, user4, user5
+            );
+
+
+            // ---  SEED ROLE ---
+
+
+            // THAY ĐỔI: Cấu hình ID theo thứ tự mới
+            string adminRoleId = "1";
+            string staffRoleId = "2";
+            string customerRoleId = "3";
+
+            // Seed Roles vào bảng AspNetRoles
+            modelBuilder.Entity<IdentityRole>().HasData(
+                new IdentityRole { Id = adminRoleId, Name = "Admin", NormalizedName = "ADMIN" },
+                new IdentityRole { Id = staffRoleId, Name = "Nhân viên", NormalizedName = "NHÂN VIÊN" },
+                new IdentityRole { Id = customerRoleId, Name = "Khách hàng", NormalizedName = "KHÁCH HÀNG" }
+            );
+
+            // Gán quyền Admin (RoleId = 1) 
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+            {
+                RoleId = adminRoleId,
+                UserId = adminUser.Id
+            });
+            // Gán quyền Nhân viên (RoleId = 2) 
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+            {
+                RoleId = staffRoleId,
+                UserId = user2.Id
+            });
+
+
+
+            //--- 3. SEED NHÂN VIÊN ---
             modelBuilder.Entity<NhanVien>().HasData(
-                new NhanVien { MaNV = 1, MaTK = 2, HoTen = "Nguyễn Văn Chạy", Email = "chay.nv@boat.com", Sdt = "0987654321", ChucVu = "Bán vé" }
+                new NhanVien { MaNV = 1, MaTK = adminUser.Id, HoTen = "Nguyễn Văn Chạy", Email = "chay.nv@boat.com", Sdt = "0987654321", ChucVu = "Bán vé" }
             );
 
             // --- 4. SEED KHÁCH HÀNG ---
             modelBuilder.Entity<KhachHang>().HasData(
-                new KhachHang { MaKH = 1, MaTK = 3, HoTen = "Trần Thị Khách", Email = "khach.tran@gmail.com", Sdt = "0912345678", NgaySinh = new DateTime(1995, 5, 20) }
+                new KhachHang { MaKH = 1, MaTK = adminUser.Id, HoTen = "Trần Thị Khách", Email = "khach.tran@gmail.com", Sdt = "0912345678", NgaySinh = new DateTime(1995, 5, 20) }
             );
 
             // --- 5. SEED TUYẾN ĐƯỜNG ---
@@ -128,7 +238,7 @@ namespace WebAppBookingBoat.Repository
                 new Log
                 {
                     MaLog = 1,
-                    MaTK = 1,
+                    MaTK = adminUser.Id,
                     HanhDong = "Khởi tạo hệ thống",
                     BangTacDong = "Hệ thống",
                     NoiDungChiTiet = "Seed dữ liệu mẫu thành công",

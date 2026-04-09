@@ -95,7 +95,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 TenTau = tau.TenTau,
                 SoGheThuong = tau.SoGheThuong,
                 SoGheVIP = tau.SoGheVIP,
-                TongSoGhe = tau.TongSoGhe,
                 TrangThai = tau.TrangThai,
                 HinhAnhCu = tau.HinhAnh
             };

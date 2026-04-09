@@ -14,6 +14,45 @@ namespace WebAppBookingBoat.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "AspNetRoles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "KhuyenMai",
                 columns: table => new
                 {
@@ -33,24 +72,6 @@ namespace WebAppBookingBoat.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TaiKhoan",
-                columns: table => new
-                {
-                    MaTK = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenDangNhap = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    MatKhau = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    VaiTro = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    TrangThai = table.Column<bool>(type: "bit", nullable: false),
-                    NgayTao = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TaiKhoan", x => x.MaTK);
-                    table.CheckConstraint("CK_TK_VaiTro", "[VaiTro] IN (N'Admin', N'Nhân viên', N'Khách hàng')");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Tau",
                 columns: table => new
                 {
@@ -66,6 +87,7 @@ namespace WebAppBookingBoat.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tau", x => x.MaTau);
+                    table.CheckConstraint("CK_Tau_TongGhe", "[TongSoGhe] = [SoGheThuong] + [SoGheVIP]");
                 });
 
             migrationBuilder.CreateTable(
@@ -87,12 +109,118 @@ namespace WebAppBookingBoat.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AspNetRoleClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserLogins",
+                columns: table => new
+                {
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserRoles",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserTokens",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "KhachHang",
                 columns: table => new
                 {
                     MaKH = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MaTK = table.Column<int>(type: "int", nullable: true),
+                    MaTK = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     HoTen = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     NgaySinh = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Sdt = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
@@ -105,10 +233,10 @@ namespace WebAppBookingBoat.Migrations
                     table.CheckConstraint("CK_KH_Email_Format", "[Email] LIKE '%_@_%._%'");
                     table.CheckConstraint("CK_KH_Sdt_Format", "LEN([Sdt]) >= 10 AND [Sdt] NOT LIKE '%[^0-9]%'");
                     table.ForeignKey(
-                        name: "FK_KhachHang_TaiKhoan_MaTK",
+                        name: "FK_KhachHang_AspNetUsers_MaTK",
                         column: x => x.MaTK,
-                        principalTable: "TaiKhoan",
-                        principalColumn: "MaTK",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -118,7 +246,7 @@ namespace WebAppBookingBoat.Migrations
                 {
                     MaLog = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MaTK = table.Column<int>(type: "int", nullable: false),
+                    MaTK = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     HanhDong = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     BangTacDong = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     NoiDungChiTiet = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -128,10 +256,10 @@ namespace WebAppBookingBoat.Migrations
                 {
                     table.PrimaryKey("PK_Log", x => x.MaLog);
                     table.ForeignKey(
-                        name: "FK_Log_TaiKhoan_MaTK",
+                        name: "FK_Log_AspNetUsers_MaTK",
                         column: x => x.MaTK,
-                        principalTable: "TaiKhoan",
-                        principalColumn: "MaTK",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -141,7 +269,7 @@ namespace WebAppBookingBoat.Migrations
                 {
                     MaNV = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MaTK = table.Column<int>(type: "int", nullable: true),
+                    MaTK = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     HoTen = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Sdt = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -155,10 +283,10 @@ namespace WebAppBookingBoat.Migrations
                     table.CheckConstraint("CK_NV_Email_Format", "[Email] LIKE '%_@_%._%'");
                     table.CheckConstraint("CK_NV_Sdt_Format", "LEN([Sdt]) >= 10 AND [Sdt] NOT LIKE '%[^0-9]%'");
                     table.ForeignKey(
-                        name: "FK_NhanVien_TaiKhoan_MaTK",
+                        name: "FK_NhanVien_AspNetUsers_MaTK",
                         column: x => x.MaTK,
-                        principalTable: "TaiKhoan",
-                        principalColumn: "MaTK",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -328,22 +456,24 @@ namespace WebAppBookingBoat.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[,]
+                {
+                    { "0d561bc1-98aa-4438-aadd-7e73fba2f7f9", 0, "3feed63a-9fdb-407d-acb6-316facbd57f2", "huymai@gmail.com", true, false, null, "HUYMAI@GMAIL.COM", "HUYMAI", "AQAAAAIAAYagAAAAEErDT+LWptpZyX7Uox4L1UOvVK0JmE500yI/Bfo50Dr+jqZNPsEZpATTWqu7bu36vw==", null, false, "365c5993-ab44-4eee-86d2-bc39cab4be28", false, "huymai" },
+                    { "0e167202-57bc-4753-90e7-4d251a85c743", 0, "3a468631-2bec-4973-b20a-af377e000ac6", "admin@booking.com", true, false, null, "ADMIN@BOOKING.COM", "ADMIN", "AQAAAAIAAYagAAAAEDNsGrDXpmBh72FxKikC4lqXVK0NglivsTNJvhEl5KTyFosfZhbXzdgBI6ySFZCLuw==", null, false, "1641b3b8-6d80-4f46-a638-29a4aaa093a3", false, "admin" },
+                    { "21a63afc-f2da-445c-b426-2c1fb9178af0", 0, "4e824a5a-544d-499d-a982-323653a7894b", "khachhang2@gmail.com", true, false, null, "KHACHHANG2@GMAIL.COM", "KHACHHANG2", "AQAAAAIAAYagAAAAEPs2Pi/Rf8LATsXQ6Kik2m6mLzbHWJsPOemXrn9FUjMgEErSQaOMkucI/tWtjYbD9A==", null, false, "0ecfda33-003e-407f-86b5-a791c061cf17", false, "khachhang2" },
+                    { "2d73a84e-3ddf-4715-b93b-88cbfd434144", 0, "bd27d904-e618-457c-9726-9cd58a9982d4", "testuser@gmail.com", true, false, null, "TESTUSER@GMAIL.COM", "TESTUSER", "AQAAAAIAAYagAAAAEJb9DUhdu8ul0EK5M5U+o+AhV2ewG2Yn9RHXc4BwR6nfZCnqu2iaFK5UI6xRLq3YsQ==", null, false, "42d25828-ee47-4603-82a0-d5c32efe49ec", false, "testuser" },
+                    { "3ba4a018-0d5e-41ea-8e9b-fd7119cd8138", 0, "69bd096b-839f-476d-b4ca-6b4f7c70b45f", "khachhang1@gmail.com", true, false, null, "KHACHHANG1@GMAIL.COM", "KHACHHANG1", "AQAAAAIAAYagAAAAEO+888ASBqI2m1rsgUqPmpF82R18pqJWN7/kEyopnnZkWmtJpfBl9HDBEHFr26QVDg==", null, false, "b707dd05-8ffe-4c38-aef1-2305d1b58058", false, "khachhang1" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "KhuyenMai",
                 columns: new[] { "MaKM", "NgayBatDau", "NgayKetThuc", "PhanTramGiam", "SoTienToiDaGiam", "TenChuongTrinh", "TrangThai" },
                 values: new object[,]
                 {
                     { "KM10", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2026, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), 10.0, 50000m, "Giảm giá khai trương", true },
                     { "SUMMER26", new DateTime(2026, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2026, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), 15.0, 100000m, "Ưu đãi mùa hè", true }
-                });
-
-            migrationBuilder.InsertData(
-                table: "TaiKhoan",
-                columns: new[] { "MaTK", "MatKhau", "NgayTao", "TenDangNhap", "TrangThai", "VaiTro" },
-                values: new object[,]
-                {
-                    { 1, "admin123", new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3049), "admin", true, "Admin" },
-                    { 2, "123456", new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3053), "nhanvien01", true, "Nhân viên" },
-                    { 3, "123456", new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3055), "khachhang01", true, "Khách hàng" }
                 });
 
             migrationBuilder.InsertData(
@@ -414,32 +544,71 @@ namespace WebAppBookingBoat.Migrations
             migrationBuilder.InsertData(
                 table: "KhachHang",
                 columns: new[] { "MaKH", "DiaChi", "Email", "HoTen", "MaTK", "NgaySinh", "Sdt" },
-                values: new object[] { 1, null, "khach.tran@gmail.com", "Trần Thị Khách", 3, new DateTime(1995, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "0912345678" });
+                values: new object[] { 1, null, "khach.tran@gmail.com", "Trần Thị Khách", "0e167202-57bc-4753-90e7-4d251a85c743", new DateTime(1995, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "0912345678" });
 
             migrationBuilder.InsertData(
                 table: "LichTrinh",
                 columns: new[] { "MaLichTrinh", "GiaVeCoBan", "MaTau", "MaTuyen", "NgayGioCapBenDuKien", "NgayGioKhoiHanh", "SoGheTrong", "TrangThai" },
-                values: new object[] { 1, 200000m, 1, 1, new DateTime(2026, 4, 9, 10, 30, 0, 0, DateTimeKind.Local), new DateTime(2026, 4, 9, 8, 0, 0, 0, DateTimeKind.Local), 20, "Sắp khởi hành" });
+                values: new object[] { 1, 200000m, 1, 1, new DateTime(2026, 4, 10, 10, 30, 0, 0, DateTimeKind.Local), new DateTime(2026, 4, 10, 8, 0, 0, 0, DateTimeKind.Local), 20, "Sắp khởi hành" });
 
             migrationBuilder.InsertData(
                 table: "Log",
                 columns: new[] { "MaLog", "BangTacDong", "HanhDong", "MaTK", "NoiDungChiTiet", "ThoiGian" },
-                values: new object[] { 1, "Hệ thống", "Khởi tạo hệ thống", 1, "Seed dữ liệu mẫu thành công", new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3539) });
+                values: new object[] { 1, "Hệ thống", "Khởi tạo hệ thống", "0e167202-57bc-4753-90e7-4d251a85c743", "Seed dữ liệu mẫu thành công", new DateTime(2026, 4, 9, 22, 34, 27, 829, DateTimeKind.Local).AddTicks(6742) });
 
             migrationBuilder.InsertData(
                 table: "NhanVien",
                 columns: new[] { "MaNV", "ChucVu", "Email", "HoTen", "Luong", "MaTK", "Sdt", "TrangThai" },
-                values: new object[] { 1, "Bán vé", "chay.nv@boat.com", "Nguyễn Văn Chạy", 0m, 2, "0987654321", true });
+                values: new object[] { 1, "Bán vé", "chay.nv@boat.com", "Nguyễn Văn Chạy", 0m, "0e167202-57bc-4753-90e7-4d251a85c743", "0987654321", true });
 
             migrationBuilder.InsertData(
                 table: "HoaDon",
                 columns: new[] { "MaHoaDon", "MaKH", "MaKM", "MaNV", "NgayLap", "PhuongThucTT", "SoLuongVe", "SoTienGiam", "TamTinh", "TongTien", "TrangThai" },
-                values: new object[] { 1, 1, "KM10", 1, new DateTime(2026, 4, 8, 21, 3, 13, 584, DateTimeKind.Local).AddTicks(3477), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" });
+                values: new object[] { 1, 1, "KM10", 1, new DateTime(2026, 4, 9, 22, 34, 27, 829, DateTimeKind.Local).AddTicks(6607), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" });
 
             migrationBuilder.InsertData(
                 table: "Ve",
                 columns: new[] { "MaVe", "GiaVe", "KhachHangMaKH", "MaHoaDon", "MaLichTrinh", "TrangThai" },
                 values: new object[] { 1, 180000m, null, 1, 1, "Hợp lệ" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetRoleClaims_RoleId",
+                table: "AspNetRoleClaims",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "RoleNameIndex",
+                table: "AspNetRoles",
+                column: "NormalizedName",
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserClaims_UserId",
+                table: "AspNetUserClaims",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserLogins_UserId",
+                table: "AspNetUserLogins",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserRoles_RoleId",
+                table: "AspNetUserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "EmailIndex",
+                table: "AspNetUsers",
+                column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "UserNameIndex",
+                table: "AspNetUsers",
+                column: "NormalizedUserName",
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DanhGia_LichTrinhMaLichTrinh",
@@ -518,19 +687,12 @@ namespace WebAppBookingBoat.Migrations
                 name: "IX_NhanVien_MaTK",
                 table: "NhanVien",
                 column: "MaTK",
-                unique: true,
-                filter: "[MaTK] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_NhanVien_Sdt",
                 table: "NhanVien",
                 column: "Sdt",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TaiKhoan_TenDangNhap",
-                table: "TaiKhoan",
-                column: "TenDangNhap",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -565,6 +727,21 @@ namespace WebAppBookingBoat.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AspNetRoleClaims");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserClaims");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserLogins");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserRoles");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
                 name: "DanhGia");
 
             migrationBuilder.DropTable(
@@ -572,6 +749,9 @@ namespace WebAppBookingBoat.Migrations
 
             migrationBuilder.DropTable(
                 name: "Log");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Ve");
@@ -598,7 +778,7 @@ namespace WebAppBookingBoat.Migrations
                 name: "TuyenDuong");
 
             migrationBuilder.DropTable(
-                name: "TaiKhoan");
+                name: "AspNetUsers");
         }
     }
 }

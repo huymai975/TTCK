@@ -18,7 +18,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
     // Cấu hình mật khẩu (Tùy chỉnh theo ý bạn)
     options.Password.RequireDigit = false; // Không bắt buộc có số
-    options.Password.RequiredLength = 6;    // Độ dài tối thiểu 6 ký tự
+    options.Password.RequiredLength = 4;    // Độ dài tối thiểu 6 ký tự
     options.Password.RequireNonAlphanumeric = false; // Không bắt buộc ký tự đặc biệt
     options.Password.RequireUppercase = false; // Không bắt buộc chữ hoa
     options.Password.RequireLowercase = false; // Không bắt buộc chữ thường
