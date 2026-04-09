@@ -7,287 +7,456 @@
 <html lang="en">
 
 <head>
-    <title>WaterBoat &mdash; Website Template by Colorlib</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>WaterBoat &mdash; Website Template by Colorlib</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link href="https://fonts.googleapis.com/css?family=Oswald:400,700|Dancing+Script:400,700|Muli:300,400" rel="stylesheet">
-    <link rel="stylesheet" href="fonts/icomoon/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Oswald:400,700|Dancing+Script:400,700|Muli:300,400" rel="stylesheet">
+	<link rel="stylesheet" href="fonts/icomoon/style.css">
 
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/jquery-ui.css">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/jquery-ui.css">
+	<link rel="stylesheet" href="css/owl.carousel.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
 
-    <link rel="stylesheet" href="css/jquery.fancybox.min.css">
+	<link rel="stylesheet" href="css/jquery.fancybox.min.css">
 
-    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="css/bootstrap-datepicker.css">
 
-    <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
 
-    <link rel="stylesheet" href="css/aos.css">
-    <link href="css/jquery.mb.YTPlayer.min.css" media="all" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="css/aos.css">
+	<link href="css/jquery.mb.YTPlayer.min.css" media="all" rel="stylesheet" type="text/css">
 
-    <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/style.css">
 
-    <!-- Custom fonts for this template-->
-    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-          rel="stylesheet">
+	<!-- Custom fonts for this template-->
+	<link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+		  rel="stylesheet">
 
-    <!-- Custom styles for this template-->
-    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+	<!-- Custom styles for this template-->
+	<link href="~/css/sb-admin-2.min.css" rel="stylesheet">
 
 
+	<style>
+		/* 1. Cố định vị trí và thiết lập hiệu ứng ẩn/hiện */
+		.header-top .dropdown-menu-right {
+			right: 0 !important;
+			left: auto !important;
+			position: absolute !important;
+			top: 100% !important;
+			transform: translateY(10px) !important;
+			display: block !important; /* Luôn render để chạy transition */
+			/* Trạng thái ẩn */
+			visibility: hidden;
+			opacity: 0;
+			transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+			/* Chống đụng viền và bo góc */
+			border-radius: 12px !important;
+			border: none !important;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+			overflow: hidden;
+			z-index: 1000;
+			padding: 0 !important;
+		}
 
+		/* 2. Cầu nối: Tạo vùng đệm để khi di chuột từ Icon xuống Dropdown không bị mất */
+		.header-top .nav-item.dropdown::after {
+			content: "";
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			height: 15px; /* Vùng đệm vô hình */
+		}
+
+		/* 3. Hiển thị khi Hover vào Icon HOẶC Hover vào chính Dropdown */
+		.header-top .nav-item.dropdown:hover .dropdown-menu-right {
+			visibility: visible;
+			opacity: 1;
+			transform: translateY(0px) !important;
+			transition-delay: 0s; /* Hiện ngay lập tức */
+		}
+
+		/* 4. Định dạng nội dung bên trong (Chống đụng viền chữ) */
+		.header-top .dropdown-item {
+			display: flex !important;
+			align-items: center;
+			padding: 15px 20px !important; /* Khoảng cách chữ rất thoáng */
+			transition: background 0.2s ease;
+			white-space: normal;
+			border-bottom: 1px solid #f8f9fc;
+		}
+
+			.header-top .dropdown-item:last-child {
+				border-bottom: none;
+			}
+
+		/* Khối văn bản */
+		.header-top .content-text {
+			padding-right: 5px;
+			flex-grow: 1;
+		}
+
+		/* 5. Hiệu ứng Icon và Avatar khi Hover */
+		.header-top .nav-link {
+			transition: all 0.3s ease;
+		}
+
+			.header-top .nav-link i {
+				transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			}
+
+		.header-top .nav-item.dropdown:hover .nav-link i {
+			color: #007bff;
+			transform: scale(1.15);
+		}
+
+		.header-top .nav-item.dropdown:hover .img-profile {
+			border-color: #007bff !important;
+		}
+
+		/* Dropdown Header */
+		.header-top .dropdown-header {
+			padding: 15px 20px !important;
+			font-size: 0.75rem;
+			letter-spacing: 1px;
+		}
+
+		/* Ép chiều rộng cho cả 2 dropdown bằng nhau */
+		.header-top .dropdown-list {
+			width: 320px !important; /* Tăng từ 280px lên 320px cho rộng rãi */
+			min-width: 320px !important;
+		}
+
+		/* Sửa lỗi chiều dọc quá dài cho phần Chuông */
+		.header-top .dropdown-item {
+			display: flex !important;
+			align-items: center;
+			padding: 12px 20px !important;
+			min-height: 70px; /* Đảm bảo các item có độ cao đồng đều */
+		}
+
+		/* Khối text bên trong */
+		.header-top .content-text {
+			flex: 1; /* Để text chiếm hết khoảng trống còn lại */
+			padding-left: 5px;
+		}
+	</style>
 
 </head>
 
 <body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
 
-    <div class="site-wrap">
+	<div class="site-wrap">
 
-        <div class="site-mobile-menu site-navbar-target">
-            <div class="site-mobile-menu-header">
-                <div class="site-mobile-menu-close mt-3">
-                    <span class="icon-close2 js-menu-toggle"></span>
-                </div>
-            </div>
-            <div class="site-mobile-menu-body"></div>
-        </div>
+		<div class="site-mobile-menu site-navbar-target">
+			<div class="site-mobile-menu-header">
+				<div class="site-mobile-menu-close mt-3">
+					<span class="icon-close2 js-menu-toggle"></span>
+				</div>
+			</div>
+			<div class="site-mobile-menu-body"></div>
+		</div>
 
+		@* Navbar Head *@
 
+		<div class="header-top bg-light py-4 border-bottom">
+			<div class="container-fluid px-lg-5">
+				<div class="row align-items-center">
 
-        <div class="header-top bg-light">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-6 col-lg-3">
-                        <a href="index.html">
-                            <img src="~/images/logo.png" alt="Image" class="img-fluid">
-                            <!-- <strong>Water</strong>Boat -->
-                        </a>
-                    </div>
-                    <div class="col-lg-3 d-none d-lg-block">
+					@* LOGO *@
+					<div class="col-6 col-lg-2">
+						<a asp-controller="Home" asp-action="Index">
+							<img src="~/images/logo.png" alt="Image" class="img-fluid" style="max-height: 60px;">
+						</a>
+					</div>
 
-                        <div class="quick-contact-icons d-flex">
-                            <div class="icon align-self-start">
-                                <span class="icon-location-arrow text-primary"></span>
-                            </div>
-                            <div class="text">
-                                <span class="h4 d-block">San Francisco</span>
-                                <span class="caption-text">Mountain View, Fake st., CA</span>
-                            </div>
-                        </div>
+					@* PHẦN GIỮA: 3 THÔNG TIN LIÊN HỆ *@
+					<div class="col-lg-7 d-none d-lg-block">
+						<div class="d-flex justify-content-center align-items-center">
 
-                    </div>
-                    <div class="col-lg-3 d-none d-lg-block">
-                        <div class="quick-contact-icons d-flex">
-                            <div class="icon align-self-start">
-                                <span class="icon-phone text-primary"></span>
-                            </div>
-                            <div class="text">
-                                <span class="h4 d-block">000 209 392 312</span>
-                                <span class="caption-text">Toll free</span>
-                            </div>
-                        </div>
-                    </div>
+							<div class="quick-contact-icons d-flex mx-3">
+								<div class="icon align-self-start mr-2">
+									<span class="icon-location-arrow text-primary"></span>
+								</div>
+								<div class="text">
+									<span class="h4 d-block" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 0;">San Francisco</span>
+									<span class="caption-text" style="font-size: 0.8rem;">Mountain View, Fake st., CA</span>
+								</div>
+							</div>
 
-                    <div class="col-lg-3 d-none d-lg-block">
-                        <div class="quick-contact-icons d-flex">
-                            <div class="icon align-self-start">
-                                <span class="icon-envelope text-primary"></span>
-                            </div>
-                            <div class="text">
-                                <span class="h4 d-block">info@gmail.com</span>
-                                <span class="caption-text">Gournadi, 1230 Bariasl</span>
-                            </div>
-                        </div>
-                    </div>
+							<div class="quick-contact-icons d-flex mx-3">
+								<div class="icon align-self-start mr-2">
+									<span class="icon-phone text-primary"></span>
+								</div>
+								<div class="text">
+									<span class="h4 d-block" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 0;">000 209 392 312</span>
+									<span class="caption-text" style="font-size: 0.8rem;">Toll free</span>
+								</div>
+							</div>
 
-                    <div class="col-6 d-block d-lg-none text-right">
-                        <a href="#" class="d-inline-block d-lg-none site-menu-toggle js-menu-toggle text-black">
-                            <span class="icon-menu h3"></span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+							<div class="quick-contact-icons d-flex mx-3">
+								<div class="icon align-self-start mr-2">
+									<span class="icon-envelope text-primary"></span>
+								</div>
+								<div class="text">
+									<span class="h4 d-block" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 0;">info@gmail.com</span>
+									<span class="caption-text" style="font-size: 0.8rem;">Gournadi, 1230 Bariasl</span>
+								</div>
+							</div>
 
+						</div>
+					</div>
 
-            @* Navbar Head *@
+					@* AUTH UI (SÁT PHẢI) *@
+					<div class="col-6 col-lg-3 text-right">
+						<div class="d-flex justify-content-end align-items-center">
+							<ul class="navbar-nav d-flex flex-row align-items-center mb-0" style="list-style: none; gap: 12px;">
 
-            <div class="site-navbar py-2 js-sticky-header site-navbar-target d-none pl-0 d-lg-block" role="banner">
-                <div class="container-fluid px-4">
-                    <div class="d-flex align-items-center">
+								@if (SignInManager.IsSignedIn(User))
+								{
+									@* Biểu tượng Chuông *@
+									<li class="nav-item dropdown no-arrow mx-1">
+										<a class="nav-link dropdown-toggle p-0 text-gray-600" href="#" id="alertsDropdown" role="button" data-toggle="dropdown">
+											<i class="fas fa-bell fa-fw"></i>
+											<span class="badge badge-danger badge-counter">3+</span>
+										</a>
+										@* Dropdown Chuông *@
+										<div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0" aria-labelledby="alertsDropdown">
+											<h6 class="dropdown-header bg-primary border-0 text-white py-3">
+												<i class="fas fa-bell mr-2"></i>Thông báo
+											</h6>
 
-                        <div style="flex: 1;" class="d-none d-lg-block"></div>
+											@* Item 1 *@
+											<a class="dropdown-item d-flex align-items-center" href="#">
+												<div class="mr-3">
+													<div class="icon-circle bg-primary text-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+														<i class="fas fa-file-alt"></i>
+													</div>
+												</div>
+												<div class="content-text">
+													<div class="small text-gray-500">12/04/2026</div>
+													<div class="font-weight-bold" style="line-height: 1.2; color: #333;">Đơn hàng mới đã được đặt thành công!</div>
+												</div>
+											</a>
 
-                        <div class="d-flex justify-content-center" style="flex: 2;">
-                            <nav class="site-navigation position-relative" role="navigation">
-                                <ul class="site-menu main-menu js-clone-nav d-none d-lg-block pl-0 mb-0">
-                                    <li class="active"><a href="index.html" class="nav-link">Home</a></li>
-                                    <li><a href="about.html" class="nav-link">About Us</a></li>
-                                    <li><a href="services.html" class="nav-link">Services</a></li>
-                                    <li><a href="testimonials.html" class="nav-link">Testimonials</a></li>
-                                    <li><a href="blog.html" class="nav-link">Blog</a></li>
-                                    <li><a href="contact.html" class="nav-link">Contact</a></li>
-                                </ul>
-                            </nav>
-                        </div>
+											@* Item 2 *@
+											<a class="dropdown-item d-flex align-items-center" href="#">
+												<div class="mr-3">
+													<div class="icon-circle bg-success text-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+														<i class="fas fa-donate"></i>
+													</div>
+												</div>
+												<div class="content-text">
+													<div class="small text-gray-500">11/04/2026</div>
+													<div style="line-height: 1.2;">Thanh toán cho mã đơn #123 đã hoàn tất.</div>
+												</div>
+											</a>
 
-                        <div class="navbar-right d-flex justify-content-end" style="flex: 1;">
-                            <ul class="navbar-nav d-flex flex-row align-items-center mb-0" style="list-style: none;">
+											<a class="dropdown-item text-center small text-gray-500 py-2" href="#">Xem tất cả</a>
+										</div>
+									</li>
 
-                                @if (SignInManager.IsSignedIn(User))
-                                {
-                                    <li class="nav-item dropdown no-arrow mx-2">
-                                        <a class="nav-link dropdown-toggle p-0 text-white" href="#" id="alertsDropdown" data-toggle="dropdown">
-                                            <i class="fas fa-bell fa-fw"></i>
-                                            <span class="badge badge-danger badge-counter" style="font-size: 10px; position: absolute; top: -8px; right: -10px;">3+</span>
-                                        </a>
-                                    </li>
+									@* Biểu tượng Thư *@
+									<li class="nav-item dropdown no-arrow mx-2">
+										<a class="nav-link dropdown-toggle p-0 text-gray-600" href="#" id="messagesDropdown" role="button" data-toggle="dropdown">
+											<i class="fas fa-envelope fa-fw"></i>
+											<span class="badge badge-danger badge-counter">5+</span>
+										</a>
+										<div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0 overflow-hidden" aria-labelledby="messagesDropdown">
+											<h6 class="dropdown-header bg-success border-0 text-white py-3">
+												<i class="fas fa-envelope mr-2"></i>Tin nhắn
+											</h6>
+											<a class="dropdown-item d-flex align-items-center border-bottom py-3" href="#">
+												<div class="dropdown-list-image mr-3">
+													<img class="rounded-circle" src="~/images/person_1.jpg" width="40" height="40" style="object-fit: cover;">
+												</div>
+												@* Bao bọc chữ trong một div để kiểm soát khoảng cách *@
+												<div style="padding-right: 10px;">
+													<div class="text-truncate font-weight-bold" style="color: #333;">
+														Chào bạn, mình muốn hỏi về tàu...
+													</div>
+													<div class="small text-gray-500">Huy Mai · 58 phút trước</div>
+												</div>
+											</a>
+											<a class="dropdown-item text-center small text-gray-500 py-2" href="#">Đọc thêm tin nhắn</a>
+										</div>
+									</li>
 
-                                    <div class="topbar-divider d-none d-sm-block" style="width: 0; border-right: 1px solid rgba(255,255,255,0.3); height: 1.5rem; margin: 0 1rem;"></div>
+									<li class="nav-item d-none d-sm-block">
+										<div style="width: 0; border-right: 1px solid #e3e6f0; height: 1.5rem; margin: 0 10px; margin-top: 8px;"></div>
+									</li>
 
-                                    <li class="nav-item dropdown no-arrow">
-                                        <a class="nav-link dropdown-toggle p-0 d-flex align-items-center text-white" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="mr-2 d-none d-lg-inline text-white small">@UserManager.GetUserName(User)</span>
-                                            <img class="img-profile rounded-circle" src="~/images/person_1.jpg" width="30" height="30" style="border: 1px solid rgba(255,255,255,0.5);">
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                            <a class="dropdown-item" href="#">
-                                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Profile
-                                            </a>
-                                            <div class="dropdown-divider"></div>
+									@* User Profile *@
+									<li class="nav-item dropdown no-arrow">
+										<a class="nav-link dropdown-toggle p-0 d-flex align-items-center text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+											<span class="mr-3 d-none d-lg-inline text-dark font-weight-bold" style="font-size: 0.95rem;">
+												@UserManager.GetUserName(User)
+											</span>
+											<img class="img-profile rounded-circle border border-primary" src="~/images/person_1.jpg" width="40" height="40" style="object-fit: cover;">
+										</a>
+										<div class="dropdown-menu dropdown-menu-right shadow border-0 overflow-hidden" aria-labelledby="userDropdown">
+											<a class="dropdown-item py-2" href="#">
+												<i class="fas fa-user fa-sm fa-fw mr-3 text-gray-400"></i>Thông tin cá nhân
+											</a>
+											<a class="dropdown-item py-2" href="#">
+												<i class="fas fa-cogs fa-sm fa-fw mr-3 text-gray-400"></i>Cài đặt
+											</a>
+											<div class="dropdown-divider"></div>
+											<form asp-controller="Account" asp-action="Logout" method="post">
+												<button type="submit" class="dropdown-item text-danger py-2">
+													<i class="fas fa-sign-out-alt fa-sm fa-fw mr-3 text-gray-400"></i>Đăng xuất
+												</button>
+											</form>
+										</div>
+									</li>
+								}
+								else
+								{
+									@* Nút Đăng nhập - Định dạng giống nút đăng ký *@
+									<li class="nav-item">
+										<a class="btn btn-outline-primary rounded-pill font-weight-bold" asp-controller="Account" asp-action="Login" style="font-size: 0.85rem; padding: 7px 18px;">
+											Đăng nhập
+										</a>
+									</li>
+									<li class="nav-item">
+										<a class="btn btn-primary rounded-pill font-weight-bold shadow-sm" asp-controller="Account" asp-action="Register" style="font-size: 0.85rem; padding: 7px 18px;">
+											Đăng ký
+										</a>
+									</li>
+								}
+							</ul>
 
-                                            @* Form Logout bí mật để bảo mật *@
-                                            <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
-                                                <button type="submit" class="dropdown-item">
-                                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="nav-item mx-2">
-                                        <a class="nav-link text-white small d-flex align-items-center" asp-controller="Account" asp-action="Login">
-                                            <i class="fas fa-sign-in-alt mr-1"></i> Đăng nhập
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-white small border rounded px-2 py-1" asp-controller="Account" asp-action="Register">
-                                            Đăng ký
-                                        </a>
-                                    </li>
-                                }
+							@* Menu Mobile Toggle *@
+							<div class="d-block d-lg-none ml-3">
+								<a href="#" class="site-menu-toggle js-menu-toggle text-black">
+									<span class="icon-menu h3"></span>
+								</a>
+							</div>
+						</div>
+					</div>
 
-                            </ul>
-                        </div>
+				</div>
+			</div>
+		</div>
 
-                    </div>
-                </div>
-            </div>
+		@* Thanh Menu chính (Home, About, Services...) *@
+		<div class="site-navbar py-2 js-sticky-header site-navbar-target d-none d-lg-block" role="banner">
+			<div class="container">
+				<div class="d-flex align-items-center justify-content-center">
+					<nav class="site-navigation position-relative text-center" role="navigation">
+						<ul class="site-menu main-menu js-clone-nav d-none d-lg-block pl-0 mb-0">
+							<li class="active"><a asp-controller="Home" asp-action="Index" class="nav-link">Home</a></li>
+							<li><a href="#" class="nav-link">About Us</a></li>
+							<li><a href="#" class="nav-link">Services</a></li>
+							<li><a href="#" class="nav-link">Testimonials</a></li>
+							<li><a href="#" class="nav-link">Blog</a></li>
+							<li><a href="#" class="nav-link">Contact</a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
 
-        </div>
-
-       
-        @RenderBody();
-
-        <div class="footer bg-light">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3">
-                        <p class="mb-4"><img src="~/images/logo.png" alt="Image" class="img-fluid"></p>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae nemo minima qui dolor, iusto iure.</p>
-                        <p><a href="#">Learn More</a></p>
-                    </div>
-                    <div class="col-lg-3">
-                        <h3 class="footer-heading"><span>Our Company</span></h3>
-                        <ul class="list-unstyled">
-                            <li><a href="#">About</a></li>
-                            <li><a href="#">News</a></li>
-                            <li><a href="#">Services</a></li>
-                            <li><a href="#">Our Team</a></li>
-                            <li><a href="#">Careers</a></li>
-                            <li><a href="#">Projects</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-3">
-                        <h3 class="footer-heading"><span>Our Services</span></h3>
-                        <ul class="list-unstyled">
-                            <li><a href="#">Industrial</a></li>
-                            <li><a href="#">Construction</a></li>
-                            <li><a href="#">Remodeling</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-3">
-                        <h3 class="footer-heading"><span>Contact</span></h3>
-                        <ul class="list-unstyled">
-                            <li><a href="#">Help Center</a></li>
-                            <li><a href="#">Support Community</a></li>
-                            <li><a href="#">Press</a></li>
-                            <li><a href="#">FAQ</a></li>
-                            <li><a href="#">Our Partners</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12">
-                        <div class="copyright">
-                            <p>
-                                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                                Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart text-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-    </div>
-    <!-- .site-wrap -->
-    <!-- loader -->
-    <div id="loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" /><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#ff5e15" /></svg></div>
-
-    <script src="~/js/jquery-3.3.1.min.js"></script>
-    <script src="~/js/jquery-migrate-3.0.1.min.js"></script>
-    <script src="~/js/jquery-ui.js"></script>
-    <script src="~/js/popper.min.js"></script>
-    <script src="~/js/bootstrap.min.js"></script>
-    <script src="~/js/owl.carousel.min.js"></script>
-    <script src="~/js/jquery.stellar.min.js"></script>
-    <script src="~/js/jquery.countdown.min.js"></script>
-    <script src="~/js/bootstrap-datepicker.min.js"></script>
-    <script src="~/js/jquery.easing.1.3.js"></script>
-    <script src="~/js/aos.js"></script>
-    <script src="~/js/jquery.fancybox.min.js"></script>
-    <script src="~/js/jquery.sticky.js"></script>
-    <script src="~/js/jquery.mb.YTPlayer.min.js"></script>
-
-    <!-- Bootstrap core JavaScript-->
-    @* <script src="~/vendor/jquery/jquery.min.js"></script> *@
-    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="~/js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="~/vendor/chart.js/Chart.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="~/js/demo/chart-area-demo.js"></script>
-    <script src="~/js/demo/chart-pie-demo.js"></script>
+	</div>
 
 
-    <script src="~/js/main.js"></script>
+	@RenderBody();
+
+	<div class="footer bg-light">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-3">
+					<p class="mb-4"><img src="~/images/logo.png" alt="Image" class="img-fluid"></p>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae nemo minima qui dolor, iusto iure.</p>
+					<p><a href="#">Learn More</a></p>
+				</div>
+				<div class="col-lg-3">
+					<h3 class="footer-heading"><span>Our Company</span></h3>
+					<ul class="list-unstyled">
+						<li><a href="#">About</a></li>
+						<li><a href="#">News</a></li>
+						<li><a href="#">Services</a></li>
+						<li><a href="#">Our Team</a></li>
+						<li><a href="#">Careers</a></li>
+						<li><a href="#">Projects</a></li>
+					</ul>
+				</div>
+				<div class="col-lg-3">
+					<h3 class="footer-heading"><span>Our Services</span></h3>
+					<ul class="list-unstyled">
+						<li><a href="#">Industrial</a></li>
+						<li><a href="#">Construction</a></li>
+						<li><a href="#">Remodeling</a></li>
+					</ul>
+				</div>
+				<div class="col-lg-3">
+					<h3 class="footer-heading"><span>Contact</span></h3>
+					<ul class="list-unstyled">
+						<li><a href="#">Help Center</a></li>
+						<li><a href="#">Support Community</a></li>
+						<li><a href="#">Press</a></li>
+						<li><a href="#">FAQ</a></li>
+						<li><a href="#">Our Partners</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="copyright">
+						<p>
+							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+							Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart text-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- .site-wrap -->
+	<!-- loader -->
+	<div id="loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" /><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#ff5e15" /></svg></div>
+
+	<script src="~/js/jquery-3.3.1.min.js"></script>
+	<script src="~/js/jquery-migrate-3.0.1.min.js"></script>
+	<script src="~/js/jquery-ui.js"></script>
+	<script src="~/js/popper.min.js"></script>
+	<script src="~/js/bootstrap.min.js"></script>
+	<script src="~/js/owl.carousel.min.js"></script>
+	<script src="~/js/jquery.stellar.min.js"></script>
+	<script src="~/js/jquery.countdown.min.js"></script>
+	<script src="~/js/bootstrap-datepicker.min.js"></script>
+	<script src="~/js/jquery.easing.1.3.js"></script>
+	<script src="~/js/aos.js"></script>
+	<script src="~/js/jquery.fancybox.min.js"></script>
+	<script src="~/js/jquery.sticky.js"></script>
+	<script src="~/js/jquery.mb.YTPlayer.min.js"></script>
+
+	<!-- Bootstrap core JavaScript-->
+	@* <script src="~/vendor/jquery/jquery.min.js"></script> *@
+	<script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Core plugin JavaScript-->
+	<script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+	<!-- Custom scripts for all pages-->
+	<script src="~/js/sb-admin-2.min.js"></script>
+
+	<!-- Page level plugins -->
+	<script src="~/vendor/chart.js/Chart.min.js"></script>
+
+	<!-- Page level custom scripts -->
+	<script src="~/js/demo/chart-area-demo.js"></script>
+	<script src="~/js/demo/chart-pie-demo.js"></script>
+
+
+	<script src="~/js/main.js"></script>
 
 </body>
 

@@ -36,7 +36,7 @@ namespace WebAppBookingBoat.Repository
             );
 
 
-            
+
             // ---  SEED TÀI KHOẢN ---
             // Khởi tạo Password Hasher
             var hasher = new PasswordHasher<AppUser>();
@@ -126,27 +126,12 @@ namespace WebAppBookingBoat.Repository
             string staffRoleId = "2";
             string customerRoleId = "3";
 
-            string adminUserId = "100";
-
             // Seed Roles vào bảng AspNetRoles
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole { Id = adminRoleId, Name = "Admin", NormalizedName = "ADMIN" },
                 new IdentityRole { Id = staffRoleId, Name = "Nhân viên", NormalizedName = "NHÂN VIÊN" },
                 new IdentityRole { Id = customerRoleId, Name = "Khách hàng", NormalizedName = "KHÁCH HÀNG" }
             );
-
-            // Seed tài khoản Admin (giữ nguyên ID 100)
-            //var hasher = new PasswordHasher<AppUser>();
-            //var admin = new AppUser
-            //{
-            //    Id = adminUserId,
-            //    UserName = "admin@booking.com",
-            //    NormalizedUserName = "ADMIN@BOOKING.COM",
-            //    EmailConfirmed = true,
-            //    SecurityStamp = Guid.NewGuid().ToString()
-            //};
-            //admin.PasswordHash = hasher.HashPassword(admin, "1234567");
-            //modelBuilder.Entity<AppUser>().HasData(admin);
 
             // Gán quyền Admin (RoleId = 1) 
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
@@ -157,8 +142,8 @@ namespace WebAppBookingBoat.Repository
             // Gán quyền Nhân viên (RoleId = 2) 
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
             {
-                RoleId = staffRoleId, 
-                UserId = user2.Id  
+                RoleId = staffRoleId,
+                UserId = user2.Id
             });
 
 
