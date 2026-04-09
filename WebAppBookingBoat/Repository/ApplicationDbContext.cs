@@ -1,17 +1,19 @@
-﻿    using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
 using System.Linq;
 
 namespace WebAppBookingBoat.Repository
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<TaiKhoan> TaiKhoans { get; set; } 
+        //public DbSet<TaiKhoan> TaiKhoans { get; set; } 
         public DbSet<NhanVien> NhanViens { get; set; } 
         public DbSet<KhachHang> KhachHangs { get; set; } 
         public DbSet<Tau> Taus { get; set; } 
@@ -29,7 +31,7 @@ namespace WebAppBookingBoat.Repository
             base.OnModelCreating(modelBuilder);
 
             // --- 1. RÀNG BUỘC UNIQUE ---
-            modelBuilder.Entity<TaiKhoan>().HasIndex(tk => tk.TenDangNhap).IsUnique();
+            //modelBuilder.Entity<TaiKhoan>().HasIndex(tk => tk.TenDangNhap).IsUnique();
             modelBuilder.Entity<NhanVien>().HasIndex(nv => nv.Email).IsUnique();
             modelBuilder.Entity<NhanVien>().HasIndex(nv => nv.Sdt).IsUnique();
             modelBuilder.Entity<NhanVien>().HasIndex(nv => nv.MaTK).IsUnique();

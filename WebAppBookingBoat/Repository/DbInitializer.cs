@@ -32,11 +32,11 @@ namespace WebAppBookingBoat.Repository
             );
 
             // --- 2. SEED TÀI KHOẢN ---
-            modelBuilder.Entity<TaiKhoan>().HasData(
-                new TaiKhoan { MaTK = 1, TenDangNhap = "admin", MatKhau = "admin123", VaiTro = "Admin", NgayTao = DateTime.Now },
-                new TaiKhoan { MaTK = 2, TenDangNhap = "nhanvien01", MatKhau = "123456", VaiTro = "Nhân viên", NgayTao = DateTime.Now },
-                new TaiKhoan { MaTK = 3, TenDangNhap = "khachhang01", MatKhau = "123456", VaiTro = "Khách hàng", NgayTao = DateTime.Now }
-            );
+            //modelBuilder.Entity<TaiKhoan>().HasData(
+            //    new TaiKhoan { MaTK = 1, TenDangNhap = "admin", MatKhau = "admin123", VaiTro = "Admin", NgayTao = DateTime.Now },
+            //    new TaiKhoan { MaTK = 2, TenDangNhap = "nhanvien01", MatKhau = "123456", VaiTro = "Nhân viên", NgayTao = DateTime.Now },
+            //    new TaiKhoan { MaTK = 3, TenDangNhap = "khachhang01", MatKhau = "123456", VaiTro = "Khách hàng", NgayTao = DateTime.Now }
+            //);
 
             // --- 3. SEED NHÂN VIÊN ---
             modelBuilder.Entity<NhanVien>().HasData(

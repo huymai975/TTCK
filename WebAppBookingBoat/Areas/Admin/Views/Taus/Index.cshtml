@@ -11,6 +11,7 @@
             <i class="fas fa-download fa-sm text-white-50"></i> Xuất báo cáo
         </a>
     </div>
+</div>
 
 <div class="container">
 <p>
@@ -62,9 +63,16 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.SoGheVIP)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TrangThai)
-                </td>
+                    <td>
+                        @if (item.TrangThai)
+                        {
+                            <span class="badge badge-success px-2 py-1">Đang hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-danger px-2 py-1">Tạm ngưng</span>
+                        }
+                    </td>
                 <td>
                         <a asp-action="Edit" asp-route-id="@item.MaTau" class="btn btn-warning">Sửa</a> 
                         <a asp-action="Details" asp-route-id="@item.MaTau" class="btn btn-primary">Chi tiết</a> 
@@ -75,5 +83,4 @@
         </tbody>
     </table>
     <!-- Content here -->
-</div>
 </div>

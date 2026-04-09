@@ -1,57 +1,68 @@
 ﻿@model WebAppBookingBoat.Models.Tau
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Xóa tàu";
 }
 
-<h1>Delete</h1>
+<div class="container-fluid">
+    <h1 class="h3 mb-0 text-gray-800">Xác nhận xóa tàu</h1>
+    <br />
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        Bạn có chắc chắn muốn xóa con tàu này không? Hành động này không thể hoàn tác.
+    </div>
+</div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Tau</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenTau)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenTau)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HinhAnh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HinhAnh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TongSoGhe)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TongSoGhe)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoGheThuong)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoGheThuong)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoGheVIP)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoGheVIP)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="MaTau" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="shadow-sm p-4 border rounded bg-white">
+            @* Hiển thị thông tin tóm tắt để người dùng xác nhận *@
+            <div class="text-center mb-4">
+                <img src="~/images/tau/@Model.HinhAnh" width="200" class="img-thumbnail rounded mb-3" alt="Ảnh tàu" />
+                <h3 class="fw-bold">@Model.TenTau</h3>
+            </div>
+
+            <hr />
+
+            <dl class="row px-3">
+                <dt class="col-sm-6">Số ghế thường:</dt>
+                <dd class="col-sm-6 text-end">@Model.SoGheThuong</dd>
+
+                <dt class="col-sm-6">Số ghế VIP:</dt>
+                <dd class="col-sm-6 text-end">@Model.SoGheVIP</dd>
+
+                <dt class="col-sm-6 fw-bold text-primary">Tổng số ghế:</dt>
+                <dd class="col-sm-6 text-end fw-bold text-primary">@Model.TongSoGhe</dd>
+
+                <dt class="col-sm-6">Trạng thái:</dt>
+                <dd class="col-sm-6 text-end">
+                    @* @(Model.TrangThai ? "Đang hoạt động" : "Tạm ngưng") *@
+
+                    @if (Model.TrangThai)
+                    {
+                        <span class="badge badge-success px-2 py-1">Đang hoạt động</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger px-2 py-1">Tạm ngưng</span>
+                    }
+                </dd>
+            </dl>
+
+            <hr />
+
+            @* Form gửi yêu cầu POST để xóa *@
+            <form asp-action="Delete" class="d-flex justify-content-between mt-4">
+                <input type="hidden" asp-for="MaTau" />
+
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    Quay lại danh sách
+                </a>
+
+                <button type="submit" class="btn btn-danger px-5">
+                    Xác nhận xóa
+                </button>
+            </form>
+        </div>
+    </div>
 </div>

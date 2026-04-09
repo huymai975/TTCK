@@ -1,54 +1,77 @@
 ﻿@model WebAppBookingBoat.Models.Tau
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết tàu";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>Tau</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenTau)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenTau)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HinhAnh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HinhAnh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TongSoGhe)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TongSoGhe)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoGheThuong)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoGheThuong)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoGheVIP)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoGheVIP)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chi tiết: @Model.TenTau</h1>
+        <a asp-action="Index" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại danh sách
+        </a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaTau">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin kỹ thuật</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @* Hiển thị ảnh bên trái *@
+                    <div class="col-md-5 text-center border-right">
+                        <label class="fw-bold d-block mb-2">Hình ảnh đại diện</label>
+                        <img src="~/images/tau/@Model.HinhAnh" class="img-fluid rounded shadow-sm" alt="@Model.TenTau" style="max-height: 250px;" />
+                    </div>
+
+                    @* Hiển thị thông số bên phải *@
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <label class="text-muted d-block mb-0">Tên tàu thuyền</label>
+                            <span class="h4 text-dark">@Model.TenTau</span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="text-muted d-block mb-0">Số ghế thường</label>
+                                <span class="font-weight-bold">@Model.SoGheThuong ghế</span>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted d-block mb-0">Số ghế VIP</label>
+                                <span class="font-weight-bold">@Model.SoGheVIP ghế</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="text-muted d-block mb-0">Tổng quy mô chỗ ngồi</label>
+                            <span class="h5 text-primary font-weight-bold">@Model.TongSoGhe ghế</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="text-muted d-block mb-0">Trạng thái vận hành</label>
+                            @if (Model.TrangThai)
+                            {
+                                <span class="badge badge-success px-3 py-2">Đang hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger px-3 py-2">Tạm ngưng phục vụ</span>
+                            }
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.MaTau" class="btn btn-warning px-4">
+                                <i class="fas fa-edit"></i> Chỉnh sửa
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
