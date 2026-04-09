@@ -52,7 +52,7 @@ namespace WebAppBookingBoat.Repository
                 t.HasCheckConstraint("CK_KH_Email_Format", "[Email] LIKE '%_@_%._%'");
             });
 
-            // Nhân viên (Đổi tên Constraint để không trùng với Khách hàng)
+            // Nhân viên
             modelBuilder.Entity<NhanVien>().ToTable(t => {
                 t.HasCheckConstraint("CK_NV_Sdt_Format", "LEN([Sdt]) >= 10 AND [Sdt] NOT LIKE '%[^0-9]%'");
                 t.HasCheckConstraint("CK_NV_Email_Format", "[Email] LIKE '%_@_%._%'");
@@ -70,10 +70,6 @@ namespace WebAppBookingBoat.Repository
                 e.ToTable(t => t.HasCheckConstraint("CK_KM_PhanTram", "[PhanTramGiam] >= 0 AND [PhanTramGiam] <= 100"));
                 e.ToTable(t => t.HasCheckConstraint("CK_KM_ThoiGian", "[NgayKetThuc] > [NgayBatDau]"));
             });
-
-            // Tài khoản (Thêm N cho tiếng Việt)
-            modelBuilder.Entity<TaiKhoan>().ToTable(t =>
-                t.HasCheckConstraint("CK_TK_VaiTro", "[VaiTro] IN (N'Admin', N'Nhân viên', N'Khách hàng')"));
 
             // Đánh giá (Thêm N cho tiếng Việt)
             modelBuilder.Entity<DanhGia>().ToTable(t => {

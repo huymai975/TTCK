@@ -13,11 +13,13 @@ namespace WebAppBookingBoat.Models
 
         // --- Khóa ngoại nối với bảng Tài khoản (Người thực hiện) ---
         [Required]
+        // --- Khóa ngoại trỏ về Identity (AspNetUsers) ---
+        // Thêm dấu ? để cho phép NULL (dành cho khách vãng lai)
         [Display(Name = "Mã tài khoản")]
-        public int MaTK { get; set; }
-
+        public string? MaTK { get; set; }
+        // Cho phép null để EF không bắt buộc phải có tài khoản khi lưu
         [ForeignKey("MaTK")]
-        public virtual TaiKhoan TaiKhoan { get; set; } = default!;
+        public virtual AppUser? AppUser { get; set; }
 
         [Required]
         [StringLength(100)]

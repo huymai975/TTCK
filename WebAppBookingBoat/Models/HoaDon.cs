@@ -20,7 +20,7 @@ namespace WebAppBookingBoat.Models
         public virtual KhachHang KhachHang { get; set; } = default!;
 
         [Display(Name = "Mã nhân viên")]
-        public int? MaNV { get; set; } // Nullable nếu khách tự mua online
+        public int? MaNV { get; set; } = null; // Nullable nếu khách tự mua online
 
         [ForeignKey("MaNV")]
         public virtual NhanVien? NhanVien { get; set; }
