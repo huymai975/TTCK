@@ -114,7 +114,7 @@ namespace WebAppBookingBoat.Controllers
             await _signInManager.SignOutAsync();
 
             // Điều hướng về trang chủ
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Home", new {area = ""});
         }
     }
 }

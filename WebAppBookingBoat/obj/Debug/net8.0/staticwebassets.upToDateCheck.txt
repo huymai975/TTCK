@@ -49,14 +49,13 @@ wwwroot\images\person_4.jpg
 wwwroot\images\person_4_sq.jpg
 wwwroot\images\person_5.jpg
 wwwroot\images\tau\44eae152-587f-43d9-8a88-d7dac8b5ef20.jpg
-wwwroot\images\tau\tau01.jpg
-wwwroot\images\tau\tau02.jpg
 wwwroot\images\undraw_posting_photo.svg
 wwwroot\images\undraw_profile.svg
 wwwroot\images\undraw_profile_1.svg
 wwwroot\images\undraw_profile_2.svg
 wwwroot\images\undraw_profile_3.svg
 wwwroot\images\undraw_rocket.svg
+wwwroot\js\ad-notification.js
 wwwroot\js\aos.js
 wwwroot\js\bootstrap-datepicker.min.js
 wwwroot\js\bootstrap.min.js
@@ -76,6 +75,7 @@ wwwroot\js\jquery.stellar.min.js
 wwwroot\js\jquery.sticky.js
 wwwroot\js\main.js
 wwwroot\js\mediaelement-and-player.min.js
+wwwroot\js\notification.js
 wwwroot\js\owl.carousel.min.js
 wwwroot\js\popper.min.js
 wwwroot\js\sb-admin-2.js
@@ -2068,3 +2068,4 @@ wwwroot\vendor\jquery\jquery.min.map
 wwwroot\vendor\jquery\jquery.slim.js
 wwwroot\vendor\jquery\jquery.slim.min.js
 wwwroot\vendor\jquery\jquery.slim.min.map
+wwwroot\js\tau-logic.js

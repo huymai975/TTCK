@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<WebAppBookingBoat.Models.Tau>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách tàu thuyền";
 }
 
 <div class="container-fluid">
@@ -66,11 +66,15 @@
                     <td>
                         @if (item.TrangThai)
                         {
-                            <span class="badge badge-success px-2 py-1">Đang hoạt động</span>
+                            <span class="badge badge-success shadow-sm">
+                                <i class="fas fa-check-circle"></i> Đang hoạt động
+                            </span>
                         }
                         else
                         {
-                            <span class="badge badge-danger px-2 py-1">Tạm ngưng</span>
+                            <span class="badge badge-secondary shadow-sm">
+                                <i class="fas fa-pause-circle"></i> Tạm ngưng
+                            </span>
                         }
                     </td>
                 <td>

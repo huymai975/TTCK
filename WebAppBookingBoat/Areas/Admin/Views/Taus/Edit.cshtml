@@ -6,7 +6,7 @@
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa thông tin tàu thuyền</h1>
+        <h1 class="h3 mb-0 text-gray-800">Cập nhật thông tin</h1>
     </div>
 </div>
 
@@ -28,21 +28,34 @@
 
             @* 3. Xử lý ảnh hiện tại và ảnh mới *@
             <div class="form-group mb-4">
-                <label class="fw-bold mb-1 d-block">Ảnh hiện tại</label>
-                <div class="mb-2">
-                    @* Sửa đường dẫn ảnh dùng HinhAnhCu *@
-                    @if (!string.IsNullOrEmpty(Model.HinhAnhCu))
-                    {
-                        <img src="~/images/tau/@Model.HinhAnhCu" width="150" class="img-thumbnail" alt="Ảnh tàu" />
-                    }
-                    else
-                    {
-                        <img src="~/images/tau/default-boat.jpg" width="150" class="img-thumbnail" alt="Ảnh mặc định" />
-                    }
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="fw-bold mb-1 d-block text-muted">Ảnh hiện tại</label>
+                        <div class="mb-2">
+                            @if (!string.IsNullOrEmpty(Model.HinhAnhCu))
+                            {
+                                <img src="~/images/tau/@Model.HinhAnhCu" width="150" class="img-thumbnail" alt="Ảnh tàu" />
+                            }
+                            else
+                            {
+                                <img src="~/images/tau/default-boat.jpg" width="150" class="img-thumbnail" alt="Ảnh mặc định" />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 border-left">
+                        <label class="fw-bold mb-1 d-block text-primary">Ảnh mới sẽ thay đổi</label>
+                        <div class="mb-2">
+                            @* Ban đầu ẩn đi hoặc để trống, khi chọn file sẽ hiện ra *@
+                            <img id="imgPreviewEdit" src="#" class="img-thumbnail shadow-sm d-none"
+                                 style="width: 150px; height: 100px; object-fit: cover; border: 2px dashed #4e73df;"
+                                 alt="Ảnh mới preview" />
+                        </div>
+                        <input asp-for="ImageFile" id="imageInputEdit" type="file" class="form-control" accept="image/*" />
+                        <small class="text-muted">Chọn ảnh mới nếu muốn thay đổi ảnh hiện tại.</small>
+                        <span asp-validation-for="ImageFile" class="text-danger"></span>
+                    </div>
                 </div>
-                <label asp-for="ImageFile" class="control-label fw-bold mb-1 d-block"></label>
-                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
-                <span asp-validation-for="ImageFile" class="text-danger"></span>
             </div>
 
             @* 4. Ghế thường *@
@@ -86,16 +99,5 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-        $(document).ready(function () {
-            function tinhTong() {
-                let thuong = parseInt($("#SoGheThuong").val()) || 0;
-                let vip = parseInt($("#SoGheVIP").val()) || 0;
-                $("#TongSoGhe").val(thuong + vip);
-            }
-            $("#SoGheThuong, #SoGheVIP").on("input", function () {
-                tinhTong();
-            });
-        });
-    </script>
+    <script src="~/js/tau-logic.js"></script>
 }

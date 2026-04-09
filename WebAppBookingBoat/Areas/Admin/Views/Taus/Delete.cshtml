@@ -5,7 +5,7 @@
 }
 
 <div class="container-fluid">
-    <h1 class="h3 mb-0 text-gray-800">Xác nhận xóa tàu</h1>
+    <h1 class="h3 mb-0 text-gray-800">Xóa</h1>
     <br />
     <div class="alert alert-warning">
         <i class="bi bi-exclamation-triangle-fill"></i>
@@ -52,17 +52,38 @@
             <hr />
 
             @* Form gửi yêu cầu POST để xóa *@
-            <form asp-action="Delete" class="d-flex justify-content-between mt-4">
+            <form asp-action="Delete" class="d-flex justify-content-between mt-4" id="confirmDeleteForm">
                 <input type="hidden" asp-for="MaTau" />
 
                 <a asp-action="Index" class="btn btn-outline-secondary px-4">
                     Quay lại danh sách
                 </a>
 
-                <button type="submit" class="btn btn-danger px-5">
+                <button type="button" class="btn btn-danger px-5" id="btnDeleteConfirm">
                     Xác nhận xóa
                 </button>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).on('click', '#btnDeleteConfirm', function () {
+            Swal.fire({
+                title: 'Xác nhận xóa bản ghi',
+                text: "Dữ liệu này sẽ bị xóa vĩnh viễn.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#confirmDeleteForm').submit();
+                }
+            });
+        });
+    </script>
+}

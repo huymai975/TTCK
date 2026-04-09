@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Repository;
-using WebAppBookingBoat.ViewModels; 
+using WebAppBookingBoat.ViewModels;
 
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
@@ -57,25 +52,35 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                // Chuyển từ ViewModel sang Model thực
-                var tau = new Tau
+                try
                 {
-                    TenTau = vm.TenTau,
-                    SoGheThuong = vm.SoGheThuong,
-                    SoGheVIP = vm.SoGheVIP,
-                    TongSoGhe = vm.TongSoGhe,
-                    TrangThai = vm.TrangThai,
-                    HinhAnh = "default-boat.jpg" // Mặc định nếu không up ảnh
-                };
+                    // Chuyển từ ViewModel sang Model thực
+                    var tau = new Tau
+                    {
+                        TenTau = vm.TenTau,
+                        SoGheThuong = vm.SoGheThuong,
+                        SoGheVIP = vm.SoGheVIP,
+                        TongSoGhe = vm.TongSoGhe,
+                        TrangThai = vm.TrangThai,
+                        HinhAnh = "default-boat.jpg" // Mặc định nếu không up ảnh
+                    };
 
-                if (vm.ImageFile != null)
-                {
-                    tau.HinhAnh = await SaveImage(vm.ImageFile);
+                    if (vm.ImageFile != null)
+                    {
+                        tau.HinhAnh = await SaveImage(vm.ImageFile);
+                    }
+
+                    _context.Add(tau);
+                    await _context.SaveChangesAsync();
+
+
+                    TempData["SuccessMessage"] = $"Đã thêm mới tàu {tau.TenTau} thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                _context.Add(tau);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                catch (Exception)
+                {
+                    TempData["ErrorMessage"] = "Đã xảy ra lỗi trong quá trình lưu dữ liệu.";
+                }
             }
             return View(vm);
         }
@@ -164,14 +169,23 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tau = await _context.Taus.FindAsync(id);
-            if (tau != null)
+            try
             {
-                DeleteOldImage(tau.HinhAnh); // Xóa ảnh khi xóa tàu
-                _context.Taus.Remove(tau);
+                var tau = await _context.Taus.FindAsync(id);
+                if (tau != null)
+                {
+                    DeleteOldImage(tau.HinhAnh); // Xóa ảnh khi xóa tàu
+                    _context.Taus.Remove(tau);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Xóa dữ liệu thành công.";
+                }
             }
-
-            await _context.SaveChangesAsync();
+            catch (Exception ex) // Dùng Exception chung để bắt mọi tình huống
+            {
+                // Ghi log lỗi nếu cần:
+                Console.WriteLine(ex.Message);
+                TempData["ErrorMessage"] = "Không thể xóa bản ghi này. Nguyên nhân có thể do dữ liệu đang được sử dụng ở danh mục khác (Ghế, Lịch trình).";
+            }
             return RedirectToAction(nameof(Index));
         }
 
