@@ -10,10 +10,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class TausController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public TausController(ApplicationDbContext context)
+        public TausController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Admin/Taus
@@ -142,13 +144,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                     _context.Update(tau);
                     await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = $"Cập nhật thông tin tàu {tau.TenTau} thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!TauExists(vm.MaTau)) return NotFound();
-                    else throw;
+                    TempData["ErrorMessage"] = "Có lỗi xảy ra khi cập nhật dữ liệu.";
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(vm);
         }
@@ -189,12 +192,24 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id) // Tên tham số là 'id' nhé
+        {
+            var tau = await _context.Taus.FindAsync(id);
+            if (tau == null) return Json(new { success = false, message = "Không tìm thấy tàu" });
+
+            tau.TrangThai = !tau.TrangThai;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, newState = tau.TrangThai });
+        }
+
         #region Helper Methods (Các hàm bổ trợ)
 
         private async Task<string> SaveImage(IFormFile file)
         {
             string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tau");
+            string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau");
 
             if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
 
@@ -209,8 +224,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         private void DeleteOldImage(string? fileName)
         {
             if (string.IsNullOrEmpty(fileName) || fileName == "default-boat.jpg") return;
-
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tau", fileName);
+            string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau");
+            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileName);
             if (System.IO.File.Exists(filePath))
             {
                 System.IO.File.Delete(filePath);
