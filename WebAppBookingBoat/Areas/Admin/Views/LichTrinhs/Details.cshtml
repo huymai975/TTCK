@@ -1,0 +1,149 @@
+﻿@model WebAppBookingBoat.Models.LichTrinh
+
+@{
+    ViewData["Title"] = "Chi tiết lịch trình vận hành";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa- calendar-check text-info mr-2"></i>Chi tiết lịch trình
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow-lg mb-4 border-left-info">
+                @* Card Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-info text-uppercase">Mã chuyến: #@Model.MaLichTrinh</h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-clock mr-1"></i> Khởi tạo: @DateTime.Now.ToString("dd/MM/yyyy")
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        @* Cột trái: Thông tin vận hành *@
+                        <div class="col-md-6 border-right">
+                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="fas fa-route mr-2 text-info"></i>Lộ trình & Phương tiện
+                            </h5>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block">Tuyến đường</label>
+                                <div class="h5 font-weight-bold text-primary">@Model.TuyenDuong.TenTuyen</div>
+                                <div class="text-muted small">
+                                    <i class="fas fa-map-marker-alt text-danger mr-1"></i> @Model.TuyenDuong.DiemDi
+                                    <i class="fas fa-arrow-right mx-2 text-gray-400"></i>
+                                    <i class="fas fa-anchor text-primary mr-1"></i> @Model.TuyenDuong.DiemDen
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block">Tàu đảm nhận</label>
+                                <div class="d-flex align-items-center p-2 bg-light rounded border shadow-sm">
+                                    <img src="~/images/tau/@Model.Tau.HinhAnh" class="rounded mr-3" style="width: 60px; height: 45px; object-fit: cover;" />
+                                    <div>
+                                        <div class="font-weight-bold text-dark">@Model.Tau.TenTau</div>
+                                        <div class="text-xs text-muted">Mã hiệu: BOAT-@Model.Tau.MaTau.ToString("D3")</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="small font-weight-bold text-muted text-uppercase d-block">Giá vé cơ bản</label>
+                                    <div class="h4 font-weight-bold text-success">@Model.GiaVeCoBan.ToString("N0") <small>đ</small></div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="small font-weight-bold text-muted text-uppercase d-block">Ghế hiện trống</label>
+                                    <div class="h4 font-weight-bold @(Model.SoGheTrong > 0 ? "text-primary" : "text-danger")">
+                                        @Model.SoGheTrong <small class="text-muted">/ @Model.Tau.TongSoGhe</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Cột phải: Thời gian & Trạng thái *@
+                        <div class="col-md-6 pl-md-4">
+                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="fas fa-hourglass-half mr-2 text-info"></i>Thời gian & Trạng thái
+                            </h5>
+
+                            <div class="mb-4">
+                                <div class="p-3 bg-light rounded border-left-success mb-3 shadow-sm">
+                                    <label class="small font-weight-bold text-success text-uppercase d-block mb-1">Giờ khởi hành</label>
+                                    <div class="h5 font-weight-bold mb-0">@Model.NgayGioKhoiHanh.ToString("dddd, dd/MM/yyyy HH:mm")</div>
+                                </div>
+
+                                <div class="p-3 bg-light rounded border-left-danger mb-3 shadow-sm">
+                                    <label class="small font-weight-bold text-danger text-uppercase d-block mb-1">Dự kiến cập bến</label>
+                                    <div class="h5 font-weight-bold mb-0">@Model.NgayGioCapBenDuKien.ToString("dddd, dd/MM/yyyy HH:mm")</div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block mb-2">Trạng thái hiện tại</label>
+                                @{
+                                    var statusBadge = Model.TrangThai switch
+                                    {
+                                        "Sắp khởi hành" => "badge-info",
+                                        "Đang vận hành" => "badge-warning",
+                                        "Hoàn thành" => "badge-success",
+                                        "Đã hủy" => "badge-danger",
+                                        _ => "badge-secondary"
+                                    };
+                                }
+                                <div class="h4">
+                                    <span class="badge @statusBadge px-4 py-2 shadow-sm rounded-pill">
+                                        <i class="fas fa-sync-alt fa-spin mr-1 small"></i> @Model.TrangThai
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Card Footer *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Quay lại danh sách</span>
+                    </a>
+
+                    <a asp-action="Edit" asp-route-id="@Model.MaLichTrinh" class="btn btn-warning btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span class="text">Hiệu chỉnh lịch trình</span>
+                    </a>
+                </div>
+            </div>
+
+            <p class="mb-5 small text-muted text-center italic">
+                <i class="fas fa-info-circle mr-1"></i> Lưu ý: Mọi thay đổi về thời gian khởi hành sẽ được thông báo tự động tới hành khách đã đặt vé.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-info {
+        border-left: 4px solid #36b9cc !important;
+    }
+
+    .border-left-success {
+        border-left: 4px solid #1cc88a !important;
+    }
+
+    .border-left-danger {
+        border-left: 4px solid #e74a3b !important;
+    }
+
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+</style>

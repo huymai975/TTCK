@@ -1,93 +1,160 @@
 ﻿@model WebAppBookingBoat.ViewModels.TauViewModel
 
 @{
-    ViewData["Title"] = "Thêm mới tàu";
+	ViewData["Title"] = "Khởi tạo phương tiện mới";
 }
 
 <div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Thêm mới tàu thuyền</h1>
-    </div>
-</div>
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+			<i class="fas fa-ship text-primary mr-2"></i>Thêm mới tàu thuyền
+		</h1>
+	</div>
 
-<div class="row">
-    @* Giới hạn độ rộng của form để không bị tràn màn hình (ví dụ col-md-6) *@
-    <div class="col-md-6 offset-md-3">
-        <form asp-action="Create" enctype="multipart/form-data" class="shadow-sm p-4 border rounded bg-white">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+	<div class="row justify-content-center">
+		<div class="col-xl-10 col-lg-12">
+			<form asp-action="Create" enctype="multipart/form-data" class="card shadow-lg mb-4 border-left-primary">
+				<div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+					<h6 class="m-0 font-weight-bold text-primary text-uppercase">Thông tin cấu hình phương tiện</h6>
+					<span class="badge badge-primary p-2 shadow-sm">
+						<i class="fas fa-plus-circle mr-1"></i> Chế độ thêm mới
+					</span>
+				</div>
 
-            @* 1. Tên tàu *@
-            <div class="form-group mb-4">
-                <label asp-for="TenTau" class="control-label fw-bold mb-1 d-block"></label>
-                <input asp-for="TenTau" class="form-control" placeholder="Nhập tên tàu..." />
-                <span asp-validation-for="TenTau" class="text-danger"></span>
-            </div>
+				<div class="card-body">
+					<div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3 d-none"></div>
 
-            @* 2. Hình ảnh *@
-            <div class="form-group mb-4">
-                <label asp-for="ImageFile" class="control-label fw-bold mb-1 d-block">Hình ảnh tàu</label>
-                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
-                <span asp-validation-for="ImageFile" class="text-danger"></span>
-            </div>
+					<div class="row">
+						<div class="col-md-4 text-center border-right">
+							<label class="font-weight-bold text-dark d-block mb-3">Hình ảnh đại diện</label>
+							<div class="image-upload-wrapper mb-3 p-2 border rounded bg-light shadow-sm">
+								<img id="imgPreview" src="~/images/tau/default-boat.jpg"
+									 class="img-fluid rounded"
+									 style="max-height: 250px; width: 100%; object-fit: cover;"
+									 alt="Preview" />
+							</div>
+							<div class="custom-file text-left">
+								<input asp-for="ImageFile" id="imageInput" type="file" class="custom-file-input" accept="image/*" />
+								<label class="custom-file-label text-truncate" for="imageInput">Chọn tệp ảnh...</label>
+								<span asp-validation-for="ImageFile" class="text-danger small font-italic"></span>
+							</div>
+							<small class="form-text text-muted mt-2 font-italic">
+								<i class="fas fa-info-circle mr-1"></i> JPG, PNG, WEBP.
+							</small>
+						</div>
 
-            @* 3. Số ghế thường *@
-            <div class="form-group mb-4">
-                <label asp-for="SoGheThuong" class="control-label fw-bold mb-1 d-block"></label>
-                <input asp-for="SoGheThuong" class="form-control" id="SoGheThuong" placeholder="0" />
-                <span asp-validation-for="SoGheThuong" class="text-danger"></span>
-            </div>
+						<div class="col-md-8 pl-md-4">
+							<div class="row">
+								<div class="col-12 form-group mb-4">
+									<label asp-for="TenTau" class="font-weight-bold text-dark">Tên phương tiện</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text bg-primary text-white"><i class="fas fa-tag"></i></span>
+										</div>
+										<input asp-for="TenTau" class="form-control border-left-0" placeholder="Ví dụ: Tàu cao tốc Express 01" />
+									</div>
+									<span asp-validation-for="TenTau" class="text-danger small font-italic"></span>
+								</div>
 
-            @* 4. Số ghế VIP *@
-            <div class="form-group mb-4">
-                <label asp-for="SoGheVIP" class="control-label fw-bold mb-1 d-block"></label>
-                <input asp-for="SoGheVIP" class="form-control" id="SoGheVIP" placeholder="0" />
-                <span asp-validation-for="SoGheVIP" class="text-danger"></span>
-            </div>
+								<div class="col-md-6 form-group mb-4">
+									<label asp-for="SoGheThuong" class="font-weight-bold text-dark">Số lượng ghế Thường</label>
+									<input asp-for="SoGheThuong" class="form-control shadow-sm" id="SoGheThuong" type="number" min="0" placeholder="0" />
+									<span asp-validation-for="SoGheThuong" class="text-danger small"></span>
+								</div>
 
-            @* 5. Tổng số ghế (Readonly) *@
-            <div class="form-group mb-4">
-                <label asp-for="TongSoGhe" class="control-label fw-bold mb-1 d-block text-danger"></label>
-                <input asp-for="TongSoGhe" class="form-control bg-light" id="TongSoGhe" readonly />
-                <div class="form-text mt-1 text-muted">Hệ thống tự động tính: Thường + VIP</div>
-            </div>
+								<div class="col-md-6 form-group mb-4">
+									<label asp-for="SoGheVIP" class="font-weight-bold text-dark">Số lượng ghế VIP</label>
+									<input asp-for="SoGheVIP" class="form-control border-warning shadow-sm" id="SoGheVIP" type="number" min="0" placeholder="0" />
+									<span asp-validation-for="SoGheVIP" class="text-danger small"></span>
+								</div>
 
-            @* 6. Trạng thái *@
-            <div class="form-group mb-4 form-check">
-                <input class="form-check-input" asp-for="TrangThai" checked />
-                <label class="form-check-label fw-bold" asp-for="TrangThai">
-                    Đang hoạt động
-                </label>
-            </div>
+								<div class="col-12 form-group mb-4">
+									<label asp-for="TongSoGhe" class="font-weight-bold text-danger text-uppercase small">Tổng sức chứa (Tự động)</label>
+									<input asp-for="TongSoGhe" class="form-control bg-light font-weight-bold text-primary shadow-sm" id="TongSoGhe" readonly style="font-size: 1.25rem;" />
+									<div class="form-text mt-1 text-muted small italic">
+										<i class="fas fa-info-circle"></i> Giá trị này được tính toán tự động dựa trên cấu hình ghế bên trên.
+									</div>
+								</div>
 
-            <hr />
+								<div class="col-12 form-group mb-0">
+									<div class="custom-control custom-switch custom-switch-lg">
+										<input type="checkbox" class="custom-control-input" asp-for="TrangThai" id="customSwitch1" checked>
+										<label class="custom-control-label font-weight-bold text-success" for="customSwitch1">Kích hoạt vận hành ngay</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
-            @* Nút bấm *@
-            <div class="form-group d-flex justify-content-between align-items-center">
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Quay lại
-                </a>
-                <button type="submit" class="btn btn-success px-5">
-                    Thêm mới
-                </button>
-            </div>
-        </form>
-    </div>
+				<div class="card-footer bg-light d-flex justify-content-between py-3">
+					<a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+						<span class="icon text-white-50">
+							<i class="fas fa-arrow-left"></i>
+						</span>
+						<span class="text">Danh sách tàu</span>
+					</a>
+
+					<div>
+						<button type="reset" class="btn btn-light border mr-2 shadow-sm">
+							<i class="fas fa-undo"></i> Làm mới
+						</button>
+						<button type="submit" class="btn btn-primary btn-icon-split shadow-lg font-weight-bold">
+							<span class="icon text-white-50">
+								<i class="fas fa-save"></i>
+							</span>
+							<span class="text px-3">Lưu thông tin</span>
+						</button>
+					</div>
+				</div>
+			</form>
+
+			<p class="mb-5 small text-muted text-center">
+				<i class="fas fa-shield-alt mr-1"></i> Dữ liệu khởi tạo sẽ được lưu trữ bảo mật trên hệ thống Water Boat Booking.
+			</p>
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-    <script>
-        $(document).ready(function () {
-            function tinhTong() {
-                let thuong = parseInt($("#SoGheThuong").val()) || 0;
-                let vip = parseInt($("#SoGheVIP").val()) || 0;
-                $("#TongSoGhe").val(thuong + vip);
-            }
-            $("#SoGheThuong, #SoGheVIP").on("input", function () {
-                tinhTong();
-            });
-        });
-    </script>
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script src="~/js/tau-logic.js"></script>
+
+	<script>
+				// Hiển thị tên file và preview ảnh ngay lập tức
+		$('.custom-file-input').on('change', function(e) {
+			// 1. Hiện tên file
+			let fileName = $(this).val().split('\\').pop();
+			$(this).next('.custom-file-label').addClass("selected").html(fileName);
+
+			// 2. Hiện ảnh xem trước
+			const file = e.target.files[0];
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					$('#imgPreview').attr('src', e.target.result);
+				}
+				reader.readAsDataURL(file);
+			}
+		});
+
+		// Xử lý thông báo Toast
+		$(function() {
+			var success = '@Html.Raw(TempData["SuccessMessage"])';
+			var error = '@Html.Raw(TempData["ErrorMessage"])';
+
+			const Toast = Swal.mixin({
+				toast: true,
+				position: 'top-end',
+				showConfirmButton: false,
+				timer: 3000,
+				timerProgressBar: true
+			});
+
+			if (success) { Toast.fire({ icon: 'success', title: success }); }
+			if (error) { Toast.fire({ icon: 'error', title: error }); }
+		});
+	</script>
 }

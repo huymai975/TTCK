@@ -1,68 +1,150 @@
 ﻿@model WebAppBookingBoat.Models.Tau
 
 @{
-    ViewData["Title"] = "Xóa tàu";
+    ViewData["Title"] = "Xác nhận xóa tàu";
 }
 
 <div class="container-fluid">
-    <h1 class="h3 mb-0 text-gray-800">Xác nhận xóa tàu</h1>
-    <br />
-    <div class="alert alert-warning">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        Bạn có chắc chắn muốn xóa con tàu này không? Hành động này không thể hoàn tác.
+    @* Tiêu đề đồng bộ với icon hệ thống *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-trash-alt text-danger mr-2"></i>Xác nhận gỡ bỏ phương tiện
+        </h1>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <div class="shadow-sm p-4 border rounded bg-white">
-            @* Hiển thị thông tin tóm tắt để người dùng xác nhận *@
-            <div class="text-center mb-4">
-                <img src="~/images/tau/@Model.HinhAnh" width="200" class="img-thumbnail rounded mb-3" alt="Ảnh tàu" />
-                <h3 class="fw-bold">@Model.TenTau</h3>
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10">
+            @* Cảnh báo nguy hiểm *@
+            <div class="alert alert-danger border-left-danger shadow-sm py-3 mb-4 bg-white">
+                <div class="row no-gutters align-items-center">
+                    <div class="col-auto mr-3">
+                        <i class="fas fa-exclamation-circle fa-2x text-danger"></i>
+                    </div>
+                    <div class="col">
+                        <h6 class="m-0 font-weight-bold text-danger">Hành động này không thể hoàn tác!</h6>
+                        <span class="text-muted small">Dữ liệu liên quan đến phương tiện này sẽ bị xóa vĩnh viễn khỏi cơ sở dữ liệu.</span>
+                    </div>
+                </div>
             </div>
 
-            <hr />
+            <div class="card shadow-lg mb-4 border-left-danger">
+                @* Header đồng bộ mã hiệu BOAT-000 *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-danger text-uppercase">
+                        Mã tàu: BOAT-@Model.MaTau.ToString("D3")
+                    </h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-exclamation-triangle mr-1 text-warning"></i> Chờ xác nhận xóa
+                    </span>
+                </div>
 
-            <dl class="row px-3">
-                <dt class="col-sm-6">Số ghế thường:</dt>
-                <dd class="col-sm-6 text-end">@Model.SoGheThuong</dd>
+                <div class="card-body">
+                    <div class="row">
+                        @* Phần hình ảnh *@
+                        <div class="col-md-5 text-center border-right">
+                            <div class="p-2 border rounded bg-light mb-3 shadow-sm">
+                                <img src="@(string.IsNullOrEmpty(Model.HinhAnh) ? "/images/tau/default-boat.jpg" : "/images/tau/" + Model.HinhAnh)"
+                                     class="img-fluid rounded"
+                                     alt="@Model.TenTau"
+                                     style="width: 100%; max-height: 300px; object-fit: cover;" />
+                            </div>
+                            <div class="mt-3 px-3">
+                                @if (Model.TrangThai)
+                                {
+                                    <div class="alert alert-success py-2 border-left-success shadow-sm">
+                                        <i class="fas fa-check-circle mr-2"></i>Sẵn sàng vận hành
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-secondary py-2 border-left-secondary shadow-sm">
+                                        <i class="fas fa-pause-circle mr-2"></i>Tạm dừng hoạt động
+                                    </div>
+                                }
+                            </div>
+                        </div>
 
-                <dt class="col-sm-6">Số ghế VIP:</dt>
-                <dd class="col-sm-6 text-end">@Model.SoGheVIP</dd>
+                        @* Phần thông tin tóm tắt *@
+                        <div class="col-md-7 pl-md-4">
+                            <h2 class="font-weight-bold text-dark mb-4">@Model.TenTau</h2>
 
-                <dt class="col-sm-6 fw-bold text-primary">Tổng số ghế:</dt>
-                <dd class="col-sm-6 text-end fw-bold text-primary">@Model.TongSoGhe</dd>
+                            <div class="row mb-4">
+                                <div class="col-6 mb-3">
+                                    <div class="p-3 border-left-primary bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Ghế thường</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoGheThuong <small>chỗ</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="p-3 border-left-warning bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Ghế VIP</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoGheVIP <small>chỗ</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 border-left-dark bg-gray-100 rounded shadow-sm d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Tổng sức chứa xác nhận</div>
+                                            <div class="h4 mb-0 font-weight-bold text-gray-900">@Model.TongSoGhe <small>hành khách</small></div>
+                                        </div>
+                                        <i class="fas fa-ship fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
 
-                <dt class="col-sm-6">Trạng thái:</dt>
-                <dd class="col-sm-6 text-end">
-                    @* @(Model.TrangThai ? "Đang hoạt động" : "Tạm ngưng") *@
+                            <p class="text-muted italic small">
+                                <i class="fas fa-info-circle mr-1"></i> Vui lòng kiểm tra chính xác tên phương tiện trước khi xác nhận thực hiện lệnh xóa.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-                    @if (Model.TrangThai)
-                    {
-                        <span class="badge badge-success px-2 py-1">Đang hoạt động</span>
-                    }
-                    else
-                    {
-                        <span class="badge badge-danger px-2 py-1">Tạm ngưng</span>
-                    }
-                </dd>
-            </dl>
+                @* Footer với các nút thao tác *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Hủy bỏ & Quay lại</span>
+                    </a>
 
-            <hr />
+                    <form asp-action="Delete" id="confirmDeleteForm">
+                        <input type="hidden" asp-for="MaTau" />
+                        <button type="button" class="btn btn-danger btn-icon-split shadow-sm font-weight-bold" id="btnDeleteConfirm">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span class="text">Xác nhận xóa dữ liệu</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-            @* Form gửi yêu cầu POST để xóa *@
-            <form asp-action="Delete" class="d-flex justify-content-between mt-4">
-                <input type="hidden" asp-for="MaTau" />
-
-                <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                    Quay lại danh sách
-                </a>
-
-                <button type="submit" class="btn btn-danger px-5">
-                    Xác nhận xóa
-                </button>
-            </form>
+            <p class="mb-5 small text-muted text-center">
+                <i class="fas fa-lock mr-1"></i> Phiên làm việc được bảo mật bởi Water Boat Booking Administration
+            </p>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).on('click', '#btnDeleteConfirm', function () {
+            Swal.fire({
+                title: 'Xác nhận xóa phương tiện?',
+                text: "Toàn bộ dữ liệu của tàu BOAT-@Model.MaTau.ToString("D3") sẽ bị gỡ bỏ vĩnh viễn.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Hủy yêu cầu',
+                borderRadius: '12px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#confirmDeleteForm').submit();
+                }
+            });
+        });
+    </script>
+}

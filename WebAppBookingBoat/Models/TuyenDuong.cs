@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebAppBookingBoat.Models
@@ -43,6 +41,8 @@ namespace WebAppBookingBoat.Models
         [Required(ErrorMessage = "Thời gian dự kiến không được để trống")]
         [Display(Name = "Thời gian dự kiến")]
         public TimeSpan ThoiGianDuKien { get; set; } // Ví dụ: 02:30:00
+
+
 
         // --- Navigation Properties ---
 

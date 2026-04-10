@@ -1,77 +1,105 @@
 ﻿@model WebAppBookingBoat.Models.Tau
 
 @{
-    ViewData["Title"] = "Chi tiết tàu";
+    ViewData["Title"] = "Chi tiết phương tiện";
 }
 
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Chi tiết: @Model.TenTau</h1>
-        <a asp-action="Index" class="btn btn-sm btn-secondary shadow-sm">
-            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại danh sách
-        </a>
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-info-circle text-info mr-2"></i>Hồ sơ phương tiện
+        </h1>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-8 offset-md-2">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Thông tin kỹ thuật</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    @* Hiển thị ảnh bên trái *@
-                    <div class="col-md-5 text-center border-right">
-                        <label class="fw-bold d-block mb-2">Hình ảnh đại diện</label>
-                        <img src="~/images/tau/@Model.HinhAnh" class="img-fluid rounded shadow-sm" alt="@Model.TenTau" style="max-height: 250px;" />
-                    </div>
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10">
+            <div class="card shadow-lg mb-4 border-left-info">
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-info text-uppercase">Mã tàu: #@Model.MaTau</h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-database mr-1"></i> Dữ liệu hệ thống
+                    </span>
+                </div>
 
-                    @* Hiển thị thông số bên phải *@
-                    <div class="col-md-7">
-                        <div class="mb-3">
-                            <label class="text-muted d-block mb-0">Tên tàu thuyền</label>
-                            <span class="h4 text-dark">@Model.TenTau</span>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <label class="text-muted d-block mb-0">Số ghế thường</label>
-                                <span class="font-weight-bold">@Model.SoGheThuong ghế</span>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5 text-center border-right">
+                            <div class="p-2 border rounded bg-light mb-3 shadow-sm">
+                                <img src="~/images/tau/@Model.HinhAnh"
+                                     class="img-fluid rounded"
+                                     alt="@Model.TenTau"
+                                     style="width: 100%; max-height: 300px; object-fit: cover;" />
                             </div>
-                            <div class="col-6">
-                                <label class="text-muted d-block mb-0">Số ghế VIP</label>
-                                <span class="font-weight-bold">@Model.SoGheVIP ghế</span>
+                            <div class="mt-3 px-3">
+                                @if (Model.TrangThai)
+                                {
+                                    <div class="alert alert-success py-2 border-left-success shadow-sm">
+                                        <i class="fas fa-check-circle mr-2"></i>Sẵn sàng vận hành
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-danger py-2 border-left-danger shadow-sm">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>Tạm dừng hoạt động
+                                    </div>
+                                }
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="text-muted d-block mb-0">Tổng quy mô chỗ ngồi</label>
-                            <span class="h5 text-primary font-weight-bold">@Model.TongSoGhe ghế</span>
-                        </div>
+                        <div class="col-md-7 pl-md-4">
+                            <h2 class="font-weight-bold text-dark mb-4">@Model.TenTau</h2>
 
-                        <div class="mb-4">
-                            <label class="text-muted d-block mb-0">Trạng thái vận hành</label>
-                            @if (Model.TrangThai)
-                            {
-                                <span class="badge badge-success px-3 py-2">Đang hoạt động</span>
-                            }
-                            else
-                            {
-                                <span class="badge badge-danger px-3 py-2">Tạm ngưng phục vụ</span>
-                            }
-                        </div>
-
-                        <hr />
-
-                        <div class="d-flex gap-2">
-                            <a asp-action="Edit" asp-route-id="@Model.MaTau" class="btn btn-warning px-4">
-                                <i class="fas fa-edit"></i> Chỉnh sửa
-                            </a>
+                            <div class="row mb-4">
+                                <div class="col-6 mb-3">
+                                    <div class="p-3 border-left-primary bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Ghế thường</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoGheThuong <small>chỗ</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="p-3 border-left-warning bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Ghế VIP</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoGheVIP <small>chỗ</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 border-left-danger bg-gray-100 rounded shadow-sm d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Tổng sức chứa</div>
+                                            <div class="h4 mb-0 font-weight-bold text-gray-900">@Model.TongSoGhe <small>hành khách</small></div>
+                                        </div>
+                                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <p class="text-muted italic small">
+                                <i class="fas fa-quote-left mr-1"></i> Thông tin cấu hình ghế được áp dụng cho quy trình đặt vé trực tuyến.
+                            </p>
                         </div>
                     </div>
                 </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Danh sách tàu</span>
+                    </a>
+
+                    <a asp-action="Edit" asp-route-id="@Model.MaTau" class="btn btn-warning btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span class="text">Hiệu chỉnh dữ liệu</span>
+                    </a>
+                </div>
             </div>
+            
+            <p class="mb-5 small text-muted text-center">
+                <i class="fas fa-shield-alt mr-1"></i> Thông tin được xác thực bởi hệ thống quản lý Water Boat Booking
+            </p>
         </div>
     </div>
 </div>

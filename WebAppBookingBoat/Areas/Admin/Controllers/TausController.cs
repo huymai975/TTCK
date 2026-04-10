@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Repository;
-using WebAppBookingBoat.ViewModels; 
+using WebAppBookingBoat.ViewModels;
 
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
@@ -15,10 +10,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class TausController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public TausController(ApplicationDbContext context)
+        public TausController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Admin/Taus
@@ -57,25 +54,35 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                // Chuyển từ ViewModel sang Model thực
-                var tau = new Tau
+                try
                 {
-                    TenTau = vm.TenTau,
-                    SoGheThuong = vm.SoGheThuong,
-                    SoGheVIP = vm.SoGheVIP,
-                    TongSoGhe = vm.TongSoGhe,
-                    TrangThai = vm.TrangThai,
-                    HinhAnh = "default-boat.jpg" // Mặc định nếu không up ảnh
-                };
+                    // Chuyển từ ViewModel sang Model thực
+                    var tau = new Tau
+                    {
+                        TenTau = vm.TenTau,
+                        SoGheThuong = vm.SoGheThuong,
+                        SoGheVIP = vm.SoGheVIP,
+                        TongSoGhe = vm.TongSoGhe,
+                        TrangThai = vm.TrangThai,
+                        HinhAnh = "default-boat.jpg" // Mặc định nếu không up ảnh
+                    };
 
-                if (vm.ImageFile != null)
-                {
-                    tau.HinhAnh = await SaveImage(vm.ImageFile);
+                    if (vm.ImageFile != null)
+                    {
+                        tau.HinhAnh = await SaveImage(vm.ImageFile);
+                    }
+
+                    _context.Add(tau);
+                    await _context.SaveChangesAsync();
+
+
+                    TempData["SuccessMessage"] = $"Đã thêm mới tàu {tau.TenTau} thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                _context.Add(tau);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                catch (Exception)
+                {
+                    TempData["ErrorMessage"] = "Đã xảy ra lỗi trong quá trình lưu dữ liệu.";
+                }
             }
             return View(vm);
         }
@@ -137,13 +144,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                     _context.Update(tau);
                     await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = $"Cập nhật thông tin tàu {tau.TenTau} thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!TauExists(vm.MaTau)) return NotFound();
-                    else throw;
+                    TempData["ErrorMessage"] = "Có lỗi xảy ra khi cập nhật dữ liệu.";
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(vm);
         }
@@ -164,15 +172,36 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tau = await _context.Taus.FindAsync(id);
-            if (tau != null)
+            try
             {
-                DeleteOldImage(tau.HinhAnh); // Xóa ảnh khi xóa tàu
-                _context.Taus.Remove(tau);
+                var tau = await _context.Taus.FindAsync(id);
+                if (tau != null)
+                {
+                    DeleteOldImage(tau.HinhAnh); // Xóa ảnh khi xóa tàu
+                    _context.Taus.Remove(tau);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Xóa dữ liệu thành công.";
+                }
             }
-
-            await _context.SaveChangesAsync();
+            catch (Exception ex) // Dùng Exception chung để bắt mọi tình huống
+            {
+                // Ghi log lỗi nếu cần:
+                Console.WriteLine(ex.Message);
+                TempData["ErrorMessage"] = "Không thể xóa bản ghi này. Nguyên nhân có thể do dữ liệu đang được sử dụng ở danh mục khác (Ghế, Lịch trình).";
+            }
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id) // Tên tham số là 'id' nhé
+        {
+            var tau = await _context.Taus.FindAsync(id);
+            if (tau == null) return Json(new { success = false, message = "Không tìm thấy tàu" });
+
+            tau.TrangThai = !tau.TrangThai;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, newState = tau.TrangThai });
         }
 
         #region Helper Methods (Các hàm bổ trợ)
@@ -180,7 +209,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         private async Task<string> SaveImage(IFormFile file)
         {
             string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tau");
+            string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau");
 
             if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
 
@@ -195,8 +224,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         private void DeleteOldImage(string? fileName)
         {
             if (string.IsNullOrEmpty(fileName) || fileName == "default-boat.jpg") return;
-
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/tau", fileName);
+            string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau");
+            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileName);
             if (System.IO.File.Exists(filePath))
             {
                 System.IO.File.Delete(filePath);

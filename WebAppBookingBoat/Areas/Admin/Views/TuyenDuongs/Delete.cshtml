@@ -1,0 +1,147 @@
+﻿@model WebAppBookingBoat.Models.TuyenDuong
+
+@{
+    ViewData["Title"] = "Xác nhận xóa tuyến đường";
+}
+
+<div class="container-fluid">
+    @* Tiêu đề đồng bộ với hệ thống *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-trash-alt text-danger mr-2"></i>Xác nhận gỡ bỏ tuyến đường
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10">
+            @* Cảnh báo nguy hiểm (Alert phía trên) *@
+            <div class="alert alert-danger border-left-danger shadow-sm py-3 mb-4 bg-white">
+                <div class="row no-gutters align-items-center">
+                    <div class="col-auto mr-3">
+                        <i class="fas fa-exclamation-circle fa-2x text-danger"></i>
+                    </div>
+                    <div class="col">
+                        <h6 class="m-0 font-weight-bold text-danger">Hành động này không thể hoàn tác!</h6>
+                        <span class="text-muted small">Dữ liệu lộ trình và các liên kết lịch trình liên quan sẽ bị gỡ bỏ vĩnh viễn.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-4 border-left-danger">
+                @* Header mã hiệu ROUTE-0000 *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-danger text-uppercase">
+                        Mã tuyến: ROUTE-@Model.MaTuyen.ToString("D4")
+                    </h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-exclamation-triangle mr-1 text-warning"></i> Chờ xác nhận xóa
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        @* Phần hình ảnh *@
+                        <div class="col-md-5 text-center border-right">
+                            <div class="p-2 border rounded bg-light mb-3 shadow-sm">
+                                <img src="@(string.IsNullOrEmpty(Model.HinhAnh) ? "/images/tuyen-duong/default-route.jpg" : "/images/tuyen-duong/" + Model.HinhAnh)"
+                                     class="img-fluid rounded"
+                                     alt="@Model.TenTuyen"
+                                     style="width: 100%; max-height: 250px; object-fit: cover;" />
+                            </div>
+
+                            <div class="alert alert-secondary py-2 border-left-secondary shadow-sm mx-2">
+                                <small class="font-weight-bold d-block text-uppercase">Phân loại</small>
+                                <span class="text-dark">Tuyến đường thủy nội địa</span>
+                            </div>
+                        </div>
+
+                        @* Phần thông tin tóm tắt *@
+                        <div class="col-md-7 pl-md-4">
+                            <h2 class="font-weight-bold text-dark mb-4">@Model.TenTuyen</h2>
+
+                            <div class="row mb-4">
+                                <div class="col-6 mb-3">
+                                    <div class="p-3 border-left-primary bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Điểm xuất phát</div>
+                                        <div class="h6 mb-0 font-weight-bold text-gray-800">
+                                            <i class="fas fa-map-marker-alt text-danger mr-1"></i> @Model.DiemDi
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="p-3 border-left-success bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Điểm kết thúc</div>
+                                        <div class="h6 mb-0 font-weight-bold text-gray-800">
+                                            <i class="fas fa-flag-checkered text-success mr-1"></i> @Model.DiemDen
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 border-left-dark bg-gray-100 rounded shadow-sm d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Thông số lộ trình (Khoảng cách & Thời gian)</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-900">
+                                                @Model.KhoangCach km <span class="mx-2 text-gray-400">|</span> @Model.ThoiGianDuKien.ToString(@"hh\:mm")
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-route fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-muted italic small">
+                                <i class="fas fa-info-circle mr-1"></i> Hệ thống yêu cầu xác nhận lại danh tính lộ trình trước khi thực hiện lệnh xóa vĩnh viễn.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                @* Footer với các nút thao tác *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Hủy bỏ & Quay lại</span>
+                    </a>
+
+                    <form asp-action="Delete" id="confirmDeleteForm">
+                        <input type="hidden" asp-for="MaTuyen" />
+                        <button type="button" class="btn btn-danger btn-icon-split shadow-sm font-weight-bold" id="btnDeleteConfirm">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span class="text">Xác nhận xóa dữ liệu</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <p class="mb-5 small text-muted text-center">
+                <i class="fas fa-lock mr-1"></i> Phiên làm việc được bảo mật bởi Water Boat Booking Administration
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('click', '#btnDeleteConfirm', function () {
+            Swal.fire({
+                title: 'Xác nhận xóa tuyến đường?',
+                text: "Toàn bộ dữ liệu của tuyến ROUTE-@Model.MaTuyen.ToString("D4") sẽ bị gỡ bỏ vĩnh viễn khỏi hệ thống.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Hủy yêu cầu',
+                borderRadius: '12px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#confirmDeleteForm').submit();
+                }
+            });
+        });
+    </script>
+}

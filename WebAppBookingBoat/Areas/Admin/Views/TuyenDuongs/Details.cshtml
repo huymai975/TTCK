@@ -1,0 +1,144 @@
+﻿@model WebAppBookingBoat.Models.TuyenDuong
+
+@{
+    ViewData["Title"] = "Chi tiết Tuyến Đường";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-info-circle text-info mr-2"></i>Hồ sơ tuyến đường
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10">
+            <div class="card shadow-lg mb-4 border-left-info">
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-info text-uppercase">Mã tuyến: #ROUTE-@Model.MaTuyen.ToString("D4")</h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-database mr-1"></i> Dữ liệu hệ thống
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        @* Cột bên trái: Hình ảnh *@
+                        <div class="col-md-5 text-center border-right">
+                            <div class="p-2 border rounded bg-light mb-3 shadow-sm">
+                                <img src="@(string.IsNullOrEmpty(Model.HinhAnh) ? "/images/tuyen-duong/default-route.jpg" : "/images/tuyen-duong/" + Model.HinhAnh)"
+                                     class="img-fluid rounded"
+                                     alt="@Model.TenTuyen"
+                                     style="width: 100%; max-height: 300px; object-fit: cover;" />
+                            </div>
+                            <div class="mt-3 px-3">
+                                <div class="alert alert-info py-2 border-left-info shadow-sm text-left">
+                                    <small class="d-block font-weight-bold text-uppercase mb-1" style="font-size: 0.65rem;">Trình trạng dữ liệu</small>
+                                    <i class="fas fa-check-double mr-2 text-success"></i>Đã được phê duyệt
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Cột bên phải: Thông tin chi tiết *@
+                        <div class="col-md-7 pl-md-4">
+                            <h2 class="font-weight-bold text-dark mb-1">@Model.TenTuyen</h2>
+                            <p class="text-muted mb-4 small"><i class="fas fa-anchor mr-1"></i> Tuyến vận tải đường thủy nội địa</p>
+
+                            <div class="row mb-4">
+                                <div class="col-6 mb-3">
+                                    <div class="p-3 border-left-primary bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Điểm xuất phát</div>
+                                        <div class="h6 mb-0 font-weight-bold text-gray-800 text-truncate">
+                                            <i class="fas fa-map-marker-alt text-danger mr-1"></i> @Model.DiemDi
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="p-3 border-left-success bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Điểm đến</div>
+                                        <div class="h6 mb-0 font-weight-bold text-gray-800 text-truncate">
+                                            <i class="fas fa-flag-checkered text-success mr-1"></i> @Model.DiemDen
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 border-left-warning bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Khoảng cách</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.KhoangCach <small>km</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 border-left-info bg-light rounded shadow-sm">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Thời gian dự kiến</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <i class="far fa-clock mr-1"></i> @Model.ThoiGianDuKien.ToString(@"hh\:mm")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-muted italic small mt-auto">
+                                <i class="fas fa-quote-left mr-1"></i> Thông số khoảng cách và thời gian được cấu hình để làm cơ sở tính toán lịch trình vận hành.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Danh sách tuyến</span>
+                    </a>
+
+                    <a asp-action="Edit" asp-route-id="@Model.MaTuyen" class="btn btn-warning btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span class="text">Hiệu chỉnh dữ liệu</span>
+                    </a>
+                </div>
+            </div>
+
+            <p class="mb-5 small text-muted text-center">
+                <i class="fas fa-shield-alt mr-1"></i> Thông tin được xác thực bởi hệ thống quản lý Water Boat Booking
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 12px;
+    }
+
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
+
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+
+    .text-xs {
+        font-size: .7rem;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+</style>

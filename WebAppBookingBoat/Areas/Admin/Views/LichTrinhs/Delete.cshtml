@@ -1,0 +1,132 @@
+﻿@model WebAppBookingBoat.Models.LichTrinh
+
+@{
+    ViewData["Title"] = "Xác nhận hủy lịch trình";
+}
+
+<div class="container-fluid">
+    @* Tiêu đề đồng bộ *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-calendar-times text-danger mr-2"></i>Gỡ bỏ lịch trình vận hành
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10">
+            @* Alert cảnh báo tác động *@
+            <div class="alert alert-danger border-left-danger shadow-sm py-3 mb-4 bg-white">
+                <div class="row no-gutters align-items-center">
+                    <div class="col-auto mr-3">
+                        <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                    </div>
+                    <div class="col">
+                        <h6 class="m-0 font-weight-bold text-danger">Cảnh báo hệ thống!</h6>
+                        <span class="text-muted small">Việc xóa lịch trình có thể ảnh hưởng đến dữ liệu vé đã đặt của khách hàng. Hãy chắc chắn chuyến đi này chưa có giao dịch.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-4 border-left-danger">
+                @* Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-danger text-uppercase">
+                        Mã lịch trình: #@Model.MaLichTrinh
+                    </h6>
+                    <span class="badge badge-danger px-3 py-2 shadow-sm">
+                        <i class="fas fa-trash-restore mr-1"></i> Trạng thái: @Model.TrangThai
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        @* Thông tin tóm tắt lộ trình *@
+                        <div class="col-md-6 border-right">
+                            <h6 class="font-weight-bold text-muted text-uppercase mb-3 small">Thông tin lộ trình</h6>
+                            <div class="p-3 bg-light rounded mb-3">
+                                <div class="font-weight-bold text-primary mb-1">@Model.TuyenDuong.TenTuyen</div>
+                                <div class="small text-dark">
+                                    <i class="fas fa-ship mr-2 text-warning"></i>Phương tiện: <strong>@Model.Tau.TenTau</strong>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6 text-center">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Giá vé</div>
+                                    <div class="h5 font-weight-bold text-success">@Model.GiaVeCoBan.ToString("N0")đ</div>
+                                </div>
+                                <div class="col-6 text-center border-left">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Vé còn trống</div>
+                                    <div class="h5 font-weight-bold text-danger">@Model.SoGheTrong chỗ</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Thông tin thời gian *@
+                        <div class="col-md-6 pl-md-4">
+                            <h6 class="font-weight-bold text-muted text-uppercase mb-3 small">Thời gian vận hành</h6>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Giờ khởi hành:</small>
+                                <div class="font-weight-bold">@Model.NgayGioKhoiHanh.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Dự kiến cập bến:</small>
+                                <div class="font-weight-bold">@Model.NgayGioCapBenDuKien.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <hr />
+                            <div class="text-center italic small text-danger font-weight-bold">
+                                <i class="fas fa-info-circle mr-1"></i> Dữ liệu này sẽ không thể khôi phục sau khi xóa.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Footer hành động *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Hủy & Quay lại</span>
+                    </a>
+
+                    <form asp-action="Delete" id="confirmDeleteSchedForm">
+                        <input type="hidden" asp-for="MaLichTrinh" />
+                        <button type="button" class="btn btn-danger btn-icon-split shadow-sm font-weight-bold" id="btnDeleteSchedConfirm">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-trash-alt"></i>
+                            </span>
+                            <span class="text">Xóa vĩnh viễn</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <p class="mb-5 small text-muted text-center">
+                <i class="fas fa-user-shield mr-1"></i> Quyền quản trị viên: @(User.Identity?.Name ?? "Chưa xác định")
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('click', '#btnDeleteSchedConfirm', function () {
+            Swal.fire({
+                title: 'Xác nhận xóa lịch trình?',
+                text: "Bạn đang thực hiện xóa lịch trình chuyến @Model.TuyenDuong.TenTuyen. Hành động này sẽ gỡ bỏ mọi dữ liệu liên quan.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Quay lại',
+                borderRadius: '12px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#confirmDeleteSchedForm').submit();
+                }
+            });
+        });
+    </script>
+}

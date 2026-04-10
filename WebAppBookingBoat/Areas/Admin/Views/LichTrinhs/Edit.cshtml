@@ -1,0 +1,163 @@
+﻿@model WebAppBookingBoat.ViewModels.LichTrinhViewModel
+
+@{
+    ViewData["Title"] = "Cập nhật Lịch trình";
+}
+
+<div class="container-fluid">
+    @* Tiêu đề trang *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-edit text-warning mr-2"></i>Điều chỉnh Lịch trình
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <form asp-action="Edit" method="post" class="card shadow-lg mb-4 border-left-warning">
+                @* Card Header hiển thị mã lịch trình *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                        Mã lịch trình: #@Model.MaLichTrinh
+                    </h6>
+                    <span class="badge badge-warning text-white p-2 shadow-sm">
+                        <i class="fas fa-clock mr-1"></i> Cập nhật thời gian & phương tiện
+                    </span>
+                </div>
+
+                <div class="card-body px-lg-5 py-4">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+
+                    @* Hidden fields *@
+                    <input type="hidden" asp-for="MaLichTrinh" />
+
+                    <div class="row">
+                        @* Cột 1: Phân bổ và Giá vé *@
+                        <div class="col-md-6 border-right">
+                            <h6 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-anchor mr-2 text-warning"></i>Cấu hình vận hành
+                            </h6>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaTuyen" class="small font-weight-bold text-muted text-uppercase">Tuyến đường vận hành</label>
+                                <select asp-for="MaTuyen" class="form-control border-left-primary shadow-sm"
+                                        asp-items="Model.DanhSachTuyen">
+                                </select>
+                                <span asp-validation-for="MaTuyen" class="text-danger small mt-1"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaTau" class="small font-weight-bold text-muted text-uppercase">Phương tiện thực hiện</label>
+                                <select asp-for="MaTau" class="form-control border-left-info shadow-sm"
+                                        asp-items="Model.DanhSachTau">
+                                </select>
+                                <span asp-validation-for="MaTau" class="text-danger small mt-1"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label font-weight-bold">Giá vé cơ bản</label>
+                                <div class="input-group">
+                                    <input asp-for="GiaVeCoBan"
+                                           type="number"
+                                           value="@Model.GiaVeCoBan.ToString("G29")"
+                                           class="form-control"
+                                           step="1000" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="GiaVeCoBan" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        @* Cột 2: Thời gian và Trạng thái *@
+                        <div class="col-md-6 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-history mr-2 text-warning"></i>Lịch trình dự kiến
+                            </h6>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="NgayGioKhoiHanh" class="small font-weight-bold text-muted text-uppercase">Giờ khởi hành</label>
+                                <input asp-for="NgayGioKhoiHanh" type="datetime-local" class="form-control shadow-sm border-left-warning" />
+                                <span asp-validation-for="NgayGioKhoiHanh" class="text-danger small mt-1"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="NgayGioCapBenDuKien" class="small font-weight-bold text-muted text-uppercase">Giờ cập bến dự kiến</label>
+                                <input asp-for="NgayGioCapBenDuKien" type="datetime-local" class="form-control shadow-sm border-left-danger" />
+                                <span asp-validation-for="NgayGioCapBenDuKien" class="text-danger small mt-1"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Cập nhật trạng thái</label>
+                                <select asp-for="TrangThai" class="form-control shadow-sm border-left-success font-weight-bold text-success">
+                                    <option value="Sắp khởi hành">Sắp khởi hành</option>
+                                    <option value="Đang vận hành">Đang vận hành</option>
+                                    <option value="Hoàn thành">Hoàn thành</option>
+                                    <option value="Đã hủy">Đã hủy</option>
+                                </select>
+                                <span asp-validation-for="TrangThai" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Footer với các nút thao tác *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Hủy thay đổi</span>
+                    </a>
+
+                    <button type="submit" class="btn btn-warning btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-save"></i>
+                        </span>
+                        <span class="text">Lưu cập nhật</span>
+                    </button>
+                </div>
+            </form>
+
+            @* Cảnh báo thông tin *@
+            <div class="alert alert-warning border-0 shadow-sm small">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                <strong>Lưu ý quan trọng:</strong> Nếu bạn thay đổi <strong>Phương tiện (Tàu)</strong>, hệ thống sẽ tự động cập nhật lại <strong>Số ghế trống</strong> dựa trên sức chứa của tàu mới. Vui lòng kiểm tra kỹ trước khi lưu.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <style>
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e !important;
+        }
+
+        .border-left-danger {
+            border-left: 4px solid #e74a3b !important;
+        }
+
+        .border-left-success {
+            border-left: 4px solid #1cc88a !important;
+        }
+
+        .form-control:focus {
+            border-color: #f6c23e;
+            box-shadow: 0 0 0 0.2rem rgba(246, 194, 62, 0.15);
+        }
+    </style>
+}
