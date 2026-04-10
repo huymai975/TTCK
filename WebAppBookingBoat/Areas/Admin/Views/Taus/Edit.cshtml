@@ -132,10 +132,21 @@
 	}
 	<script src="~/js/tau-logic.js"></script>
 	<script>
-		// Hiển thị tên file khi chọn ảnh mới
-		$('.custom-file-input').on('change', function() {
+				// Hiển thị tên file và preview ảnh ngay lập tức
+		$('.custom-file-input').on('change', function(e) {
+			// 1. Hiện tên file
 			let fileName = $(this).val().split('\\').pop();
 			$(this).next('.custom-file-label').addClass("selected").html(fileName);
+
+			// 2. Hiện ảnh xem trước
+			const file = e.target.files[0];
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					$('#imgPreview').attr('src', e.target.result);
+				}
+				reader.readAsDataURL(file);
+			}
 		});
 	</script>
 }

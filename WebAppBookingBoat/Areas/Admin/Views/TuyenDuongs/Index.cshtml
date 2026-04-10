@@ -1,0 +1,235 @@
+﻿@model IEnumerable<WebAppBookingBoat.Models.TuyenDuong>
+
+@{
+    ViewData["Title"] = "Quản lý Tuyến Đường";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* KHUNG BẢNG CÂN ĐỐI */
+    #dataTableRoutes {
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    /* Tỉ lệ cột giống trang Tàu */
+    .col-id {
+        width: 55px;
+    }
+
+    .col-route {
+        width: auto;
+    }
+
+    .col-img {
+        width: 120px;
+    }
+
+    .col-distance {
+        width: 140px;
+    }
+
+    .col-time {
+        width: 130px;
+    }
+
+    .col-action {
+        width: 155px;
+    }
+
+    /* SOFT UI BUTTONS (Giống hệt trang Tàu) */
+    .btn-modern {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        border: none;
+        margin: 0 2px;
+    }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    .btn-view {
+        background-color: #e1f5fe;
+        color: #039be5;
+    }
+
+    .btn-edit {
+        background-color: #fff8e1;
+        color: #f57f17;
+    }
+
+    .btn-delete {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+
+    .btn-view:hover {
+        background-color: #039be5;
+        color: #fff;
+    }
+
+    .btn-edit:hover {
+        background-color: #f57f17;
+        color: #fff;
+    }
+
+    .btn-delete:hover {
+        background-color: #c62828;
+        color: #fff;
+    }
+
+    /* CUSTOM DATATABLES (Giống trang Tàu) */
+    .dataTables_filter input {
+        border-radius: 8px !important;
+        border: 1px solid #d1d3e2 !important;
+        padding: 0.4rem 0.75rem !important;
+        width: 250px !important;
+        margin-left: 0 !important; /* Xóa khoảng cách sau khi bỏ chữ Tìm kiếm */
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+
+    .pagination .page-link {
+        border-radius: 8px !important;
+        margin: 0 2px;
+        border: none;
+    }
+
+    .btn-modern {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        border: none;
+        margin: 0 2px;
+        /* KHỬ GẠCH CHÂN */
+        text-decoration: none !important;
+    }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            /* ĐẢM BẢO KHÔNG XUẤT HIỆN GẠCH CHÂN KHI HOVER */
+            text-decoration: none !important;
+        }
+
+        /* Khử gạch chân cho icon bên trong nếu cần */
+        .btn-modern i {
+            text-decoration: none !important;
+        }
+</style>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-map-marked-alt text-primary mr-2"></i>Quản lý tuyến Đường
+        </h1>
+    </div>
+
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-primary btn-icon-split shadow-sm border-0">
+            <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+            <span class="text font-weight-bold">Thêm mới tuyến đường</span>
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header py-3 bg-white border-bottom d-flex align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                <i class="fas fa-route mr-1"></i> Danh sách hành trình
+            </h6>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="dataTableRoutes">
+                    <thead class="bg-light text-muted small font-weight-bold">
+                        <tr>
+                            <th class="text-center col-id border-0">ID</th>
+                            <th class="col-route border-0">Thông tin tuyến</th>
+                            <th class="text-center col-img border-0">Hình ảnh</th>
+                            <th class="text-center col-distance border-0">Khoảng cách</th>
+                            <th class="text-center col-time border-0">Dự kiến</th>
+                            <th class="text-center col-action border-0">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center align-middle font-weight-bold text-gray-500">#@item.MaTuyen</td>
+                                <td class="align-middle">
+                                    <span class="font-weight-bold text-dark">@item.TenTuyen</span><br />
+                                    <small class="text-muted small">@item.DiemDi <i class="fas fa-arrow-right mx-1 fa-xs"></i> @item.DiemDen</small>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <img src="@(string.IsNullOrEmpty(item.HinhAnh) ? "/images/tuyen-duong/default-route.jpg" : "/images/tuyen-duong/" + item.HinhAnh)"
+                                         width="95" class="rounded shadow-sm border" style="height: 52px; object-fit: cover;" />
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="badge badge-light border px-2 py-1 text-dark">@item.KhoangCach km</span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="text-primary font-weight-bold"><i class="far fa-clock mr-1"></i>@item.ThoiGianDuKien.ToString(@"hh\:mm")</span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <div class="d-flex justify-content-center">
+                                        <a asp-action="Details" asp-route-id="@item.MaTuyen" class="btn-modern btn-view"><i class="fas fa-eye"></i></a>
+                                        <a asp-action="Edit" asp-route-id="@item.MaTuyen" class="btn-modern btn-edit"><i class="fas fa-edit"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaTuyen" class="btn-modern btn-delete"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#dataTableRoutes').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
+                    "search": "", // BỎ CHỮ TÌM KIẾM
+                    "searchPlaceholder": "Tìm tên tuyến, điểm đi/đến...",
+                    "paginate": {
+                        "previous": "<i class='fas fa-chevron-left'></i>",
+                        "next": "<i class='fas fa-chevron-right'></i>"
+                    }
+                },
+                "pageLength": 10,
+                "columnDefs": [ { "orderable": false, "targets": [2, 5] } ],
+                "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                       "<'row'<'col-sm-12'tr>>" +
+                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "drawCallback": function() {
+                    // Ép các nút phân trang nhỏ gọn giống trang Tàu
+                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,144 @@
+﻿@model WebAppBookingBoat.ViewModels.TuyenDuongViewModel
+
+@{
+    ViewData["Title"] = "Khởi tạo tuyến đường mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-map-marked-alt text-primary mr-2"></i>Thêm mới tuyến đường
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <form asp-action="Create" enctype="multipart/form-data" class="card shadow-lg mb-4 border-left-primary">
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase small">Cấu hình thông tin hành trình</h6>
+                    <span class="badge badge-primary p-2 shadow-sm">
+                        <i class="fas fa-plus-circle mr-1"></i> Chế độ thêm mới
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3 d-none"></div>
+
+                    <div class="row">
+                        <div class="col-md-4 text-center border-right">
+                            <label class="font-weight-bold text-dark d-block mb-3 small uppercase">Hình ảnh tuyến đường</label>
+                            <div class="image-upload-wrapper mb-3 p-2 border rounded bg-light shadow-sm">
+                                <img id="imgPreview" src="~/images/tuyen-duong/default-route.jpg"
+                                     class="img-fluid rounded"
+                                     style="max-height: 220px; width: 100%; object-fit: cover;"
+                                     alt="Preview" />
+                            </div>
+                            <div class="custom-file text-left">
+                                <input asp-for="HinhAnhFile" id="imageInput" type="file" class="custom-file-input" accept="image/*" />
+                                <label class="custom-file-label text-truncate" for="imageInput">Chọn tệp ảnh...</label>
+                                <span asp-validation-for="HinhAnhFile" class="text-danger small font-italic"></span>
+                            </div>
+                            <small class="form-text text-muted mt-2 font-italic small">
+                                <i class="fas fa-info-circle mr-1"></i> Ảnh phong cảnh hoặc bản đồ tuyến.
+                            </small>
+                        </div>
+
+                        <div class="col-md-8 pl-md-4">
+                            <div class="row">
+                                <div class="col-12 form-group mb-4">
+                                    <label asp-for="TenTuyen" class="font-weight-bold text-dark small">Tên tuyến đường</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-primary text-white border-0"><i class="fas fa-route"></i></span>
+                                        </div>
+                                        <input asp-for="TenTuyen" class="form-control shadow-sm" placeholder="Ví dụ: Rạch Giá - Phú Quốc" />
+                                    </div>
+                                    <span asp-validation-for="TenTuyen" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-4">
+                                    <label asp-for="DiemDi" class="font-weight-bold text-dark small">Điểm xuất phát</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light text-danger"><i class="fas fa-map-marker-alt"></i></span>
+                                        </div>
+                                        <input asp-for="DiemDi" class="form-control" placeholder="Cảng khởi hành..." />
+                                    </div>
+                                    <span asp-validation-for="DiemDi" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-4">
+                                    <label asp-for="DiemDen" class="font-weight-bold text-dark small">Điểm đến</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light text-success"><i class="fas fa-flag-checkered"></i></span>
+                                        </div>
+                                        <input asp-for="DiemDen" class="form-control" placeholder="Cảng đích..." />
+                                    </div>
+                                    <span asp-validation-for="DiemDen" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-4">
+                                    <label asp-for="KhoangCach" class="font-weight-bold text-dark small">Khoảng cách (km)</label>
+                                    <input asp-for="KhoangCach" class="form-control shadow-sm" type="number" step="0.1" placeholder="0.0" />
+                                    <span asp-validation-for="KhoangCach" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-4">
+                                    <label asp-for="ThoiGianDuKien" class="font-weight-bold text-dark small">Thời gian dự kiến</label>
+                                    <input asp-for="ThoiGianDuKien" class="form-control shadow-sm" type="time" />
+                                    <span asp-validation-for="ThoiGianDuKien" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm border-0">
+                        <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                        <span class="text">Danh sách tuyến</span>
+                    </a>
+
+                    <div>
+                        <button type="reset" class="btn btn-light border mr-2 shadow-sm px-4">
+                            <i class="fas fa-undo mr-1"></i> Làm mới
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-icon-split shadow-lg font-weight-bold border-0">
+                            <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                            <span class="text px-3">Lưu tuyến đường</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <p class="mb-5 small text-muted text-center italic">
+                <i class="fas fa-info-circle mr-1"></i> Hãy đảm bảo các thông số khoảng cách và thời gian khớp với thực tế vận hành.
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Preview ảnh ngay khi chọn file
+        $('#imageInput').on('change', function(e) {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imgPreview').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}
