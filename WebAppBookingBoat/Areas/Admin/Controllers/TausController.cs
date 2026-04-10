@@ -19,9 +19,24 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         }
 
         // GET: Admin/Taus
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, bool? trangThai)
         {
-            return View(await _context.Taus.ToListAsync());
+            var query = _context.Taus.AsQueryable();
+
+            // 1. Lọc theo tên
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(s => s.TenTau.Contains(searchString));
+            }
+
+            // 2. Lọc theo trạng thái (bool?)
+            // Dùng bool? (nullable) để xử lý 3 trạng thái: True, False, và null (tất cả)
+            if (trangThai.HasValue)
+            {
+                query = query.Where(x => x.TrangThai == trangThai.Value);
+            }
+
+            return View(await query.OrderByDescending(t => t.MaTau).ToListAsync());
         }
 
         // GET: Admin/Taus/Details/5

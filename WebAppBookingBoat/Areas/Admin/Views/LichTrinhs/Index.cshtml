@@ -5,7 +5,7 @@
 }
 
 <style>
-    /* 1. KHUNG BẢNG CÂN ĐỐI */
+    /* 1. KHUNG BẢNG & TỈ LỆ CỘT (Đồng bộ trang Tàu) */
     #dataTable {
         table-layout: fixed;
         width: 100%;
@@ -13,9 +13,8 @@
         border-spacing: 0;
     }
 
-    /* Tỉ lệ cột cho Lịch trình */
     .col-id {
-        width: 30px;
+        width: 55px;
     }
 
     .col-route {
@@ -23,15 +22,15 @@
     }
 
     .col-boat {
-        width: 150px;
+        width: 160px;
     }
 
     .col-time {
-        width: 80px;
+        width: 165px;
     }
 
     .col-price {
-        width: 120px;
+        width: 115px;
     }
 
     .col-seats {
@@ -39,11 +38,11 @@
     }
 
     .col-status {
-        width: 130px;
+        width: 145px;
     }
 
     .col-action {
-        width: 140px;
+        width: 130px;
     }
 
     /* 2. STYLE NỘI DUNG */
@@ -52,11 +51,15 @@
         font-weight: 700;
         color: #2c3e50;
         line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.95rem;
     }
 
     .time-box {
-        font-size: 0.8rem;
-        line-height: 1.4;
+        font-size: 0.85rem;
+        line-height: 1.5;
     }
 
     /* 3. NÚT THAO TÁC (SOFT UI) */
@@ -92,6 +95,12 @@
         color: #c62828;
     }
 
+    .btn-lock {
+        background-color: #f8f9fa;
+        color: #a0a0a0;
+        cursor: not-allowed;
+    }
+
     .btn-view:hover {
         background-color: #039be5;
         color: #fff;
@@ -107,13 +116,27 @@
         color: #fff;
     }
 
-    /* 4. BADGE TRẠNG THÁI */
+    /* 4. BADGE TRẠNG THÁI (Đồng bộ trang Tàu) */
     .badge-status {
-        padding: 5px 10px;
+        padding: 6px 12px;
         border-radius: 20px;
         font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        border: none;
+    }
+
+    /* Tùy chỉnh phân trang giống trang Tàu */
+    .pagination .page-item.active .page-link {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+
+    .pagination .page-link {
+        color: #4e73df;
     }
 </style>
 
@@ -126,9 +149,7 @@
 
     <div class="mb-3">
         <a asp-action="Create" class="btn btn-primary btn-icon-split shadow-sm border-0">
-            <span class="icon text-white-50">
-                <i class="fas fa-plus"></i>
-            </span>
+            <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
             <span class="text font-weight-bold">Thiết lập lịch trình mới</span>
         </a>
     </div>
@@ -141,71 +162,95 @@
         </div>
 
         <div class="card-body p-0">
-            <div class="table-responsive">
+            <div class="px-3 pt-3">
+                <div class="card shadow-sm border-0" style="background-color: #f8f9fc;">
+                    <div class="card-body py-2">
+                        <div class="row align-items-center">
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-primary text-white border-0"><i class="fas fa-filter"></i></span>
+                                    </div>
+                                    <select id="statusFilter" class="form-control border-0 font-weight-bold text-primary" style="height: 35px;">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="Sắp khởi hành">Sắp khởi hành</option>
+                                        <option value="Đang vận hành">Đang vận hành</option>
+                                        <option value="Hoàn thành">Hoàn thành</option>
+                                        <option value="Đã hủy">Đã hủy</option>
+                                    </select>
+                                </div>
+                                <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary ml-2 border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive mt-2">
                 <table class="table table-hover align-middle mb-0" id="dataTable">
                     <thead class="bg-light text-muted small font-weight-bold">
                         <tr>
-                            <th class="text-center col-id">ID</th>
-                            <th class="col-route">Tuyến đường</th>
-                            <th class="col-boat">Tàu vận hành</th>
-                            <th class="col-time">Thời gian</th>
-                            <th class="text-center col-price">Giá vé</th>
-                            <th class="text-center col-seats">Ghế trống</th>
-                            <th class="text-center col-status">Trạng thái</th>
-                            <th class="text-center col-action">Thao tác</th>
+                            <th class="text-center col-id border-0">ID</th>
+                            <th class="col-route border-0">Tuyến đường</th>
+                            <th class="col-boat border-0">Tàu</th>
+                            <th class="col-time border-0">Thời gian</th>
+                            <th class="text-center col-price border-0">Giá vé</th>
+                            <th class="text-center col-seats border-0">Trống</th>
+                            <th class="text-center col-status border-0">Trạng thái</th>
+                            <th class="text-center col-action border-0">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td class="text-center font-weight-bold text-gray-500 small">#@item.MaLichTrinh</td>
-                                <td>
-                                    <span class="text-route">@item.TuyenDuong.TenTuyen</span>
-                                    <small class="text-muted"><i class="fas fa-map-marker-alt mr-1"></i>@item.TuyenDuong.DiemDi → @item.TuyenDuong.DiemDen</small>
+                                <td class="text-center font-weight-bold text-gray-500 small align-middle">#@item.MaLichTrinh</td>
+                                <td class="align-middle">
+                                    <span class="text-route">@item.TuyenDuong?.TenTuyen</span>
+                                    <small class="text-muted text-uppercase" style="font-size: 0.65rem;">
+                                        @item.TuyenDuong?.DiemDi → @item.TuyenDuong?.DiemDen
+                                    </small>
                                 </td>
-                                <td>
-                                    <div class="font-weight-bold text-dark small">@item.Tau.TenTau</div>
-                                    <div class="progress progress-custom mt-1" style="height: 4px;">
-                                        <div class="progress-bar bg-info" style="width: 100%"></div>
-                                    </div>
-                                </td>
-                                <td class="time-box">
+                                <td class="align-middle"><div class="font-weight-bold text-dark small">@item.Tau?.TenTau</div></td>
+                                <td class="time-box align-middle">
                                     <div class="text-success font-weight-bold"><i class="far fa-clock mr-1"></i>@item.NgayGioKhoiHanh.ToString("dd/MM HH:mm")</div>
-                                    <div class="text-muted small"><i class="fas fa-long-arrow-alt-right mr-1"></i>@item.NgayGioCapBenDuKien.ToString("dd/MM HH:mm")</div>
+                                    <div class="text-muted small">→ @item.NgayGioCapBenDuKien.ToString("dd/MM HH:mm")</div>
                                 </td>
-                                <td class="text-center">
-                                    <span class="font-weight-bold text-primary">@item.GiaVeCoBan.ToString("N0")đ</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge @(item.SoGheTrong > 0 ? "badge-light text-dark border" : "badge-danger")">
-                                        @item.SoGheTrong/@item.Tau.TongSoGhe
+                                <td class="text-center font-weight-bold text-primary align-middle">@item.GiaVeCoBan.ToString("N0")đ</td>
+                                <td class="text-center align-middle">
+                                    <span class="badge @(item.SoGheTrong == 0 ? "badge-danger" : "badge-light border") shadow-sm">
+                                        @item.SoGheTrong/@(item.Tau?.TongSoGhe ?? 0)
                                     </span>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     @{
-                                        var statusClass = item.TrangThai switch
+                                        var sClass = item.TrangThai switch
                                         {
                                             "Sắp khởi hành" => "badge-info",
-                                            "Đang vận hành" => "badge-warning",
+                                            "Đang vận hành" => "badge-warning text-dark",
                                             "Hoàn thành" => "badge-success",
                                             "Đã hủy" => "badge-danger",
                                             _ => "badge-secondary"
                                         };
                                     }
-                                    <span class="badge badge-status @statusClass shadow-sm">@item.TrangThai</span>
+                                    <span class="badge badge-status shadow-sm @sClass">@item.TrangThai</span>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     <div class="d-flex justify-content-center">
-                                        <a asp-action="Details" asp-route-id="@item.MaLichTrinh" class="btn-modern btn-view" title="Chi tiết">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@item.MaLichTrinh" class="btn-modern btn-edit" title="Sửa">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.MaLichTrinh" class="btn-modern btn-delete" title="Xóa">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.MaLichTrinh" class="btn-modern btn-view" title="Chi tiết"><i class="fas fa-eye"></i></a>
+
+                                        @if (item.TrangThai == "Sắp khởi hành")
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.MaLichTrinh" class="btn-modern btn-edit" title="Sửa"><i class="fas fa-edit"></i></a>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn-modern btn-lock" title="Chuyến đi đã hoặc đang chạy"><i class="fas fa-lock"></i></span>
+                                        }
+
+                                        <a asp-action="Delete" asp-route-id="@item.MaLichTrinh" class="btn-modern btn-delete" title="Xóa"><i class="fas fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -224,19 +269,41 @@
 
     <script>
         $(document).ready(function() {
-            $('#dataTable').DataTable({
+            var table = $('#dataTable').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
-                    "searchPlaceholder": "Tìm tuyến, tàu, ngày..."
+                    "searchPlaceholder": "Tìm tuyến, tàu, ngày...",
+                    "search": "",
+                    // 1. Dấu điều khiển phân trang giống index taus
+                    "paginate": {
+                        "previous": "<i class='fas fa-chevron-left'></i>",
+                        "next": "<i class='fas fa-chevron-right'></i>"
+                    }
                 },
                 "pageLength": 10,
-                "order": [[3, "desc"]], // Sắp xếp theo thời gian mới nhất
+                "order": [[3, "desc"]],
                 "columnDefs": [
-                    { "orderable": false, "targets": [7] }
+                    { "orderable": false, "targets": [7] },
+                    { "className": "align-middle", "targets": "_all" }
                 ],
                 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                        "<'row'<'col-sm-12'tr>>" +
-                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "drawCallback": function() {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                }
+            });
+
+            // Logic lọc trạng thái (Regex chính xác)
+            $('#statusFilter').on('change', function() {
+                var val = $(this).val();
+                table.column(6).search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+
+            // Reset lọc
+            $('#btnResetFilter').on('click', function() {
+                $('#statusFilter').val('');
+                table.column(6).search('').draw();
             });
         });
     </script>
