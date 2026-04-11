@@ -102,6 +102,13 @@
         color: #fff;
     }
 
+    .dataTables_wrapper .dataTables_filter input {
+        width: 250px !important;
+        border: 2px solid #4e73df;
+        border-radius: 20px;
+        padding-left: 15px !important;
+    }
+
     /* Custom Pagination */
     .pagination .page-item.active .page-link {
         background-color: #4e73df;
@@ -137,6 +144,28 @@
         </div>
 
         <div class="card-body p-0">
+            <div class="px-3 pt-3">
+                <div class="card shadow-sm border-0" style="background-color: #f8f9fc;">
+                    <div class="card-body py-2">
+                        <div class="d-flex align-items-center flex-wrap">
+                            <div class="input-group input-group-sm shadow-sm mr-2" style="width: 280px;">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-primary text-white border-0"><i class="fas fa-filter"></i></span>
+                                </div>
+                                <select id="accountFilter" class="form-control border-0 font-weight-bold text-primary">
+                                    <option value="">Tất cả khách hàng</option>
+                                    <option value="da-co-tk">Đã liên kết tài khoản</option>
+                                    <option value="chua-co-tk">Chưa có tài khoản (N/A)</option>
+                                </select>
+                            </div>
+                            <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="table-responsive mt-2">
                 <table class="table table-hover align-middle mb-0" id="dataTable">
                     <thead class="bg-light text-muted small font-weight-bold">
@@ -168,19 +197,29 @@
                                     <i class="fas fa-map-marker-alt mr-1 text-danger"></i> @item.DiaChi
                                 </td>
                                 <td class="align-middle">
-                                    <div class="badge badge-light border text-primary px-3 shadow-sm">
-                                        <i class="fas fa-user-circle mr-1"></i> @(item.AppUser?.UserName ?? "N/A")
-                                    </div>
+                                    @if (item.AppUser != null)
+                                    {
+                                        <div class="badge badge-light border text-primary px-3 shadow-sm">
+                                            <i class="fas fa-user-circle mr-1"></i> @item.AppUser.UserName
+                                        </div>
+                                        <span class="d-none">da-co-tk</span>
+         @* Hidden text để DataTable filter *@
+                                    }
+                                    else
+                                    {
+                                        <div class="badge badge-light border text-muted px-3 shadow-sm">
+                                            <i class="fas fa-minus-circle mr-1"></i> N/A
+                                        </div>
+                                        <span class="d-none">chua-co-tk</span>
+                                    }
                                 </td>
                                 <td class="text-center align-middle">
                                     <div class="d-flex justify-content-center">
                                         <a asp-action="Details" asp-route-id="@item.MaKH" class="btn-modern btn-view" title="Chi tiết"><i class="fas fa-eye"></i></a>
                                         <a asp-action="Edit" asp-route-id="@item.MaKH" class="btn-modern btn-edit" title="Sửa"><i class="fas fa-edit"></i></a>
-                                        <form id="delete-form-@item.MaKH" asp-action="Delete" asp-route-id="@item.MaKH" method="post" style="display:none;"></form>
-
-                                        <a href="javascript:void(0)" onclick="confirmDelete('delete-form-@item.MaKH')" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        <button type="button" class="btn-modern btn-delete" onclick="deleteKhachHang(@item.MaKH, '@item.HoTen')" title="Xóa">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -198,15 +237,50 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 
     <script>
+        function deleteKhachHang(id, name) {
+            Swal.fire({
+                title: 'Xác nhận xóa?',
+                text: `Bạn có chắc chắn muốn xóa khách hàng "${name}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Xóa ngay',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteAjax", "KhachHangs")',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Thành công!', response.message, 'success').then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Thất bại!', response.message, 'error');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
         $(document).ready(function() {
-            $('#dataTable').DataTable({
+            var table = $('#dataTable').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
                     "searchPlaceholder": "Tìm tên, sđt, email...",
-                    "search": "",
+                    "search": "Tìm kiếm:",
                     "paginate": {
-                        "previous": "<i class='fas fa-chevron-left'></i>",
-                        "next": "<i class='fas fa-chevron-right'></i>"
+                        "previous": "<i class='fas fa-angle-left'></i>",
+                        "next": "<i class='fas fa-angle-right'></i>",
+                        "first": "<i class='fas fa-angle-double-left'></i>",
+                        "last": "<i class='fas fa-angle-double-right'></i>"
                     }
                 },
                 "pageLength": 10,
@@ -216,11 +290,24 @@
                     { "className": "align-middle", "targets": "_all" }
                 ],
                 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                       "<'row'<'col-sm-12'tr>>" +
-                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 "drawCallback": function() {
                     $('.dataTables_paginate > .pagination').addClass('pagination-sm');
                 }
+            });
+
+            // Lọc theo tài khoản
+            $('#accountFilter').on('change', function() {
+                var val = $(this).val();
+                // Cột tài khoản là cột thứ 5 (index 4)
+                table.column(4).search(val).draw();
+            });
+
+            // Reset lọc
+            $('#btnResetFilter').on('click', function() {
+                $('#accountFilter').val('');
+                table.column(4).search('').draw();
             });
         });
     </script>

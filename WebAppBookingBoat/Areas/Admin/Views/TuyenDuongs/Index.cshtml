@@ -15,7 +15,7 @@
     }
 
     .col-id {
-        width: 55px;
+        width: 30px;
     }
 
     .col-route {
@@ -153,7 +153,7 @@
                                         <a asp-action="Details" asp-route-id="@item.MaTuyen" class="btn-modern btn-view"><i class="fas fa-eye"></i></a>
                                         <a asp-action="Edit" asp-route-id="@item.MaTuyen" class="btn-modern btn-edit"><i class="fas fa-edit"></i></a>
                                         <button type="button" class="btn-modern btn-delete"
-                                                onclick="deleteRouteAjax(@item.MaTuyen, '@item.TenTuyen')">
+                                                onclick="deleteKhachHangAjax(@item.MaTuyen, '@item.TenTuyen')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -180,12 +180,15 @@
             table = $('#dataTableRoutes').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
-                    "search": "",
+                    "search": "Tìm kiếm:",
                     "searchPlaceholder": "Tìm tên tuyến, điểm đi/đến...",
                     "paginate": {
-                        "previous": "<i class='fas fa-chevron-left'></i>",
-                        "next": "<i class='fas fa-chevron-right'></i>"
-                    }
+                    // Thêm icon vào nút phân trang
+                    "previous": "<i class='fas fa-angle-left'></i>",
+                    "next": "<i class='fas fa-angle-right'></i>",
+                    "first": "<i class='fas fa-angle-double-left'></i>",
+                    "last": "<i class='fas fa-angle-double-right'></i>"
+                }
                 },
                 "pageLength": 10,
                 "order": [[0, "desc"]],
@@ -199,41 +202,45 @@
             });
         });
 
-        function deleteRouteAjax(id, name) {
+                function deleteKhachHangAjax(id, name) {
             Swal.fire({
                 title: 'Xác nhận xóa?',
-                text: "Bạn có chắc muốn xóa tuyến: " + name + "?",
+                text: `Bạn có chắc muốn xóa tuyến "${name}"?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
                 confirmButtonText: 'Đồng ý xóa',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '@Url.Action("DeleteConfirmed", "TuyenDuongs")',
+                        // Đảm bảo tên Action và Controller chính xác
+                        url: '@Url.Action("DeleteAjax", "KhachHangs")',
                         type: 'POST',
                         data: {
                             id: id,
+                            // Lấy token để vượt qua kiểm tra [ValidateAntiForgeryToken]
                             __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                         },
                         success: function (response) {
                             if (response.success) {
                                 Swal.fire({
-                                    title: 'Đã xóa!',
+                                    title: 'Thành công!',
                                     text: response.message,
                                     icon: 'success',
                                     timer: 1500,
                                     showConfirmButton: false
+                                }).then(() => {
+                                    location.reload();
                                 });
-                                // Xóa dòng khỏi bảng ngay lập tức
-                                table.row($('#row-' + id)).remove().draw(false);
                             } else {
-                                Swal.fire('Lỗi!', response.message, 'error');
+                                // Hiện thông báo lỗi nếu vi phạm ràng buộc (ví dụ: đã có hóa đơn)
+                                Swal.fire('Không thể xóa!', response.message, 'error');
                             }
                         },
                         error: function () {
-                            Swal.fire('Lỗi!', 'Hệ thống không phản hồi hoặc bạn không có quyền.', 'error');
+                            Swal.fire('Lỗi!', 'Có lỗi xảy ra trong quá trình xử lý.', 'error');
                         }
                     });
                 }

@@ -16,7 +16,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             _context = context;
         }
 
-        // 1. TRANG DANH SÁCH: Hỗ trợ lọc theo Tàu
         public async Task<IActionResult> Index(int? maTau)
         {
             var query = _context.Ghes.Include(g => g.Tau).AsQueryable();
@@ -33,6 +32,22 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             ViewBag.MaTau = new SelectList(_context.Taus, "MaTau", "TenTau", maTau);
 
             return View(ghes);
+        }
+
+        // 1. Hàm logic kiểm tra điều kiện xóa
+        private async Task<(bool canDelete, string message)> CheckCanDeleteGhe(int id)
+        {
+            var ghe = await _context.Ghes.FindAsync(id);
+            if (ghe == null) return (false, "Ghế không tồn tại.");
+
+            // Kiểm tra vé đã đặt
+            bool daCoVe = await _context.Ves.AnyAsync(v => v.MaGhe == id);
+            if (daCoVe)
+            {
+                return (false, $"Ghế {ghe.TenGhe} đã được bán vé, không thể xóa!");
+            }
+
+            return (true, "");
         }
 
         // 2. AJAX: Lấy thông tin tàu để Modal hiển thị "Còn trống bao nhiêu"
@@ -106,43 +121,30 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index), new { maTau = MaTau });
         }
 
-        // GET: Admin/Ghes/Delete/5
-        // Hàm này cực kỳ quan trọng để hiển thị trang xác nhận xóa
-        [HttpGet]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            // Include("Tau") để ra trang xác nhận còn biết ghế này thuộc tàu nào mà xóa cho đúng
-            var ghe = await _context.Ghes
-                .Include(g => g.Tau)
-                .FirstOrDefaultAsync(m => m.MaGhe == id);
-
-            if (ghe == null) return NotFound();
-
-            return View(ghe);
-        }
-
-        // 4. XÓA GHẾ (Có kèm kiểm tra vé)
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmedAjax(int id)
         {
-            var ghe = await _context.Ghes.FindAsync(id);
-            if (ghe == null) return NotFound();
+            // Gọi hàm logic kiểm tra
+            var (canDelete, message) = await CheckCanDeleteGhe(id);
 
-            // Kiểm tra xem ghế đã có ai đặt vé chưa
-            bool daCoVe = await _context.Ves.AnyAsync(v => v.MaGhe == id);
-            if (daCoVe)
+            if (!canDelete)
             {
-                TempData["Error"] = $"Ghế {ghe.TenGhe} đã được bán vé, không thể xóa!";
-                return RedirectToAction(nameof(Index), new { maTau = ghe.MaTau });
+                return Json(new { success = false, message = message });
             }
 
-            _context.Ghes.Remove(ghe);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Đã xóa ghế thành công.";
-            return RedirectToAction(nameof(Index), new { maTau = ghe.MaTau });
+            try
+            {
+                var ghe = await _context.Ghes.FindAsync(id);
+                _context.Ghes.Remove(ghe!);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Đã xóa ghế thành công." });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra khi xóa dữ liệu." });
+            }
         }
 
         // 5. CÁC HÀM CƠ BẢN KHÁC
@@ -156,10 +158,13 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaTau,TenGhe,LoaiGhe")] Ghe ghe)
         {
+            // Loại bỏ kiểm tra validate cho thuộc tính Tau (vì form chỉ gửi MaTau)
+            ModelState.Remove("Tau");
             if (ModelState.IsValid)
             {
                 _context.Add(ghe);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Thêm mới ghế thành công!";
                 return RedirectToAction(nameof(Index), new { maTau = ghe.MaTau });
             }
             ViewData["MaTau"] = new SelectList(_context.Taus, "MaTau", "TenTau", ghe.MaTau);
@@ -179,11 +184,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaGhe,MaTau,TenGhe,LoaiGhe")] Ghe ghe)
         {
+            // Loại bỏ kiểm tra validate cho thuộc tính Tau (vì form chỉ gửi MaTau)
+            ModelState.Remove("Tau");
             if (id != ghe.MaGhe) return NotFound();
             if (ModelState.IsValid)
             {
                 _context.Update(ghe);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
                 return RedirectToAction(nameof(Index), new { maTau = ghe.MaTau });
             }
             return View(ghe);

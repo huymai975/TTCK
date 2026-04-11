@@ -224,7 +224,14 @@
             var table = $('#dataTable').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
-                    "searchPlaceholder": "Tìm tên tàu..."
+                    "searchPlaceholder": "Tìm tên tàu...",
+                    "paginate": {
+                    // Thêm icon vào nút phân trang
+                    "previous": "<i class='fas fa-angle-left'></i>",
+                    "next": "<i class='fas fa-angle-right'></i>",
+                    "first": "<i class='fas fa-angle-double-left'></i>",
+                    "last": "<i class='fas fa-angle-double-right'></i>"
+                }
                 },
                 "pageLength": 10,
                 "order": [[0, "desc"]],
@@ -270,7 +277,7 @@
         function deleteShip(id, name) {
             Swal.fire({
                 title: 'Xác nhận xóa?',
-                text: "Tàu [" + name + "] sẽ bị xóa vĩnh viễn!",
+                text: 'Bạn có chắc muốn xóa tàu "' + name + '"?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74a3b',

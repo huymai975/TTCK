@@ -196,7 +196,8 @@
 
 						@* Đối tác & Nhân viên *@
 						<h6 class="collapse-header">Đối tác & Nhân viên:</h6>
-
+						<a class="collapse-item" asp-controller="KhachHangs" asp-action="Index">Hồ sơ khách hàng</a>
+						<a class="collapse-item" asp-controller="NhanViens" asp-action="Index">Hồ sơ nhân viên</a>
 						@* Danh mục Hạ tầng & Kỹ thuật *@
 						<h6 class="collapse-header">Hạ tầng & Kỹ thuật:</h6>
 						<a class="collapse-item" asp-controller="Taus" asp-action="Index">Tàu thuyền</a>
@@ -539,12 +540,13 @@
 	<script src="~/js/notification.js"></script>
 
 	<script>
+
 		document.addEventListener("DOMContentLoaded", function() {
 			// 1. LẤY DỮ LIỆU TỪ CONTROLLER
 			var success = '@Html.Raw(TempData["SuccessMessage"] ?? "")';
 			var error = '@Html.Raw(TempData["ErrorMessage"] ?? "")';
 
-			// 2. CẤU HÌNH TOAST (CÁI "NGON" CỦA HUY ĐÂY)
+			// 2. CẤU HÌNH TOAST 
 			const Toast = Swal.mixin({
 				toast: true,
 				position: 'top-end',
@@ -566,69 +568,6 @@
 			}
 		});
 
-		// 3. HÀM XÁC NHẬN XÓA (DÙNG CHUNG TOÀN APP)
-		function confirmDelete(formId, message = "Dữ liệu này sẽ bị xóa vĩnh viễn!") {
-			Swal.fire({
-				title: 'Bạn có chắc chắn?',
-				text: message,
-				icon: 'warning',
-				showCancelButton: true,
-				confirmButtonColor: '#e74a3b',
-				cancelButtonColor: '#858796',
-				confirmButtonText: 'Đồng ý xóa',
-				cancelButtonText: 'Hủy'
-			}).then((result) => {
-				if (result.isConfirmed) {
-					var form = document.getElementById(formId);
-					if(form) {
-						form.submit();
-					}
-				}
-			});
-				}$(document).on('submit', '.ajax-form', function (e) {
-			e.preventDefault();
-			const $form = $(this);
-			const $btn = $form.find('button[type="submit"]');
-
-			// Vô hiệu hóa nút tránh bấm liên tục
-			$btn.prop('disabled', true);
-
-			$.ajax({
-				url: $form.attr('action'),
-				type: 'POST',
-				data: $form.serialize(),
-				success: function (res) {
-					if (res.success) {
-						Swal.fire({
-							icon: 'success',
-							title: 'Thành công!',
-							text: res.message,
-							timer: 2000,
-							showConfirmButton: false
-						}).then(() => {
-							if (res.redirectUrl) {
-								window.location.href = res.redirectUrl;
-							} else {
-								location.reload();
-							}
-						});
-					} else {
-						// ĐÂY LÀ NƠI HIỆN RÀNG BUỘC LOGIC (ví dụ: Chuyến đã chạy, sai giờ...)
-						Swal.fire({
-							icon: 'error',
-							title: 'Không thực hiện được',
-							text: res.message,
-							confirmButtonColor: '#4e73df'
-						});
-						$btn.prop('disabled', false);
-					}
-				},
-				error: function () {
-					Swal.fire('Lỗi!', 'Hệ thống không phản hồi, vui lòng thử lại sau.', 'error');
-					$btn.prop('disabled', false);
-				}
-			});
-		});
 	</script>
 
 	@await RenderSectionAsync("Scripts", required: false)
@@ -637,18 +576,5 @@
 </html>
 
 @section Scripts {
-	<script src="~/vendor/datatables/jquery.dataTables.min.js"></script>
-	<script src="~/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
-	<script>
-		$(document).ready(function() {
-			$('#dataTableTau').DataTable({
-				"language": {
-					"url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
-				},
-				"pageLength": 5, // Số dòng hiển thị mặc định trên 1 trang
-				"lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Tất cả"]]
-			});
-		});
-	</script>
 }

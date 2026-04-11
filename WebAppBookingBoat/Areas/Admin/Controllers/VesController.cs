@@ -96,6 +96,36 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(listVe);
         }
 
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var ve = await _context.Ves
+                .Include(v => v.Ghe)
+                .Include(v => v.LichTrinh).ThenInclude(lt => lt!.Tau)
+                .Include(v => v.LichTrinh).ThenInclude(lt => lt!.TuyenDuong)
+                .Include(v => v.HoaDon).ThenInclude(hd => hd!.KhachHang)
+                .FirstOrDefaultAsync(m => m.MaVe == id);
+
+            if (ve == null) return NotFound();
+
+            // Mapping sang ViewModel
+            var viewModel = new VeViewModel
+            {
+                MaVe = ve.MaVe,
+                TenGhe = ve.Ghe?.TenGhe,
+                LoaiGhe = ve.Ghe?.LoaiGhe,
+                TenTau = ve.LichTrinh?.Tau?.TenTau,
+                ThongTinChuyen = $"{ve.LichTrinh?.TuyenDuong?.TenTuyen} ({ve.LichTrinh?.NgayGioKhoiHanh:HH:mm dd/MM})",
+                TenKhachHang = ve.HoaDon?.KhachHang?.HoTen,
+                MaHoaDon = ve.MaHoaDon,
+                GiaVe = ve.GiaVe,
+                TrangThai = ve.TrangThai
+            };
+
+            return View(viewModel);
+        }
+
         public IActionResult Create()
         {
             LoadDropdownData();
@@ -121,6 +151,58 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             LoadDropdownData(ve);
             return View(ve);
         }
+
+        // GET: Admin/Ves/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var ve = await _context.Ves.FindAsync(id);
+            if (ve == null) return NotFound();
+
+            LoadDropdownData(ve);
+            return View(ve);
+        }
+
+        // POST: Admin/Ves/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Ve ve)
+        {
+            if (id != ve.MaVe) return NotFound();
+
+            // Lấy thông tin vé cũ để kiểm tra thay đổi trạng thái
+            var veCu = await _context.Ves.AsNoTracking().FirstOrDefaultAsync(v => v.MaVe == id);
+            if (veCu == null) return NotFound();
+
+            ModelState.Remove("HoaDon");
+            ModelState.Remove("Ghe");
+            ModelState.Remove("LichTrinh");
+
+            // Sử dụng logic Business Rules Huy đã viết
+            await ValidateVeBusiness(ve, isEdit: true, trangThaiCu: veCu.TrangThai);
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await UpdateSoGheTrong(ve, isEdit: true, trangThaiCu: veCu.TrangThai);
+                    _context.Update(ve);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Cập nhật vé thành công!";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Ves.Any(e => e.MaVe == ve.MaVe)) return NotFound();
+                    else throw;
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            LoadDropdownData(ve);
+            return View(ve);
+        }
+
 
         // --- AJAX DELETE ---
         [HttpPost]

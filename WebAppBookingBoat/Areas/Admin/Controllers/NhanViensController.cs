@@ -15,28 +15,60 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/NhanViens
+        // ==========================================
+        // HÀM LOGIC HỖ TRỢ (PRIVATE)
+        // ==========================================
+
+        private async Task<string?> CheckNhanVienLogic(WebAppBookingBoat.Models.NhanVien nv, int? id = null)
+        {
+            if (nv.Luong < 0) return "Lương không được phép là số âm.";
+
+            if (await _context.NhanViens.AnyAsync(n => n.Email == nv.Email && n.MaNV != id))
+                return "Email này đã tồn tại trong hệ thống!";
+
+            if (await _context.NhanViens.AnyAsync(n => n.Sdt == nv.Sdt && n.MaNV != id))
+                return "Số điện thoại này đã tồn tại!";
+
+            if (!string.IsNullOrEmpty(nv.MaTK) && await _context.NhanViens.AnyAsync(n => n.MaTK == nv.MaTK && n.MaNV != id))
+                return "Tài khoản này đã được gán cho nhân viên khác!";
+
+            return null;
+        }
+
+        private void LoadUserData(int? currentMaNV = null, string? selectedMaTK = null)
+        {
+            var assignedUserIds = _context.NhanViens
+                .Where(n => n.MaTK != null && n.MaNV != currentMaNV)
+                .Select(n => n.MaTK).ToList();
+
+            var availableUsers = _context.Users
+                .Where(u => !assignedUserIds.Contains(u.Id)).ToList();
+
+            ViewData["MaTK"] = new SelectList(availableUsers, "Id", "UserName", selectedMaTK);
+        }
+
+        // ==========================================
+        // CÁC ACTIONS (PUBLIC)
+        // ==========================================
+
         public async Task<IActionResult> Index(string searchString)
         {
             var query = _context.NhanViens.Include(n => n.AppUser).AsQueryable();
-
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(n => n.HoTen.Contains(searchString) || n.Email.Contains(searchString));
                 ViewBag.Search = searchString;
             }
-
-            return View(await query.ToListAsync());
+            return View(await query.OrderByDescending(n => n.MaNV).ToListAsync());
         }
 
-        // GET: Admin/NhanViens/Details/5
+        // --- BỔ SUNG ACTION DETAILS ---
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
             var nhanVien = await _context.NhanViens
                 .Include(n => n.AppUser)
-                .Include(n => n.HoaDons) // Xem các hóa đơn nhân viên này đã lập
                 .FirstOrDefaultAsync(m => m.MaNV == id);
 
             if (nhanVien == null) return NotFound();
@@ -44,114 +76,119 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(nhanVien);
         }
 
-        // GET: Admin/NhanViens/Create
         public IActionResult Create()
         {
-            // Hiển thị UserName thay vì Id để Admin dễ chọn tài khoản cho nhân viên
-            ViewData["MaTK"] = new SelectList(_context.Users, "Id", "UserName");
+            LoadUserData();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaTK,HoTen,Sdt,Email,ChucVu,Luong,TrangThai")] Models.NhanVien nhanVien)
+        public async Task<IActionResult> Create(WebAppBookingBoat.Models.NhanVien nhanVien)
         {
+            ModelState.Remove("AppUser");
+            ModelState.Remove("HoaDons");
+
+            if (string.IsNullOrWhiteSpace(nhanVien.MaTK)) nhanVien.MaTK = null!;
+
             if (ModelState.IsValid)
             {
-                // Kiểm tra xem tài khoản này đã được gán cho nhân viên khác chưa (1-1)
-                bool isUserTaken = await _context.NhanViens.AnyAsync(n => n.MaTK == nhanVien.MaTK);
-                if (isUserTaken)
-                {
-                    ModelState.AddModelError("MaTK", "Tài khoản này đã được gán cho một nhân viên khác.");
-                }
-                else
+                var error = await CheckNhanVienLogic(nhanVien);
+                if (error == null)
                 {
                     _context.Add(nhanVien);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "Thêm nhân viên thành công!";
+                    TempData["SuccessMessage"] = "Thêm nhân viên mới thành công!";
                     return RedirectToAction(nameof(Index));
                 }
+                ModelState.AddModelError("", error);
             }
-            ViewData["MaTK"] = new SelectList(_context.Users, "Id", "UserName", nhanVien.MaTK);
+            LoadUserData(null, nhanVien.MaTK);
             return View(nhanVien);
         }
 
-        // GET: Admin/NhanViens/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-
             var nhanVien = await _context.NhanViens.FindAsync(id);
             if (nhanVien == null) return NotFound();
 
-            ViewData["MaTK"] = new SelectList(_context.Users, "Id", "UserName", nhanVien.MaTK);
+            LoadUserData(id, nhanVien.MaTK);
             return View(nhanVien);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MaNV,MaTK,HoTen,Sdt,Email,ChucVu,Luong,TrangThai")] Models.NhanVien nhanVien)
+        public async Task<IActionResult> Edit(int id, WebAppBookingBoat.Models.NhanVien nhanVien)
         {
             if (id != nhanVien.MaNV) return NotFound();
 
+            ModelState.Remove("AppUser");
+            ModelState.Remove("HoaDons");
+
+            if (string.IsNullOrWhiteSpace(nhanVien.MaTK))
+            {
+                nhanVien.MaTK = null; // Đảm bảo truyền null thực sự nếu không có tài khoản
+            }
+
             if (ModelState.IsValid)
             {
-                try
+                var error = await CheckNhanVienLogic(nhanVien, id);
+                if (error == null)
                 {
-                    _context.Update(nhanVien);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Cập nhật nhân viên thành công!";
+                    try
+                    {
+                        // 2. TRÁNH LỖI THEO DÕI (TRACKING):
+                        // Nếu DBContext đang theo dõi một instance khác của NhanVien, 
+                        // hãy dùng cách này để update an toàn hơn
+                        _context.Update(nhanVien);
+                        await _context.SaveChangesAsync();
+
+                        TempData["SuccessMessage"] = "Cập nhật thành công!";
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!_context.NhanViens.Any(e => e.MaNV == nhanVien.MaNV)) return NotFound();
+                        throw;
+                    }
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!NhanVienExists(nhanVien.MaNV)) return NotFound();
-                    else throw;
-                }
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("", error);
             }
-            ViewData["MaTK"] = new SelectList(_context.Users, "Id", "UserName", nhanVien.MaTK, nhanVien.MaTK);
+
+            // Nếu đến đây là có lỗi, load lại dữ liệu cho Dropdown
+            LoadUserData(id, nhanVien.MaTK);
             return View(nhanVien);
         }
 
-        // GET: Admin/NhanViens/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var nhanVien = await _context.NhanViens
-                .Include(n => n.AppUser)
-                .FirstOrDefaultAsync(m => m.MaNV == id);
-
-            if (nhanVien == null) return NotFound();
-
-            return View(nhanVien);
-        }
-
-        // POST: Admin/NhanViens/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // --- CẬP NHẬT DELETE AJAX ĐỒNG NHẤT ---
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var nhanVien = await _context.NhanViens.FindAsync(id);
-            if (nhanVien == null) return RedirectToAction(nameof(Index));
+            var nv = await _context.NhanViens.Include(n => n.AppUser).FirstOrDefaultAsync(n => n.MaNV == id);
+            if (nv == null) return Json(new { success = false, message = "Không tìm thấy nhân viên." });
 
-            // RÀNG BUỘC: Nhân viên đã lập hóa đơn thì không được xóa (để giữ lịch sử bán vé)
             bool hasInvoices = await _context.HoaDons.AnyAsync(h => h.MaNV == id);
+
             if (hasInvoices)
             {
-                TempData["Error"] = "Không thể xóa nhân viên này vì đã có lịch sử lập hóa đơn!";
-                return RedirectToAction(nameof(Index));
+                // Nếu đã có hóa đơn -> Khóa mềm (Soft Delete)
+                nv.TrangThai = false;
+                if (nv.AppUser != null)
+                {
+                    nv.AppUser.TrangThai = false;
+                    _context.Update(nv.AppUser);
+                }
+                _context.Update(nv);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Nhân viên đã có hóa đơn. Hệ thống đã khóa tài khoản và cập nhật trạng thái nghỉ việc." });
             }
 
-            _context.NhanViens.Remove(nhanVien);
+            // Nếu chưa có hóa đơn -> Xóa vĩnh viễn (Hard Delete)
+            _context.NhanViens.Remove(nv);
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Đã xóa nhân viên.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool NhanVienExists(int id)
-        {
-            return _context.NhanViens.Any(e => e.MaNV == id);
+            return Json(new { success = true, message = "Đã xóa nhân viên vĩnh viễn khỏi hệ thống." });
         }
     }
 }

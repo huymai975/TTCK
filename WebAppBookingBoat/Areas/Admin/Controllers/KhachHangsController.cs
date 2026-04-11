@@ -16,25 +16,72 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             _context = context;
         }
 
-        // --- HÀM LOGIC TẬP TRUNG ---
-        private async Task<string?> CheckBusinessLogic(KhachHang kh, int? id = null)
+        // --- 1. HÀM LOGIC CHO THÊM & SỬA ---
+        private async Task<string?> CheckUpsertLogic(KhachHang kh, int? id = null)
         {
             // Kiểm tra trùng Email
             if (await _context.KhachHangs.AnyAsync(k => k.Email == kh.Email && k.MaKH != id))
                 return "Email này đã tồn tại trong hệ thống!";
 
-            // Kiểm tra trùng Số điện thoại (nếu cần)
+            // Kiểm tra trùng Số điện thoại
             if (await _context.KhachHangs.AnyAsync(k => k.Sdt == kh.Sdt && k.MaKH != id))
-                return "ố điện thoại này đã được sử dụng!";
+                return "Số điện thoại này đã được sử dụng!";
 
             // Kiểm tra trùng Tài khoản (MaTK)
             if (kh.MaTK != null && await _context.KhachHangs.AnyAsync(k => k.MaTK == kh.MaTK && k.MaKH != id))
                 return "Tài khoản này đã được gán cho khách hàng khác!";
 
-            return null; // Không có lỗi
+            return null; // OK
         }
 
-        // --- HÀM LOAD DROPDOWN TẬP TRUNG ---
+        // --- 2. HÀM LOGIC CHO XÓA ---
+        private async Task<(bool canDelete, bool isHardDelete, string message)> CheckDeleteLogic(int id)
+        {
+            var kh = await _context.KhachHangs.Include(k => k.AppUser).FirstOrDefaultAsync(m => m.MaKH == id);
+            if (kh == null) return (false, false, "Khách hàng không tồn tại.");
+
+            bool daCoHoaDon = await _context.HoaDons.AnyAsync(h => h.MaKH == id);
+
+            if (daCoHoaDon)
+            {
+                // Trả về false cho canDelete nhưng đánh dấu đây là trường hợp chuyển sang khóa tài khoản
+                return (true, false, "Khách hàng đã có lịch sử hóa đơn. Hệ thống sẽ khóa tài khoản thay vì xóa.");
+            }
+
+            return (true, true, "");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAjax(int id)
+        {
+            var (canExecute, isHardDelete, message) = await CheckDeleteLogic(id);
+            if (!canExecute) return Json(new { success = false, message = message });
+
+            var kh = await _context.KhachHangs.Include(k => k.AppUser).FirstOrDefaultAsync(m => m.MaKH == id);
+            if (kh == null) return Json(new { success = false, message = "Không tìm thấy khách hàng." });
+
+            if (isHardDelete)
+            {
+                _context.KhachHangs.Remove(kh);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Đã xóa khách hàng vĩnh viễn." });
+            }
+            else
+            {
+                // Khóa tài khoản nếu có hóa đơn
+                if (kh.AppUser != null)
+                {
+                    kh.AppUser.TrangThai = false;
+                    _context.Update(kh.AppUser);
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true, message = "Đã khóa tài khoản khách hàng để giữ lịch sử hóa đơn." });
+                }
+                return Json(new { success = false, message = "Không thể khóa vì khách hàng không có tài khoản liên kết." });
+            }
+        }
+
+        // --- 3. HÀM LOAD DROPDOWN TẬP TRUNG ---
         private void LoadUserData(int? currentMaKH = null, string? selectedMaTK = null)
         {
             var assignedUserIds = _context.KhachHangs
@@ -47,6 +94,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             ViewBag.MaTK = new SelectList(availableUsers, "Id", "UserName", selectedMaTK);
         }
 
+        // ================= ACTION METHODS =================
+
         public async Task<IActionResult> Index(string searchString)
         {
             var query = _context.KhachHangs.Include(k => k.AppUser).AsQueryable();
@@ -56,6 +105,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 ViewBag.Search = searchString;
             }
             return View(await query.OrderByDescending(k => k.MaKH).ToListAsync());
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+            var kh = await _context.KhachHangs.Include(k => k.AppUser).FirstOrDefaultAsync(m => m.MaKH == id);
+            if (kh == null) return NotFound();
+            return View(kh);
         }
 
         public IActionResult Create()
@@ -72,21 +129,16 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var error = await CheckBusinessLogic(khachHang);
+                var error = await CheckUpsertLogic(khachHang);
                 if (error == null)
                 {
-                    try
-                    {
-                        _context.Add(khachHang);
-                        await _context.SaveChangesAsync();
-                        TempData["SuccessMessage"] = "Đăng ký khách hàng mới thành công!";
-                        return RedirectToAction(nameof(Index));
-                    }
-                    catch { error = "Lỗi hệ thống: Không thể lưu dữ liệu."; }
+                    _context.Add(khachHang);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Thêm khách hàng thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-                TempData["ErrorMessage"] = error; // Hiện SweetAlert cho lỗi ràng buộc/hệ thống
+                TempData["ErrorMessage"] = error;
             }
-
             LoadUserData(null, khachHang.MaTK);
             return View(khachHang);
         }
@@ -94,11 +146,10 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-            var khachHang = await _context.KhachHangs.FindAsync(id);
-            if (khachHang == null) return NotFound();
-
-            LoadUserData(id, khachHang.MaTK);
-            return View(khachHang);
+            var kh = await _context.KhachHangs.FindAsync(id);
+            if (kh == null) return NotFound();
+            LoadUserData(id, kh.MaTK);
+            return View(kh);
         }
 
         [HttpPost]
@@ -110,7 +161,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var error = await CheckBusinessLogic(khachHang, id);
+                var error = await CheckUpsertLogic(khachHang, id);
                 if (error == null)
                 {
                     try
@@ -121,32 +172,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         return RedirectToAction(nameof(Index));
                     }
                     catch (DbUpdateConcurrencyException) { error = "Dữ liệu đã bị thay đổi, hãy tải lại trang."; }
-                    catch { error = "Lỗi hệ thống: Không thể cập nhật."; }
                 }
                 TempData["ErrorMessage"] = error;
             }
-
             LoadUserData(id, khachHang.MaTK);
             return View(khachHang);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var khachHang = await _context.KhachHangs.FindAsync(id);
-            if (khachHang == null) return RedirectToAction(nameof(Index));
-
-            if (await _context.HoaDons.AnyAsync(h => h.MaKH == id))
-            {
-                TempData["ErrorMessage"] = "Không thể xóa vì khách hàng này đã có hóa đơn!";
-                return RedirectToAction(nameof(Index));
-            }
-
-            _context.KhachHangs.Remove(khachHang);
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Đã xóa hồ sơ khách hàng thành công.";
-            return RedirectToAction(nameof(Index));
         }
     }
 }

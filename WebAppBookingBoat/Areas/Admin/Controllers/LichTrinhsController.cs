@@ -17,75 +17,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             _context = context;
         }
 
-        #region LOGIC TẬP TRUNG (Business Rules)
-
-        // Dùng chung cho Create và Edit để kiểm tra tính hợp lệ của dữ liệu đầu vào
-        private async Task ValidateLichTrinhBusiness(LichTrinhViewModel vm, bool isEdit = false, LichTrinh? lichTrinhDb = null)
-        {
-            var bayGio = DateTime.Now;
-
-            // 1. Kiểm tra: Giờ cập bến phải sau giờ khởi hành
-            if (vm.NgayGioCapBenDuKien <= vm.NgayGioKhoiHanh)
-            {
-                ModelState.AddModelError("NgayGioCapBenDuKien", "Thời gian cập bến phải sau thời gian khởi hành!");
-            }
-
-            // 2. Kiểm tra: Không tạo/sửa giờ khởi hành về quá khứ (trừ hao 2 phút submit)
-            if (vm.NgayGioKhoiHanh < bayGio.AddMinutes(-2))
-            {
-                ModelState.AddModelError("NgayGioKhoiHanh", "Thời gian khởi hành không được ở trong quá khứ!");
-            }
-
-            // 3. Ràng buộc nâng cao khi EDIT
-            if (isEdit && lichTrinhDb != null)
-            {
-                // Kiểm tra xem đã có người đặt vé chưa
-                bool daCoVe = await _context.Ves.AnyAsync(v => v.MaLichTrinh == vm.MaLichTrinh);
-
-                if (daCoVe)
-                {
-                    if (vm.MaTau != lichTrinhDb.MaTau)
-                        ModelState.AddModelError("MaTau", "Đã có khách đặt vé, không được phép thay đổi tàu!");
-
-                    if (vm.GiaVeCoBan != lichTrinhDb.GiaVeCoBan)
-                        ModelState.AddModelError("GiaVeCoBan", "Đã có vé được xuất, không được thay đổi giá vé!");
-                }
-
-                // Chuyến đi đã chạy rồi thì không cho sửa giờ giấc lung tung
-                if (lichTrinhDb.TrangThai != "Sắp khởi hành")
-                {
-                    if (vm.NgayGioKhoiHanh != lichTrinhDb.NgayGioKhoiHanh || vm.NgayGioCapBenDuKien != lichTrinhDb.NgayGioCapBenDuKien)
-                    {
-                        ModelState.AddModelError("", "Không thể sửa thời gian khi chuyến đi đã hoặc đang vận hành!");
-                    }
-                }
-            }
-        }
-
-        // Dùng riêng để kiểm tra điều kiện XÓA
-        private async Task<(bool canDelete, string message)> CanDeleteLichTrinh(int id)
-        {
-            var lichTrinh = await _context.LichTrinhs.FindAsync(id);
-            if (lichTrinh == null) return (false, "Không tìm thấy lịch trình.");
-
-            if (lichTrinh.TrangThai == "Đang vận hành" || lichTrinh.TrangThai == "Hoàn thành")
-                return (false, $"Không thể xóa lịch trình đang ở trạng thái '{lichTrinh.TrangThai}'.");
-
-            bool daCoVe = await _context.Ves.AnyAsync(v => v.MaLichTrinh == id);
-            if (daCoVe)
-                return (false, "Không thể xóa vì đã có khách hàng đặt vé!");
-
-            return (true, "");
-        }
-
-        #endregion
+        #region READ (Index & Details)
 
         // GET: Admin/LichTrinhs
         public async Task<IActionResult> Index()
         {
             var bayGio = DateTime.Now;
 
-            // Tự động cập nhật trạng thái lịch trình trước khi hiển thị
+            // 1. Tự động cập nhật trạng thái trước khi hiển thị
             var lichTrinhsUpdate = await _context.LichTrinhs
                 .Where(l => l.TrangThai == "Sắp khởi hành" || l.TrangThai == "Đang vận hành")
                 .ToListAsync();
@@ -102,17 +41,58 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (coThayDoi) await _context.SaveChangesAsync();
 
+            // 2. Lấy dữ liệu và MAPPING sang ViewModel (Để fix lỗi CS1061)
             var list = await _context.LichTrinhs
-                .Include(l => l.Tau).Include(l => l.TuyenDuong)
-                .OrderByDescending(l => l.NgayGioKhoiHanh).ToListAsync();
+                .Include(l => l.Tau)
+                .Include(l => l.TuyenDuong)
+                .OrderByDescending(l => l.NgayGioKhoiHanh)
+                .Select(l => new LichTrinhViewModel
+                {
+                    MaLichTrinh = l.MaLichTrinh,
+                    NgayGioKhoiHanh = l.NgayGioKhoiHanh,
+                    NgayGioCapBenDuKien = l.NgayGioCapBenDuKien,
+                    GiaVeCoBan = l.GiaVeCoBan,
+                    TrangThai = l.TrangThai,
+                    // Gán dữ liệu cho các trường hiển thị
+                    TenTuyen = l.TuyenDuong!.TenTuyen,
+                    DiemDi = l.TuyenDuong!.DiemDi,
+                    DiemDen = l.TuyenDuong!.DiemDen,
+                    TenTau = l.Tau!.TenTau,
+                    TongSoGhe = l.Tau!.TongSoGhe,
+                    SoGheTrong = l.SoGheTrong
+                })
+                .ToListAsync();
 
             return View(list);
         }
 
+        // GET: Admin/LichTrinhs/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var lichTrinh = await _context.LichTrinhs
+                .Include(l => l.Tau)
+                .Include(l => l.TuyenDuong)
+                .FirstOrDefaultAsync(m => m.MaLichTrinh == id);
+
+            if (lichTrinh == null) return NotFound();
+
+            return View(lichTrinh);
+        }
+
+        #endregion
+
+        #region CREATE
+
         // GET: Admin/LichTrinhs/Create
         public IActionResult Create()
         {
-            var vm = new LichTrinhViewModel { NgayGioKhoiHanh = DateTime.Now.AddHours(1), NgayGioCapBenDuKien = DateTime.Now.AddHours(3) };
+            var vm = new LichTrinhViewModel
+            {
+                NgayGioKhoiHanh = DateTime.Now.AddHours(1),
+                NgayGioCapBenDuKien = DateTime.Now.AddHours(3)
+            };
             LoadDropdownData(vm);
             return View(vm);
         }
@@ -138,12 +118,16 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 };
                 _context.Add(lichTrinh);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Thêm lịch trình thành công!";
+                TempData["SuccessMessage"] = "Thêm lịch trình mới thành công!";
                 return RedirectToAction(nameof(Index));
             }
             LoadDropdownData(vm);
             return View(vm);
         }
+
+        #endregion
+
+        #region EDIT
 
         // GET: Admin/LichTrinhs/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -180,9 +164,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var lichTrinh = await _context.LichTrinhs.FindAsync(id);
-
                 if (lichTrinh == null) return NotFound();
 
+                // Cập nhật lại số ghế nếu đổi tàu
                 if (lichTrinh.MaTau != vm.MaTau)
                 {
                     var tauMoi = await _context.Taus.FindAsync(vm.MaTau);
@@ -198,35 +182,95 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                 _context.Update(lichTrinh);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Cập nhật thành công!";
+                TempData["SuccessMessage"] = "Cập nhật lịch trình thành công!";
                 return RedirectToAction(nameof(Index));
             }
             LoadDropdownData(vm);
             return View(vm);
         }
 
-        [HttpPost, ActionName("Delete")]
+        #endregion
+
+        #region DELETE
+
+        // POST: Admin/LichTrinhs/Delete/5
+        [HttpPost, ActionName("Delete")] // Giữ ActionName là Delete để khớp với AJAX url
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            // 1. Kiểm tra nghiệp vụ (Hàm CanDeleteLichTrinh của Huy rất ổn)
             var (canDelete, message) = await CanDeleteLichTrinh(id);
-            if (!canDelete) return Json(new { success = false, message });
+
+            if (!canDelete)
+            {
+                // Trả về lỗi để SweetAlert hiện thông báo đỏ
+                return Json(new { success = false, message = message });
+            }
 
             try
             {
                 var lt = await _context.LichTrinhs.FindAsync(id);
-
-                // FIX: Kiểm tra null trước khi gọi Remove
-                if (lt == null) return Json(new { success = false, message = "Không tìm thấy lịch trình." });
-
-                _context.LichTrinhs.Remove(lt);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Xóa thành công!" });
+                if (lt != null)
+                {
+                    _context.LichTrinhs.Remove(lt);
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true, message = "Lịch trình đã được xóa vĩnh viễn." });
+                }
+                return Json(new { success = false, message = "Dữ liệu không tồn tại hoặc đã bị xóa trước đó." });
             }
-            catch { return Json(new { success = false, message = "Lỗi hệ thống khi xóa." }); }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Lỗi hệ thống: Không thể xóa lịch trình lúc này." });
+            }
         }
 
-        #region Helpers
+        #endregion
+
+        #region PRIVATE LOGIC & HELPERS
+
+        private async Task ValidateLichTrinhBusiness(LichTrinhViewModel vm, bool isEdit = false, LichTrinh? lichTrinhDb = null)
+        {
+            var bayGio = DateTime.Now;
+
+            if (vm.NgayGioCapBenDuKien <= vm.NgayGioKhoiHanh)
+                ModelState.AddModelError("NgayGioCapBenDuKien", "Thời gian cập bến phải sau thời gian khởi hành!");
+
+            if (vm.NgayGioKhoiHanh < bayGio.AddMinutes(-2))
+                ModelState.AddModelError("NgayGioKhoiHanh", "Thời gian khởi hành không được ở trong quá khứ!");
+
+            if (isEdit && lichTrinhDb != null)
+            {
+                bool daCoVe = await _context.Ves.AnyAsync(v => v.MaLichTrinh == vm.MaLichTrinh);
+                if (daCoVe)
+                {
+                    if (vm.MaTau != lichTrinhDb.MaTau)
+                        ModelState.AddModelError("MaTau", "Đã có khách đặt vé, không được phép thay đổi tàu!");
+                    if (vm.GiaVeCoBan != lichTrinhDb.GiaVeCoBan)
+                        ModelState.AddModelError("GiaVeCoBan", "Đã có khách đặt vé, không được thay đổi giá cơ bản!");
+                }
+
+                if (lichTrinhDb.TrangThai != "Sắp khởi hành")
+                {
+                    if (vm.NgayGioKhoiHanh != lichTrinhDb.NgayGioKhoiHanh || vm.NgayGioCapBenDuKien != lichTrinhDb.NgayGioCapBenDuKien)
+                        ModelState.AddModelError("", "Không thể sửa thời gian khi chuyến đi đã hoặc đang chạy!");
+                }
+            }
+        }
+
+        private async Task<(bool canDelete, string message)> CanDeleteLichTrinh(int id)
+        {
+            var lichTrinh = await _context.LichTrinhs.FindAsync(id);
+            if (lichTrinh == null) return (false, "Không tìm thấy lịch trình.");
+
+            if (lichTrinh.TrangThai == "Đang vận hành" || lichTrinh.TrangThai == "Hoàn thành")
+                return (false, "Không thể xóa lịch trình đang vận hành hoặc đã hoàn thành.");
+
+            bool daCoVe = await _context.Ves.AnyAsync(v => v.MaLichTrinh == id);
+            if (daCoVe) return (false, "Không thể xóa vì đã có khách hàng đặt vé!");
+
+            return (true, "");
+        }
+
         private void LoadDropdownData(LichTrinhViewModel vm)
         {
             vm.DanhSachTuyen = _context.TuyenDuongs.Select(t => new SelectListItem { Value = t.MaTuyen.ToString(), Text = t.TenTuyen });
@@ -236,6 +280,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 Text = $"{t.TenTau} ({t.TongSoGhe} ghế)"
             });
         }
+
         #endregion
     }
 }

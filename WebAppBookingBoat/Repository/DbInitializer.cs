@@ -52,7 +52,8 @@ namespace WebAppBookingBoat.Repository
                 NormalizedEmail = "ADMIN@BOOKING.COM",
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                ConcurrencyStamp = Guid.NewGuid().ToString()
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                TrangThai = true
             };
             adminUser.PasswordHash = hasher.HashPassword(adminUser, "1234");
 
@@ -66,7 +67,8 @@ namespace WebAppBookingBoat.Repository
                 NormalizedEmail = "NHANVIEN1@BOOKING.COM",
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                ConcurrencyStamp = Guid.NewGuid().ToString()
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                TrangThai = true
             };
             user2.PasswordHash = hasher.HashPassword(user2, "1234");
 
@@ -80,7 +82,8 @@ namespace WebAppBookingBoat.Repository
                 NormalizedEmail = "KHACHHANG1@GMAIL.COM",
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                ConcurrencyStamp = Guid.NewGuid().ToString()
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                TrangThai = true
             };
             user3.PasswordHash = hasher.HashPassword(user3, "1234");
 
@@ -94,13 +97,15 @@ namespace WebAppBookingBoat.Repository
                 NormalizedEmail = "KHACHHANG2@GMAIL.COM",
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                ConcurrencyStamp = Guid.NewGuid().ToString()
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                TrangThai = true
             };
             user4.PasswordHash = hasher.HashPassword(user4, "1234");
 
+            var testuId = Guid.NewGuid().ToString();
             var user5 = new AppUser
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = testuId,
                 UserName = "testuser",
                 Email = "testuser@gmail.com",
 
@@ -108,7 +113,8 @@ namespace WebAppBookingBoat.Repository
                 NormalizedEmail = "TESTUSER@GMAIL.COM",
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                ConcurrencyStamp = Guid.NewGuid().ToString()
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                TrangThai = true
             };
             user5.PasswordHash = hasher.HashPassword(user5, "1234");
 
@@ -155,7 +161,7 @@ namespace WebAppBookingBoat.Repository
 
             // --- 4. SEED KHÁCH HÀNG ---
             modelBuilder.Entity<KhachHang>().HasData(
-                new KhachHang { MaKH = 1, MaTK = adminUser.Id, HoTen = "Trần Thị Khách", Email = "khach.tran@gmail.com", Sdt = "0912345678", NgaySinh = new DateTime(1995, 5, 20) }
+                new KhachHang { MaKH = 1, MaTK = testuId, HoTen = "Trần Thị Khách", Email = "khach.tran@gmail.com", Sdt = "0912345678", NgaySinh = new DateTime(1995, 5, 20) }
             );
 
             // --- 5. SEED TUYẾN ĐƯỜNG ---

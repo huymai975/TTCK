@@ -55,6 +55,7 @@ wwwroot\images\tau\872b8a7a-79ae-4f8b-96da-53c7e3caa5e3.jpg
 wwwroot\images\tuyen-duong\0c8444d3-2eb8-4766-8fc3-d8d7ceab3a09_phu-quoc.jfif
 wwwroot\images\tuyen-duong\7cdd3d31-bdfb-49d5-ba09-b3fe8a5f3e17_vung-tau.jfif
 wwwroot\images\tuyen-duong\80eec6b7-1650-400a-afda-eec7573a7f48.jfif
+wwwroot\images\tuyen-duong\bcb568e6-983b-4c9e-b638-79ec1ae757dd_phu-quoc.jfif
 wwwroot\images\tuyen-duong\dcc6e003-7560-4d50-8933-98682d3da2ef.jfif
 wwwroot\images\undraw_posting_photo.svg
 wwwroot\images\undraw_profile.svg
