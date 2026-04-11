@@ -33,6 +33,14 @@ namespace WebAppBookingBoat.ViewModels
         [Display(Name = "Trạng thái")]
         public string TrangThai { get; set; } = "Sắp khởi hành";
 
+        // --- BỔ SUNG CÁC TRƯỜNG HIỂN THỊ (FIX LỖI CS1061) ---
+        public string? TenTuyen { get; set; }
+        public string? TenTau { get; set; }
+        public string? DiemDi { get; set; }     // Thêm để fix lỗi dòng 200
+        public string? DiemDen { get; set; }    // Thêm để fix lỗi dòng 200
+        public int TongSoGhe { get; set; }      // Thêm để fix lỗi dòng 214
+        public int SoGheTrong { get; set; }
+
         // --- Danh sách SelectList để đổ vào Dropdown trong View ---
         public IEnumerable<SelectListItem>? DanhSachTuyen { get; set; }
         public IEnumerable<SelectListItem>? DanhSachTau { get; set; }

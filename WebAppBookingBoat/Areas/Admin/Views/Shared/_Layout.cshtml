@@ -196,7 +196,8 @@
 
 						@* Đối tác & Nhân viên *@
 						<h6 class="collapse-header">Đối tác & Nhân viên:</h6>
-
+						<a class="collapse-item" asp-controller="KhachHangs" asp-action="Index">Hồ sơ khách hàng</a>
+						<a class="collapse-item" asp-controller="NhanViens" asp-action="Index">Hồ sơ nhân viên</a>
 						@* Danh mục Hạ tầng & Kỹ thuật *@
 						<h6 class="collapse-header">Hạ tầng & Kỹ thuật:</h6>
 						<a class="collapse-item" asp-controller="Taus" asp-action="Index">Tàu thuyền</a>
@@ -531,39 +532,49 @@
 
 	<!-- Custom scripts for all pages-->
 
-	<script src="~/js/notification.js"></script>
 	<script src="~/js/sb-admin-2.min.js"></script>
 
-	@await RenderSectionAsync("Scripts", required: false)
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+	<script src="~/js/notification.js"></script>
 
 	<script>
+
 		document.addEventListener("DOMContentLoaded", function() {
+			// 1. LẤY DỮ LIỆU TỪ CONTROLLER
 			var success = '@Html.Raw(TempData["SuccessMessage"] ?? "")';
 			var error = '@Html.Raw(TempData["ErrorMessage"] ?? "")';
 
-			if (success || error) {
-				showNotifications(success, error);
+			// 2. CẤU HÌNH TOAST 
+			const Toast = Swal.mixin({
+				toast: true,
+				position: 'top-end',
+				showConfirmButton: false,
+				timer: 3000,
+				timerProgressBar: true,
+				didOpen: (toast) => {
+					toast.addEventListener('mouseenter', Swal.stopTimer)
+					toast.addEventListener('mouseleave', Swal.resumeTimer)
+				}
+			});
+
+			// Cho nổ thông báo nếu có nội dung
+			if (success.trim()) {
+				Toast.fire({ icon: 'success', title: success });
+			}
+			if (error.trim()) {
+				Toast.fire({ icon: 'error', title: error });
 			}
 		});
+
 	</script>
 
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>
 
 @section Scripts {
-	<script src="~/vendor/datatables/jquery.dataTables.min.js"></script>
-	<script src="~/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
-	<script>
-		$(document).ready(function() {
-			$('#dataTableTau').DataTable({
-				"language": {
-					"url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Vietnamese.json"
-				},
-				"pageLength": 5, // Số dòng hiển thị mặc định trên 1 trang
-				"lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Tất cả"]]
-			});
-		});
-	</script>
 }

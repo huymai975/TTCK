@@ -183,31 +183,37 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(tuyenDuong);
         }
 
-        // POST: Admin/TuyenDuongs/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        // POST: Admin/TuyenDuongs/DeleteConfirmed
+        [HttpPost]
+        [ValidateAntiForgeryToken] // Thêm bảo mật
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tuyenDuong = await _context.TuyenDuongs.FindAsync(id);
-            if (tuyenDuong != null)
+            var tuyen = await _context.TuyenDuongs.FindAsync(id);
+            if (tuyen == null) return Json(new { success = false, message = "Không tìm thấy tuyến đường." });
+
+            try
             {
-                // 1. Xóa file ảnh vật lý nếu không phải ảnh mặc định
-                if (!string.IsNullOrEmpty(tuyenDuong.HinhAnh) && tuyenDuong.HinhAnh != "default-route.jpg")
+                // 1. Lưu lại đường dẫn ảnh để xóa file vật lý
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tuyen-duong");
+                string imagePath = Path.Combine(uploadsFolder, tuyen.HinhAnh ?? "");
+
+                // 2. Xóa trong Database
+                _context.TuyenDuongs.Remove(tuyen);
+                await _context.SaveChangesAsync();
+
+                // 3. Xóa file ảnh vật lý nếu không phải ảnh mặc định
+                if (!string.IsNullOrEmpty(tuyen.HinhAnh) && tuyen.HinhAnh != "default-route.jpg")
                 {
-                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tuyen-duong", tuyenDuong.HinhAnh);
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
+                    if (System.IO.File.Exists(imagePath)) System.IO.File.Delete(imagePath);
                 }
 
-                // 2. Xóa khỏi database
-                _context.TuyenDuongs.Remove(tuyenDuong);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Xóa tuyến đường thành công!";
+                return Json(new { success = true, message = "Đã xóa tuyến đường và dữ liệu hình ảnh!" });
             }
-
-            return RedirectToAction(nameof(Index));
+            catch (Exception)
+            {
+                // Thường lỗi do ràng buộc khóa ngoại với bảng LichTrinh
+                return Json(new { success = false, message = "Không thể xóa vì tuyến này đang có lịch trình hoạt động." });
+            }
         }
 
         private bool TuyenDuongExists(int id)

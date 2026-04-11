@@ -90,6 +90,11 @@ namespace WebAppBookingBoat.Repository
                 e.ToTable(t => t.HasCheckConstraint("CK_HD_SoLuong", "[SoLuongVe] > 0"));
             });
 
+            // Thêm ràng buộc Unique cho bảng Ve: Một ghế chỉ được xuất hiện 1 lần trong 1 lịch trình
+            modelBuilder.Entity<Ve>()
+                .HasIndex(v => new { v.MaLichTrinh, v.MaGhe })
+                .IsUnique();
+
             // --- 3. CẤU HÌNH DECIMAL ---
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetProperties())

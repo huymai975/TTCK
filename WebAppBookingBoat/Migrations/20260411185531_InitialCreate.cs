@@ -32,6 +32,7 @@ namespace WebAppBookingBoat.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TrangThai = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -395,8 +396,7 @@ namespace WebAppBookingBoat.Migrations
                     MaLichTrinh = table.Column<int>(type: "int", nullable: false),
                     GiaVe = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TrangThai = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    MaGhe = table.Column<int>(type: "int", nullable: false),
-                    KhachHangMaKH = table.Column<int>(type: "int", nullable: true)
+                    MaGhe = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -412,12 +412,6 @@ namespace WebAppBookingBoat.Migrations
                         column: x => x.MaHoaDon,
                         principalTable: "HoaDon",
                         principalColumn: "MaHoaDon",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Ve_KhachHang_KhachHangMaKH",
-                        column: x => x.KhachHangMaKH,
-                        principalTable: "KhachHang",
-                        principalColumn: "MaKH",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Ve_LichTrinh_MaLichTrinh",
@@ -471,14 +465,14 @@ namespace WebAppBookingBoat.Migrations
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TrangThai", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { "2824b0d2-08c9-4394-9f5e-8662b26699a6", 0, "f1f2390e-f80f-4dc0-9f68-b9dbdf8cc46f", "khachhang1@gmail.com", true, false, null, "KHACHHANG1@GMAIL.COM", "KHACHHANG1", "AQAAAAIAAYagAAAAEAHWSTNzWFnuVVilZxTyUFksp8wHmsE4vzR+WvkMZ2SMYKkhIdoS/FaWglRFs5iodg==", null, false, "336dce13-e0fc-4091-832c-aa723602c98c", false, "khachhang1" },
-                    { "2b780c3e-a915-43de-aeff-3a827b66fb41", 0, "088a539d-eab6-4170-88e7-d0719b7f7e0f", "testuser@gmail.com", true, false, null, "TESTUSER@GMAIL.COM", "TESTUSER", "AQAAAAIAAYagAAAAENxo/jYopsrQKeZC3LUKtGjcMb9+FqJIdLOwqNa3H7h74UQ2KvAEygH/DM4d051Q5w==", null, false, "69cd8b9a-d079-4de8-9c7c-5305068d2c63", false, "testuser" },
-                    { "4248b3d7-0bbf-4475-b55b-8d5743802619", 0, "c6a9b39a-6814-4973-ba12-0d73f4dab63f", "nhanvien1@booking.com", true, false, null, "NHANVIEN1@BOOKING.COM", "NHANVIEN1", "AQAAAAIAAYagAAAAEJIjGlaG+sxN+9xPn4OimUe2mXr0BHeD2wb6kL0wwG135fd05YxAdKeQUKSs+r01ww==", null, false, "4e48ffae-581b-4755-92bd-87ebd5d55ac7", false, "nhanvien1" },
-                    { "483851fa-b8a2-45f9-b583-67e81748cf6f", 0, "490f4fe0-bd7e-496b-a9f8-939b802c9a5a", "khachhang2@gmail.com", true, false, null, "KHACHHANG2@GMAIL.COM", "KHACHHANG2", "AQAAAAIAAYagAAAAEHRR3EKK1a3pq2dkoKbcF3gUWpCQAGk0A/2klcEuoWkGBgi91rQuMLlhOZ76ljdBTg==", null, false, "b9b3e199-9232-4ec8-885a-55eec6ec9432", false, "khachhang2" },
-                    { "6e30006e-b30f-47b9-9e33-4a02d89d5b57", 0, "cf2d361f-7834-40a4-974a-5beb4c76e4d8", "admin@booking.com", true, false, null, "ADMIN@BOOKING.COM", "ADMIN", "AQAAAAIAAYagAAAAEJmlTaxRUDYIfOtgRzTThkt45SYXAeF1nu0FQxj3Awad3B334FUyeP0uz4+9azA3AQ==", null, false, "c919b018-4c56-4f45-8f71-302ab6a74671", false, "admin" }
+                    { "146251c2-4cea-4c4d-a615-1f0f1f56cec9", 0, "2b27813b-79a2-47c7-a463-fecf0f4c1120", "testuser@gmail.com", true, false, null, "TESTUSER@GMAIL.COM", "TESTUSER", "AQAAAAIAAYagAAAAEJoyuAFTqKNOWHUYWwy8lPIyErhnhmWwr8IruhqAWA9VQtlWLin5rk95dD6zIhr2tQ==", null, false, "8eb5d386-39f4-4efb-aa47-8d4327789ef8", true, false, "testuser" },
+                    { "2867bf8d-9159-448a-a69d-2c18ee227b02", 0, "a140b248-5043-481c-bacc-7b4a778097a3", "khachhang1@gmail.com", true, false, null, "KHACHHANG1@GMAIL.COM", "KHACHHANG1", "AQAAAAIAAYagAAAAEFRoQz0DtCNxDcup57jkLvJwcU3W+wTAlftuP/D9lxJQXaEC/7roup/CP6392XEjzw==", null, false, "88e8e2e8-e32b-4b55-b7ca-1853af091e85", true, false, "khachhang1" },
+                    { "6acbc8fc-9805-463c-8b03-4b64fa53f9ef", 0, "2f990ed4-5876-4768-a6e5-cedf9443e97b", "khachhang2@gmail.com", true, false, null, "KHACHHANG2@GMAIL.COM", "KHACHHANG2", "AQAAAAIAAYagAAAAEInpEnsCS23SFRrdJOPfOw5ZEAait+2RlOYgkO1yadwy5Xv8egRL7lkcBZI+QNws3A==", null, false, "aa16d13a-cdf0-4f6c-b3de-1984b161db77", true, false, "khachhang2" },
+                    { "827ff1aa-db3d-4a03-a3fa-a0bfd02b85c8", 0, "848c464f-cbe6-46b5-a115-6d828e2b9d42", "nhanvien1@booking.com", true, false, null, "NHANVIEN1@BOOKING.COM", "NHANVIEN1", "AQAAAAIAAYagAAAAEGdtWzlA0pmhhlfLSIdCOannDlDbGzbWU0XuDRTgj0DFVyNR+gKG6LXaQG0ECjbBjw==", null, false, "2ed533c3-2b0a-4394-9f15-1219baded8a7", true, false, "nhanvien1" },
+                    { "f32a22b7-4c5c-42a7-bc9d-4f5a574a9d6b", 0, "64a4f467-672d-4f97-8cdd-afb82a72371f", "admin@booking.com", true, false, null, "ADMIN@BOOKING.COM", "ADMIN", "AQAAAAIAAYagAAAAECvGak3A/oDZndHtLKuh09ev7XK1AAwWkKwyrK+Rc0xEqbYmjN0bL5glqEPsXuD1sQ==", null, false, "dc7a93fc-5600-47f7-9768-79d19b6e8ebf", true, false, "admin" }
                 });
 
             migrationBuilder.InsertData(
@@ -515,8 +509,8 @@ namespace WebAppBookingBoat.Migrations
                 columns: new[] { "RoleId", "UserId" },
                 values: new object[,]
                 {
-                    { "2", "4248b3d7-0bbf-4475-b55b-8d5743802619" },
-                    { "1", "6e30006e-b30f-47b9-9e33-4a02d89d5b57" }
+                    { "2", "827ff1aa-db3d-4a03-a3fa-a0bfd02b85c8" },
+                    { "1", "f32a22b7-4c5c-42a7-bc9d-4f5a574a9d6b" }
                 });
 
             migrationBuilder.InsertData(
@@ -569,41 +563,41 @@ namespace WebAppBookingBoat.Migrations
             migrationBuilder.InsertData(
                 table: "KhachHang",
                 columns: new[] { "MaKH", "DiaChi", "Email", "HoTen", "MaTK", "NgaySinh", "Sdt" },
-                values: new object[] { 1, null, "khach.tran@gmail.com", "Trần Thị Khách", "6e30006e-b30f-47b9-9e33-4a02d89d5b57", new DateTime(1995, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "0912345678" });
+                values: new object[] { 1, null, "khach.tran@gmail.com", "Trần Thị Khách", "146251c2-4cea-4c4d-a615-1f0f1f56cec9", new DateTime(1995, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "0912345678" });
 
             migrationBuilder.InsertData(
                 table: "LichTrinh",
                 columns: new[] { "MaLichTrinh", "GiaVeCoBan", "MaTau", "MaTuyen", "NgayGioCapBenDuKien", "NgayGioKhoiHanh", "SoGheTrong", "TrangThai" },
-                values: new object[] { 1, 200000m, 1, 1, new DateTime(2026, 4, 12, 10, 30, 0, 0, DateTimeKind.Local), new DateTime(2026, 4, 12, 8, 0, 0, 0, DateTimeKind.Local), 20, "Sắp khởi hành" });
+                values: new object[] { 1, 200000m, 1, 1, new DateTime(2026, 4, 13, 10, 30, 0, 0, DateTimeKind.Local), new DateTime(2026, 4, 13, 8, 0, 0, 0, DateTimeKind.Local), 20, "Sắp khởi hành" });
 
             migrationBuilder.InsertData(
                 table: "Log",
                 columns: new[] { "MaLog", "BangTacDong", "HanhDong", "MaTK", "NoiDungChiTiet", "ThoiGian" },
-                values: new object[] { 1, "Hệ thống", "Khởi tạo hệ thống", "6e30006e-b30f-47b9-9e33-4a02d89d5b57", "Seed dữ liệu mẫu thành công", new DateTime(2026, 4, 11, 6, 50, 10, 25, DateTimeKind.Local).AddTicks(3548) });
+                values: new object[] { 1, "Hệ thống", "Khởi tạo hệ thống", "f32a22b7-4c5c-42a7-bc9d-4f5a574a9d6b", "Seed dữ liệu mẫu thành công", new DateTime(2026, 4, 12, 1, 55, 30, 81, DateTimeKind.Local).AddTicks(5848) });
 
             migrationBuilder.InsertData(
                 table: "NhanVien",
                 columns: new[] { "MaNV", "ChucVu", "Email", "HoTen", "Luong", "MaTK", "Sdt", "TrangThai" },
-                values: new object[] { 1, "Bán vé", "chay.nv@boat.com", "Nguyễn Văn Chạy", 0m, "6e30006e-b30f-47b9-9e33-4a02d89d5b57", "0987654321", true });
+                values: new object[] { 1, "Bán vé", "chay.nv@boat.com", "Nguyễn Văn Chạy", 0m, "f32a22b7-4c5c-42a7-bc9d-4f5a574a9d6b", "0987654321", true });
 
             migrationBuilder.InsertData(
                 table: "HoaDon",
                 columns: new[] { "MaHoaDon", "MaKH", "MaKM", "MaNV", "NgayLap", "PhuongThucTT", "SoLuongVe", "SoTienGiam", "TamTinh", "TongTien", "TrangThai" },
                 values: new object[,]
                 {
-                    { 1, 1, "KM10", 1, new DateTime(2026, 4, 11, 6, 50, 10, 25, DateTimeKind.Local).AddTicks(2867), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" },
-                    { 2, 1, "KM10", 1, new DateTime(2026, 4, 11, 6, 50, 10, 25, DateTimeKind.Local).AddTicks(2918), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" },
-                    { 3, 1, "KM10", 1, new DateTime(2026, 4, 11, 6, 50, 10, 25, DateTimeKind.Local).AddTicks(3059), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" }
+                    { 1, 1, "KM10", 1, new DateTime(2026, 4, 12, 1, 55, 30, 81, DateTimeKind.Local).AddTicks(5342), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" },
+                    { 2, 1, "KM10", 1, new DateTime(2026, 4, 12, 1, 55, 30, 81, DateTimeKind.Local).AddTicks(5395), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" },
+                    { 3, 1, "KM10", 1, new DateTime(2026, 4, 12, 1, 55, 30, 81, DateTimeKind.Local).AddTicks(5548), "Tiền mặt", 1, 20000m, 200000m, 180000m, "Đã thanh toán" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Ve",
-                columns: new[] { "MaVe", "GiaVe", "KhachHangMaKH", "MaGhe", "MaHoaDon", "MaLichTrinh", "TrangThai" },
+                columns: new[] { "MaVe", "GiaVe", "MaGhe", "MaHoaDon", "MaLichTrinh", "TrangThai" },
                 values: new object[,]
                 {
-                    { 1, 180000m, null, 2, 1, 1, "Hợp lệ" },
-                    { 2, 180000m, null, 3, 2, 1, "Hợp lệ" },
-                    { 3, 180000m, null, 4, 3, 1, "Hợp lệ" }
+                    { 1, 180000m, 2, 1, 1, "Hợp lệ" },
+                    { 2, 180000m, 3, 2, 1, "Hợp lệ" },
+                    { 3, 180000m, 4, 3, 1, "Hợp lệ" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -743,11 +737,6 @@ namespace WebAppBookingBoat.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ve_KhachHangMaKH",
-                table: "Ve",
-                column: "KhachHangMaKH");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Ve_MaGhe",
                 table: "Ve",
                 column: "MaGhe");
@@ -758,9 +747,10 @@ namespace WebAppBookingBoat.Migrations
                 column: "MaHoaDon");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ve_MaLichTrinh",
+                name: "IX_Ve_MaLichTrinh_MaGhe",
                 table: "Ve",
-                column: "MaLichTrinh");
+                columns: new[] { "MaLichTrinh", "MaGhe" },
+                unique: true);
         }
 
         /// <inheritdoc />

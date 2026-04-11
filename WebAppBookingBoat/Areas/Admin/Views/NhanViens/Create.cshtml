@@ -1,0 +1,203 @@
+﻿@model WebAppBookingBoat.Models.NhanVien
+
+@{
+	ViewData["Title"] = "Thêm mới Nhân viên";
+}
+
+<head>
+	<style>
+		.form-control {
+			border-radius: 8px;
+		}
+
+		.border-left-primary {
+			border-left: 4px solid #4e73df !important;
+		}
+
+		.border-left-info {
+			border-left: 4px solid #36b9cc !important;
+		}
+
+		.border-left-warning {
+			border-left: 4px solid #f6c23e !important;
+		}
+
+		.input-group-text {
+			border-radius: 8px 0 0 8px;
+		}
+
+		.custom-control-input:checked ~ .custom-control-label::before {
+			border-color: #1cc88a;
+			background-color: #1cc88a;
+		}
+
+		.form-control:focus {
+			border-color: #4e73df;
+			box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+		}
+	</style>
+</head>
+
+<div class="container-fluid">
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+			<i class="fas fa-user-plus text-primary mr-2"></i>Thêm mới Nhân viên
+		</h1>
+	</div>
+
+	<div class="row justify-content-center">
+		<div class="col-xl-10 col-lg-12">
+			<div class="card shadow-sm mb-4 border-0">
+				<div class="card-header py-3 bg-white border-bottom">
+					<h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+						<i class="fas fa-id-card mr-1"></i> Thông tin hồ sơ nhân sự
+					</h6>
+				</div>
+
+				<div class="card-body px-lg-5 py-4">
+					<form asp-action="Create" method="post" id="createEmployeeForm">
+						<div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm"></div>
+
+						<div class="row">
+							@* Cột 1: Thông tin cơ bản *@
+							<div class="col-md-6 border-right">
+								<h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-info-circle mr-2 text-primary"></i>Thông tin cơ bản</h6>
+
+								<div class="form-group mb-4">
+									<label asp-for="HoTen" class="small font-weight-bold text-muted text-uppercase">Họ và tên</label>
+									<input asp-for="HoTen" class="form-control border-left-primary shadow-sm" placeholder="Nhập đầy đủ họ tên..." />
+									<span asp-validation-for="HoTen" class="text-danger small mt-1"></span>
+								</div>
+
+								<div class="form-group mb-4">
+									<label asp-for="Sdt" class="small font-weight-bold text-muted text-uppercase">Số điện thoại</label>
+									<input asp-for="Sdt" class="form-control shadow-sm border-left-info" placeholder="Ví dụ: 0987xxxxxx" />
+									<span asp-validation-for="Sdt" class="text-danger small mt-1"></span>
+								</div>
+
+								<div class="form-group mb-4">
+									<label asp-for="Email" class="small font-weight-bold text-muted text-uppercase">Địa chỉ Email</label>
+									<input asp-for="Email" type="email" class="form-control shadow-sm border-left-info" placeholder="nhanvien@example.com" />
+									<span asp-validation-for="Email" class="text-danger small mt-1"></span>
+								</div>
+							</div>
+
+							@* Cột 2: Công việc *@
+							<div class="col-md-6 pl-md-4">
+								<h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-briefcase mr-2 text-primary"></i>Vị trí & Chế độ</h6>
+
+								<div class="form-group mb-4">
+									<label asp-for="MaTK" class="small font-weight-bold text-muted text-uppercase">Tài khoản hệ thống</label>
+									<select asp-for="MaTK" class="form-control shadow-sm border-left-warning" asp-items="ViewBag.MaTK">
+										<option value="">-- Chọn tài khoản liên kết --</option>
+									</select>
+									<span asp-validation-for="MaTK" class="text-danger small mt-1"></span>
+								</div>
+
+								<div class="form-group mb-4">
+									<label asp-for="ChucVu" class="small font-weight-bold text-muted text-uppercase">Chức vụ</label>
+									<input asp-for="ChucVu" class="form-control shadow-sm border-left-primary" placeholder="Ví dụ: Thuyền trưởng..." />
+									<span asp-validation-for="ChucVu" class="text-danger small mt-1"></span>
+								</div>
+
+								<div class="form-group mb-4">
+									<label class="small font-weight-bold text-muted text-uppercase">Mức lương (VNĐ)</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text bg-light"><i class="fas fa-money-bill-wave text-success"></i></span>
+										</div>
+										@* Ô này chỉ để hiển thị, không có name để không gửi về Controller *@
+										<input type="text" id="LuongDisplay"
+											   value="@(Model?.Luong > 0 ? ((long)Model.Luong).ToString() : "0")"
+											   class="form-control shadow-sm font-weight-bold text-success" />
+
+										@* Ô ẩn này mới là ô thực sự map với Model *@
+										<input type="hidden" asp-for="Luong" id="LuongActual" />
+									</div>
+									<span asp-validation-for="Luong" class="text-danger small"></span>
+								</div>
+
+								<div class="form-group mb-4 custom-control custom-switch pt-2">
+									<input type="checkbox" class="custom-control-input" asp-for="TrangThai" id="trangThaiSwitch" checked>
+									<label class="custom-control-label font-weight-bold text-dark" for="trangThaiSwitch">Đang làm việc</label>
+								</div>
+							</div>
+						</div>
+
+						<hr class="my-4">
+
+						<div class="d-flex justify-content-between align-items-center mt-4">
+							<a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+								<span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+								<span class="text">Quay lại</span>
+							</a>
+							<div>
+								<button type="reset" class="btn btn-light mr-2">Nhập lại</button>
+								<button type="submit" class="btn btn-primary btn-icon-split shadow-sm">
+									<span class="icon text-white-50"><i class="fas fa-save"></i></span>
+									<span class="text font-weight-bold">Lưu nhân viên</span>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+
+	<script>
+		$(document).ready(function () {
+			// Cho phép validate cả ô ẩn
+			if ($.validator) {
+				$.validator.setDefaults({ ignore: [] });
+
+				// Ghi đè lại hàm check số để chấp nhận định dạng thuần
+				$.validator.methods.number = function (value, element) {
+					return this.optional(element) || /^-?\d+$/.test(value);
+				};
+			}
+
+			const luongDisplay = $('#LuongDisplay');
+			const luongActual = $('#LuongActual');
+
+			function formatCurrency(n) {
+				if (!n) return "";
+				let value = n.toString().replace(/\D/g, "").replace(/^0+/, "");
+				return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			}
+
+			// 1. Khi người dùng gõ vào ô hiển thị
+			luongDisplay.on('input', function () {
+				let raw = $(this).val().replace(/\D/g, "");
+				luongActual.val(raw);
+				$(this).val(formatCurrency(raw));
+			});
+
+			// 2. Lúc load trang
+			if (luongDisplay.val()) {
+				let initialValue = luongDisplay.val().replace(/\D/g, "");
+				luongActual.val(initialValue);
+				luongDisplay.val(formatCurrency(initialValue));
+			}
+
+			// 3. Xử lý trước khi Submit
+			$('form').on('submit', function () {
+				if (!luongActual.val() && luongDisplay.val()) {
+					luongActual.val(luongDisplay.val().replace(/\D/g, ""));
+				}
+				$('select:disabled').prop('disabled', false);
+			});
+
+			// 4. Cập nhật label cho Switch
+			$('#trangThaiSwitch').on('change', function() {
+				$(this).next('label').text($(this).is(':checked') ? 'Đang làm việc' : 'Đã nghỉ việc');
+			});
+		}); // Kết thúc document.ready
+	</script>
+}

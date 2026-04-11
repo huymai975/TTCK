@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebAppBookingBoat.Models
@@ -47,6 +45,5 @@ namespace WebAppBookingBoat.Models
 
         // --- Mối quan hệ ---
         public virtual ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
-        public virtual ICollection<Ve> Ves { get; set; } = new List<Ve>();
     }
 }

@@ -32,6 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\NhanVienArea\Data\" />
+    <Folder Include="Areas\NhanVienArea\Models\" />
     <Folder Include="wwwroot\images\tuyen-duong\" />
   </ItemGroup>
 

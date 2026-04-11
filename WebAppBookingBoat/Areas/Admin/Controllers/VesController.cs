@@ -17,14 +17,67 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/Ves
+        #region LOGIC TẬP TRUNG (Business Rules)
+
+        private async Task ValidateVeBusiness(Ve ve, bool isEdit = false, string? trangThaiCu = null)
+        {
+            // 1. Kiểm tra lịch trình tồn tại
+            var lichTrinh = await _context.LichTrinhs.FindAsync(ve.MaLichTrinh);
+            if (lichTrinh == null)
+            {
+                ModelState.AddModelError("MaLichTrinh", "Lịch trình không tồn tại.");
+                return;
+            }
+
+            // 2. Kiểm tra trùng ghế (Trừ trường hợp vé đã hủy)
+            bool biTrungGhe = await _context.Ves.AnyAsync(v =>
+                v.MaLichTrinh == ve.MaLichTrinh &&
+                v.MaGhe == ve.MaGhe &&
+                v.MaVe != ve.MaVe &&
+                v.TrangThai != "Đã hủy");
+
+            if (ve.TrangThai != "Đã hủy" && biTrungGhe)
+            {
+                ModelState.AddModelError("MaGhe", "Ghế này đã được đặt bởi một vé khác.");
+            }
+
+            // 3. Kiểm tra số lượng ghế trống khi tạo mới hoặc chuyển từ Hủy -> Hợp lệ
+            if (ve.TrangThai != "Đã hủy" && (trangThaiCu == "Đã hủy" || !isEdit))
+            {
+                if (lichTrinh.SoGheTrong <= 0)
+                {
+                    ModelState.AddModelError("", "Lịch trình này đã hết chỗ ngồi.");
+                }
+            }
+        }
+
+        private async Task UpdateSoGheTrong(Ve ve, bool isEdit = false, string? trangThaiCu = null)
+        {
+            var lichTrinh = await _context.LichTrinhs.FindAsync(ve.MaLichTrinh);
+            if (lichTrinh == null) return;
+
+            if (!isEdit) // Trường hợp Create
+            {
+                if (ve.TrangThai != "Đã hủy") lichTrinh.SoGheTrong--;
+            }
+            else // Trường hợp Edit (Chỉ update nếu có sự thay đổi về trạng thái chiếm chỗ)
+            {
+                if (trangThaiCu == "Đã hủy" && ve.TrangThai != "Đã hủy")
+                    lichTrinh.SoGheTrong--;
+                else if (trangThaiCu != "Đã hủy" && ve.TrangThai == "Đã hủy")
+                    lichTrinh.SoGheTrong++;
+            }
+        }
+
+        #endregion
+
         public async Task<IActionResult> Index()
         {
             var listVe = await _context.Ves
                 .Include(v => v.Ghe)
-                .Include(v => v.LichTrinh).ThenInclude(lt => lt!.Tau) // Fix CS8602
-                .Include(v => v.LichTrinh).ThenInclude(lt => lt!.TuyenDuong)
-                .Include(v => v.HoaDon).ThenInclude(hd => hd!.KhachHang)
+                .Include(v => v.LichTrinh!).ThenInclude(lt => lt.Tau)
+                .Include(v => v.LichTrinh!).ThenInclude(lt => lt.TuyenDuong)
+                .Include(v => v.HoaDon!).ThenInclude(hd => hd.KhachHang)
                 .Select(v => new VeViewModel
                 {
                     MaVe = v.MaVe,
@@ -43,7 +96,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(listVe);
         }
 
-        // GET: Admin/Ves/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -57,7 +109,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ve == null) return NotFound();
 
-            // Chuyển đổi sang ViewModel để hiển thị đẹp hơn trên View Details
+            // Mapping sang ViewModel
             var viewModel = new VeViewModel
             {
                 MaVe = ve.MaVe,
@@ -74,48 +126,28 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(viewModel);
         }
 
-        // GET: Admin/Ves/Create
         public IActionResult Create()
         {
             LoadDropdownData();
-            return View();
+            return View(new Ve { TrangThai = "Đã thanh toán" });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaVe,MaHoaDon,MaLichTrinh,MaGhe,GiaVe,TrangThai")] Ve ve)
+        public async Task<IActionResult> Create(Ve ve)
         {
-            // Xóa validation navigation properties
-            ModelState.Remove("HoaDon");
-            ModelState.Remove("Ghe");
-            ModelState.Remove("LichTrinh");
+            ModelState.Remove("HoaDon"); ModelState.Remove("Ghe"); ModelState.Remove("LichTrinh");
+
+            await ValidateVeBusiness(ve, isEdit: false);
 
             if (ModelState.IsValid)
             {
-                var lichTrinh = await _context.LichTrinhs.FindAsync(ve.MaLichTrinh);
-
-                // Kiểm tra ghế trống
-                if (lichTrinh == null || lichTrinh.SoGheTrong <= 0)
-                {
-                    ModelState.AddModelError("", "Lịch trình này đã hết chỗ trống.");
-                }
-                // Kiểm tra trùng ghế
-                else if (await _context.Ves.AnyAsync(v => v.MaLichTrinh == ve.MaLichTrinh && v.MaGhe == ve.MaGhe && v.TrangThai != "Đã hủy"))
-                {
-                    ModelState.AddModelError("MaGhe", "Ghế này đã có người ngồi.");
-                }
-                else
-                {
-                    // Cập nhật số ghế trống
-                    if (ve.TrangThai != "Đã hủy") lichTrinh.SoGheTrong--;
-
-                    _context.Add(ve);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Tạo vé thành công!";
-                    return RedirectToAction(nameof(Index));
-                }
+                await UpdateSoGheTrong(ve, isEdit: false);
+                _context.Add(ve);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Tạo vé thành công!";
+                return RedirectToAction(nameof(Index));
             }
-
             LoadDropdownData(ve);
             return View(ve);
         }
@@ -124,6 +156,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
+
             var ve = await _context.Ves.FindAsync(id);
             if (ve == null) return NotFound();
 
@@ -131,77 +164,39 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(ve);
         }
 
+        // POST: Admin/Ves/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MaVe,MaHoaDon,MaLichTrinh,MaGhe,GiaVe,TrangThai")] Ve ve)
+        public async Task<IActionResult> Edit(int id, Ve ve)
         {
             if (id != ve.MaVe) return NotFound();
 
-            // Xóa validation navigation properties
+            // Lấy thông tin vé cũ để kiểm tra thay đổi trạng thái
+            var veCu = await _context.Ves.AsNoTracking().FirstOrDefaultAsync(v => v.MaVe == id);
+            if (veCu == null) return NotFound();
+
             ModelState.Remove("HoaDon");
             ModelState.Remove("Ghe");
             ModelState.Remove("LichTrinh");
+
+            // Sử dụng logic Business Rules Huy đã viết
+            await ValidateVeBusiness(ve, isEdit: true, trangThaiCu: veCu.TrangThai);
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Lấy dữ liệu cũ để so sánh
-                    var veCu = await _context.Ves.AsNoTracking().FirstOrDefaultAsync(v => v.MaVe == id);
-                    if (veCu == null) return NotFound();
-
-                    var ltHienTai = await _context.LichTrinhs.FindAsync(ve.MaLichTrinh);
-
-                    // Kiểm tra trùng ghế (trừ chính nó)
-                    var isGheTrung = await _context.Ves.AnyAsync(v =>
-                        v.MaLichTrinh == ve.MaLichTrinh && v.MaGhe == ve.MaGhe &&
-                        v.MaVe != ve.MaVe && v.TrangThai != "Đã hủy");
-
-                    if (isGheTrung)
-                    {
-                        ModelState.AddModelError("MaGhe", "Ghế này đã được đặt.");
-                    }
-                    else
-                    {
-                        // Xử lý đổi lịch trình
-                        if (veCu.MaLichTrinh != ve.MaLichTrinh)
-                        {
-                            var ltCu = await _context.LichTrinhs.FindAsync(veCu.MaLichTrinh);
-                            if (ve.TrangThai != "Đã hủy" && (ltHienTai == null || ltHienTai.SoGheTrong <= 0))
-                            {
-                                ModelState.AddModelError("MaLichTrinh", "Chuyến tàu mới đã hết chỗ.");
-                                LoadDropdownData(ve);
-                                return View(ve);
-                            }
-                            if (veCu.TrangThai != "Đã hủy" && ltCu != null) ltCu.SoGheTrong++;
-                            if (ve.TrangThai != "Đã hủy" && ltHienTai != null) ltHienTai.SoGheTrong--;
-                        }
-                        // Xử lý đổi trạng thái vé
-                        else if (veCu.TrangThai != ve.TrangThai)
-                        {
-                            if (ve.TrangThai == "Đã hủy") ltHienTai!.SoGheTrong++;
-                            else if (veCu.TrangThai == "Đã hủy")
-                            {
-                                if (ltHienTai!.SoGheTrong <= 0)
-                                {
-                                    ModelState.AddModelError("TrangThai", "Không thể khôi phục vì tàu đã đầy.");
-                                    LoadDropdownData(ve);
-                                    return View(ve);
-                                }
-                                ltHienTai.SoGheTrong--;
-                            }
-                        }
-
-                        _context.Update(ve);
-                        await _context.SaveChangesAsync();
-                        TempData["SuccessMessage"] = "Cập nhật thành công!";
-                        return RedirectToAction(nameof(Index));
-                    }
+                    await UpdateSoGheTrong(ve, isEdit: true, trangThaiCu: veCu.TrangThai);
+                    _context.Update(ve);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Cập nhật vé thành công!";
                 }
-                catch (Exception ex)
+                catch (DbUpdateConcurrencyException)
                 {
-                    ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
+                    if (!_context.Ves.Any(e => e.MaVe == ve.MaVe)) return NotFound();
+                    else throw;
                 }
+                return RedirectToAction(nameof(Index));
             }
 
             LoadDropdownData(ve);
@@ -209,60 +204,45 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         }
 
 
-        // GET: Admin/Ves/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var ve = await _context.Ves
-                .Include(v => v.HoaDon).ThenInclude(h => h!.KhachHang)
-                .FirstOrDefaultAsync(m => m.MaVe == id);
-
-            if (ve == null) return NotFound();
-
-            return View(ve);
-        }
-
-        // POST: Admin/Ves/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // --- AJAX DELETE ---
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var ve = await _context.Ves.FindAsync(id);
-            if (ve != null)
+            if (ve == null) return Json(new { success = false, message = "Không tìm thấy vé." });
+
+            try
             {
-                // QUAN TRỌNG: Cập nhật lại số ghế trống khi xóa vé
+                // Nếu xóa vé đang hoạt động thì trả lại ghế cho tàu
                 if (ve.TrangThai != "Đã hủy")
                 {
                     var lichTrinh = await _context.LichTrinhs.FindAsync(ve.MaLichTrinh);
-                    if (lichTrinh != null)
-                    {
-                        lichTrinh.SoGheTrong++;
-                        _context.Update(lichTrinh); // Đảm bảo trạng thái lịch trình được cập nhật
-                    }
+                    if (lichTrinh != null) lichTrinh.SoGheTrong++;
                 }
 
                 _context.Ves.Remove(ve);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Xóa vé thành công!";
+                return Json(new { success = true, message = "Đã xóa vé và hoàn trả chỗ ngồi." });
             }
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
         }
 
-        // API dùng cho Ajax lọc ghế
         [HttpGet]
         public async Task<JsonResult> GetGhesByLichTrinh(int maLichTrinh, int? maVeHienTai = null)
         {
-            var lichTrinh = await _context.LichTrinhs.FirstOrDefaultAsync(lt => lt.MaLichTrinh == maLichTrinh);
-            if (lichTrinh == null) return Json(new List<object>());
+            var lt = await _context.LichTrinhs.FindAsync(maLichTrinh);
+            if (lt == null) return Json(new List<object>());
 
             var gheDaDatIds = await _context.Ves
                 .Where(v => v.MaLichTrinh == maLichTrinh && v.TrangThai != "Đã hủy" && v.MaVe != maVeHienTai)
-                .Select(v => v.MaGhe)
-                .ToListAsync();
+                .Select(v => v.MaGhe).ToListAsync();
 
             var ghes = await _context.Ghes
-                .Where(g => g.MaTau == lichTrinh.MaTau && !gheDaDatIds.Contains(g.MaGhe))
+                .Where(g => g.MaTau == lt.MaTau && !gheDaDatIds.Contains(g.MaGhe))
                 .Select(g => new { value = g.MaGhe, text = $"{g.TenGhe} ({g.LoaiGhe})" })
                 .ToListAsync();
 
@@ -272,45 +252,27 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         #region Helpers
         private void LoadDropdownData(Ve? ve = null)
         {
-            var lichTrinhs = _context.LichTrinhs
-                .Include(l => l.Tau)
-                .Include(l => l.TuyenDuong)
+            var lichTrinhs = _context.LichTrinhs.Include(l => l.Tau).Include(l => l.TuyenDuong)
                 .Select(l => new
                 {
                     l.MaLichTrinh,
-                    Display = $"{(l.Tau != null ? l.Tau.TenTau : "N/A")} - {(l.TuyenDuong != null ? l.TuyenDuong.TenTuyen : "N/A")} (Trống: {l.SoGheTrong})"
+                    Display = $"{l.Tau!.TenTau} - {l.TuyenDuong!.TenTuyen} ({l.NgayGioKhoiHanh:dd/MM HH:mm})"
                 }).ToList();
             ViewData["MaLichTrinh"] = new SelectList(lichTrinhs, "MaLichTrinh", "Display", ve?.MaLichTrinh);
 
-            var hoaDons = _context.HoaDons.Include(h => h.KhachHang).Select(h => new
-            {
-                h.MaHoaDon,
-                Display = $"HĐ{h.MaHoaDon} - {(h.KhachHang != null ? h.KhachHang.HoTen : "N/A")}"
-            }).ToList();
+            var hoaDons = _context.HoaDons.Include(h => h.KhachHang)
+                .Select(h => new { h.MaHoaDon, Display = $"HĐ{h.MaHoaDon} - {h.KhachHang!.HoTen}" }).ToList();
             ViewData["MaHoaDon"] = new SelectList(hoaDons, "MaHoaDon", "Display", ve?.MaHoaDon);
 
-            // Xử lý hiển thị lại danh sách ghế khi Load lại trang (Create/Edit)
             if (ve != null && ve.MaLichTrinh > 0)
             {
-                var lt = _context.LichTrinhs.FirstOrDefault(l => l.MaLichTrinh == ve.MaLichTrinh);
+                var lt = _context.LichTrinhs.Find(ve.MaLichTrinh);
                 if (lt != null)
                 {
-                    // Lấy tất cả ghế thuộc tàu của lịch trình đó
-                    var ghes = _context.Ghes
-                        .Where(g => g.MaTau == lt.MaTau)
-                        .Select(g => new { g.MaGhe, Display = $"{g.TenGhe} ({g.LoaiGhe})" })
-                        .ToList();
-
+                    var ghes = _context.Ghes.Where(g => g.MaTau == lt.MaTau)
+                        .Select(g => new { g.MaGhe, Display = $"{g.TenGhe} ({g.LoaiGhe})" }).ToList();
                     ViewData["MaGhe"] = new SelectList(ghes, "MaGhe", "Display", ve.MaGhe);
                 }
-                else
-                {
-                    ViewData["MaGhe"] = new SelectList(Enumerable.Empty<SelectListItem>());
-                }
-            }
-            else
-            {
-                ViewData["MaGhe"] = new SelectList(Enumerable.Empty<SelectListItem>());
             }
         }
         #endregion

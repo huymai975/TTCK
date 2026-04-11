@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebAppBookingBoat.Models
@@ -14,11 +12,11 @@ namespace WebAppBookingBoat.Models
 
         [Display(Name = "Mã tài khoản")]
         // Tên cột trong bảng KhachHang của bạn
-        public string MaTK { get; set; } = null!;
+        public string? MaTK { get; set; }
 
         // Khai báo thuộc tính dẫn hướng trỏ tới lớp AppUser
         [ForeignKey("MaTK")]
-        public virtual AppUser AppUser { get; set; } = null!;
+        public virtual AppUser? AppUser { get; set; }
 
         // --- Thông tin cá nhân ---
         [Required(ErrorMessage = "Họ tên không được để trống")]
@@ -42,6 +40,8 @@ namespace WebAppBookingBoat.Models
         [Display(Name = "Chức vụ")]
         public string? ChucVu { get; set; } // Ví dụ: Quản lý, Nhân viên bán vé
 
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Lương không được là số âm")]
         [Column(TypeName = "decimal(18,2)")]
         [Display(Name = "Lương")]
         public decimal Luong { get; set; }

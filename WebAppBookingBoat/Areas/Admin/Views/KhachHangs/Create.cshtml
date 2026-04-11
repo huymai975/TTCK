@@ -1,0 +1,159 @@
+﻿@model WebAppBookingBoat.Models.KhachHang
+
+@{
+	ViewData["Title"] = "Đăng ký Khách hàng mới";
+}
+
+<div class="container-fluid">
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+			<i class="fas fa-user-plus text-primary mr-2"></i>Đăng ký Khách hàng mới
+		</h1>
+	</div>
+
+	<div class="row justify-content-center">
+		<div class="col-xl-10 col-lg-12">
+			<div class="card shadow-sm mb-4 border-0">
+				<div class="card-header py-3 bg-white border-bottom">
+					<h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+						<i class="fas fa-id-card mr-1"></i> Thông tin định danh khách hàng
+					</h6>
+				</div>
+
+				<div class="card-body px-lg-5 py-4">
+					<form asp-action="Create" method="post" id="createCustomerForm">
+						<div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+
+						<div class="row">
+							@* Cột 1: Thông tin cá nhân *@
+							<div class="col-md-6 border-right">
+								<h6 class="font-weight-bold text-dark mb-3">
+									<i class="fas fa-user-circle mr-2 text-primary"></i>Hồ sơ cá nhân
+								</h6>
+
+								<div class="form-group mb-4">
+									<label asp-for="HoTen" class="small font-weight-bold text-muted text-uppercase">Họ và Tên khách hàng</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text bg-light border-right-0"><i class="fas fa-signature text-primary"></i></span>
+										</div>
+										<input asp-for="HoTen" class="form-control form-control-user shadow-sm border-left-0" placeholder="Ví dụ: Nguyễn Văn A" />
+									</div>
+									<span asp-validation-for="HoTen" class="text-danger small mt-1"></span>
+								</div>
+
+								<div class="form-group mb-4">
+									<label asp-for="NgaySinh" class="small font-weight-bold text-muted text-uppercase">Ngày tháng năm sinh</label>
+									<input asp-for="NgaySinh" type="date" class="form-control form-control-user shadow-sm border-left-info" />
+									<span asp-validation-for="NgaySinh" class="text-danger small mt-1"></span>
+								</div>
+
+								<div class="form-group mb-4">
+									<label asp-for="MaTK" class="small font-weight-bold text-muted text-uppercase">Liên kết tài khoản (Nếu có)</label>
+									<select asp-for="MaTK" class="form-control form-control-user shadow-sm border-left-success" asp-items="ViewBag.MaTK">
+										<option value="">-- Khách hàng tự do --</option>
+									</select>
+									<span asp-validation-for="MaTK" class="text-danger small mt-1"></span>
+								</div>
+							</div>
+
+							@* Cột 2: Thông tin liên lạc *@
+							<div class="col-md-6 pl-md-4">
+								<h6 class="font-weight-bold text-dark mb-3">
+									<i class="fas fa-address-book mr-2 text-primary"></i>Thông tin liên lạc
+								</h6>
+
+								<div class="form-group mb-4">
+									<label asp-for="Sdt" class="small font-weight-bold text-muted text-uppercase">Số điện thoại</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text bg-light border-right-0"><i class="fas fa-phone text-success"></i></span>
+										</div>
+										<input asp-for="Sdt" class="form-control form-control-user shadow-sm border-left-0" placeholder="0905xxxxxx" />
+									</div>
+									<span asp-validation-for="Sdt" class="text-danger small mt-1"></span>
+								</div>
+
+								<div class="form-group mb-4">
+									<label asp-for="Email" class="small font-weight-bold text-muted text-uppercase">Địa chỉ Email</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text bg-light border-right-0"><i class="fas fa-envelope text-danger"></i></span>
+										</div>
+										<input asp-for="Email" class="form-control form-control-user shadow-sm border-left-0" placeholder="example@gmail.com" />
+									</div>
+									<span asp-validation-for="Email" class="text-danger small mt-1"></span>
+								</div>
+
+								<div class="form-group mb-4">
+									<label asp-for="DiaChi" class="small font-weight-bold text-muted text-uppercase">Địa chỉ thường trú</label>
+									<textarea asp-for="DiaChi" class="form-control shadow-sm border-left-warning" rows="2" placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+									<span asp-validation-for="DiaChi" class="text-danger small mt-1"></span>
+								</div>
+							</div>
+						</div>
+
+						<hr class="my-4">
+
+						<div class="d-flex justify-content-between align-items-center mt-4">
+							<a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+								<span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+								<span class="text font-weight-bold">Quay lại danh sách</span>
+							</a>
+							<div>
+								<button type="reset" class="btn btn-light btn-icon-split mr-2">
+									<span class="text">Làm mới form</span>
+								</button>
+								<button type="submit" class="btn btn-primary btn-icon-split shadow-sm">
+									<span class="icon text-white-50"><i class="fas fa-save"></i></span>
+									<span class="text font-weight-bold">Đăng ký khách hàng</span>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<style>
+		/* Giữ nguyên các class CSS của Huy */
+		.form-control-user {
+			border-radius: 8px;
+			height: calc(1.5em + .75rem + 10px);
+		}
+
+		.border-left-primary {
+			border-left: 4px solid #4e73df !important;
+		}
+
+		.border-left-info {
+			border-left: 4px solid #36b9cc !important;
+		}
+
+		.border-left-success {
+			border-left: 4px solid #1cc88a !important;
+		}
+
+		.border-left-warning {
+			border-left: 4px solid #f6c23e !important;
+		}
+
+		.border-left-danger {
+			border-left: 4px solid #e74a3b !important;
+		}
+
+		.input-group-text {
+			border-radius: 8px 0 0 8px;
+		}
+
+		textarea.form-control {
+			border-radius: 8px;
+		}
+	</style>
+}

@@ -112,21 +112,13 @@
 
 @section Scripts {
     <script>
-        $(document).on('click', '#btnDeleteConfirm', function () {
-            Swal.fire({
-                title: 'Xác nhận xóa phương tiện?',
-                text: "Toàn bộ dữ liệu của tàu BOAT-@Model.MaTau.ToString("D3") sẽ bị gỡ bỏ vĩnh viễn.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#e74a3b',
-                cancelButtonColor: '#858796',
-                confirmButtonText: 'Đồng ý xóa',
-                cancelButtonText: 'Hủy yêu cầu',
-                borderRadius: '12px'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('#confirmDeleteForm').submit();
-                }
+        $(document).ready(function () {
+            // Gọi hàm confirmDelete từ Layout khi bấm nút
+            $('#btnDeleteConfirm').on('click', function () {
+                confirmDelete(
+                    'confirmDeleteForm',
+                    'Bạn có chắc chắn muốn xóa tàu @Model.TenTau? Dữ liệu sẽ không thể khôi phục!'
+                );
             });
         });
     </script>

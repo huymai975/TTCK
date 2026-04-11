@@ -17,16 +17,12 @@
         width: 60px;
     }
 
-    .col-info {
-        width: auto;
-    }
-
     .col-img {
         width: 120px;
     }
 
     .col-capacity {
-        width: 120px;
+        width: 100px;
     }
 
     .col-status {
@@ -34,7 +30,7 @@
     }
 
     .col-action {
-        width: 140px;
+        width: 130px;
     }
 
     /* 2. STYLE NỘI DUNG */
@@ -49,13 +45,7 @@
         font-size: 0.95rem;
     }
 
-    .capacity-text {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: #4e73df;
-    }
-
-    /* 3. NÚT THAO TÁC (SOFT UI) */
+    /* 3. NÚT THAO TÁC */
     .btn-modern {
         width: 32px;
         height: 32px;
@@ -66,17 +56,13 @@
         transition: all 0.2s ease;
         margin: 0 2px;
         text-decoration: none !important;
+        border: none;
     }
 
         .btn-modern:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
-    .btn-view {
-        background-color: #e1f5fe;
-        color: #039be5;
-    }
 
     .btn-edit {
         background-color: #fff8e1;
@@ -88,7 +74,17 @@
         color: #c62828;
     }
 
-    /* 4. BADGE TRẠNG THÁI (Thêm hiệu ứng tương tác) */
+    .btn-edit:hover {
+        background-color: #f57f17;
+        color: #fff;
+    }
+
+    .btn-delete:hover {
+        background-color: #c62828;
+        color: #fff;
+    }
+
+    /* 4. BADGE TRẠNG THÁI */
     .badge-status {
         padding: 6px 12px;
         border-radius: 20px;
@@ -98,14 +94,19 @@
         display: inline-block;
         width: 100%;
         text-align: center;
+        cursor: pointer;
         border: none;
-        cursor: pointer; /* Hiển thị bàn tay khi rẽ chuột */
         transition: opacity 0.2s;
     }
 
         .badge-status:hover {
             opacity: 0.8;
         }
+
+    .pagination .page-item.active .page-link {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
 </style>
 
 <div class="container-fluid">
@@ -115,17 +116,17 @@
         </h1>
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3 d-flex">
         <a asp-action="Create" class="btn btn-primary btn-icon-split shadow-sm border-0">
             <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
-            <span class="text font-weight-bold">Thêm mới tàu thuyền</span>
+            <span class="text font-weight-bold">Thêm tàu mới</span>
         </a>
     </div>
 
     <div class="card shadow-sm mb-4 border-0">
         <div class="card-header py-3 bg-white border-bottom">
             <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
-                <i class="fas fa-list mr-1"></i> Danh sách phương tiện
+                <i class="fas fa-list mr-1"></i> Danh sách đội tàu
             </h6>
         </div>
 
@@ -133,23 +134,20 @@
             <div class="px-3 pt-3">
                 <div class="card shadow-sm border-0" style="background-color: #f8f9fc;">
                     <div class="card-body py-2">
-                        <div class="row align-items-center">
-                            <div class="col-md-12 d-flex align-items-center flex-wrap">
-                                <div class="input-group input-group-sm shadow-sm mr-3" style="width: 200px;">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text bg-primary text-white border-0"><i class="fas fa-filter"></i></span>
-                                    </div>
-                                    <select id="statusFilter" class="form-control border-0 font-weight-bold text-primary">
-                                        <option value="">Tất cả trạng thái</option>
-                                        <option value="Đang hoạt động">Đang hoạt động</option>
-                                        <option value="Tạm dừng">Tạm dừng</option>
-                                    </select>
+                        <div class="d-flex align-items-center flex-wrap">
+                            <div class="input-group input-group-sm shadow-sm mr-2" style="width: 220px;">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-info text-white border-0"><i class="fas fa-toggle-on"></i></span>
                                 </div>
-
-                                <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
+                                <select id="statusFilter" class="form-control border-0 font-weight-bold text-info">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="Hoạt động">Hoạt động</option>
+                                    <option value="Tạm dừng">Tạm dừng</option>
+                                </select>
                             </div>
+                            <a asp-action="Index" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
+                                <i class="fas fa-sync-alt"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -157,10 +155,10 @@
 
             <div class="table-responsive mt-2">
                 <table class="table table-hover align-middle mb-0" id="dataTable">
-                    <thead class="bg-light text-muted small font-weight-bold text-uppercase">
+                    <thead class="bg-light text-muted small font-weight-bold">
                         <tr>
                             <th class="text-center col-id border-0">ID</th>
-                            <th class="col-info border-0">Thông tin tàu</th>
+                            <th class="border-0">Thông tin tàu</th>
                             <th class="text-center col-img border-0">Hình ảnh</th>
                             <th class="text-center col-capacity border-0">Sức chứa</th>
                             <th class="text-center col-status border-0">Trạng thái</th>
@@ -175,38 +173,33 @@
                                     #@item.MaTau.ToString("D3")
                                 </td>
                                 <td class="align-middle">
-                                    <span class="text-name-ship" title="@item.TenTau">@item.TenTau</span>
-                                    <small class="text-muted text-uppercase" style="font-size: 0.65rem;">REF: BOAT-@item.MaTau</small>
+                                    <span class="text-name-ship">@item.TenTau</span>
+                                    <small class="text-muted font-weight-bold">CODE: BOAT-@item.MaTau</small>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <img src="@(string.IsNullOrEmpty(item.HinhAnh) ? "/images/tau/default-boat.jpg" : "/images/tau/" + item.HinhAnh)"
-                                         width="90" class="rounded shadow-sm border" style="height: 50px; object-fit: cover;" />
+                                    <img src="/images/tau/@item.HinhAnh" width="80" class="rounded shadow-sm border" style="height: 45px; object-fit: cover;" />
                                 </td>
-                                <td class="text-center align-middle">
-                                    <span class="capacity-text">@item.TongSoGhe</span>
-                                    <small class="text-muted d-block" style="font-size: 0.7rem;">CHỖ</small>
+                                <td class="text-center align-middle font-weight-bold text-primary">
+                                    @item.TongSoGhe
                                 </td>
-                                <td class="text-center align-middle">
-                                    <div class="status-toggle" data-id="@item.MaTau" style="cursor: pointer;">
+                                <td class="text-center align-middle td-status" data-search="@(item.TrangThai ? "Hoạt động" : "Tạm dừng")">
+                                    <div class="status-toggle" data-id="@item.MaTau" style="cursor:pointer">
                                         @if (item.TrangThai)
                                         {
-                                            <span class="badge badge-status shadow-sm badge-success">
-                                                <i class="fas fa-check-circle mr-1"></i>Đang hoạt động
-                                            </span>
+                                            <span class="badge badge-status badge-success shadow-sm"><i class="fas fa-check-circle mr-1"></i>Hoạt động</span>
                                         }
                                         else
                                         {
-                                            <span class="badge badge-status shadow-sm badge-secondary">
-                                                <i class="fas fa-pause-circle mr-1"></i>Tạm dừng
-                                            </span>
+                                            <span class="badge badge-status badge-secondary shadow-sm"><i class="fas fa-pause-circle mr-1"></i>Tạm dừng</span>
                                         }
                                     </div>
                                 </td>
                                 <td class="text-center align-middle">
                                     <div class="d-flex justify-content-center">
-                                        <a asp-action="Details" asp-route-id="@item.MaTau" class="btn-modern btn-view" title="Chi tiết"><i class="fas fa-eye"></i></a>
                                         <a asp-action="Edit" asp-route-id="@item.MaTau" class="btn-modern btn-edit" title="Sửa"><i class="fas fa-edit"></i></a>
-                                        <a asp-action="Delete" asp-route-id="@item.MaTau" class="btn-modern btn-delete" title="Xóa"><i class="fas fa-trash"></i></a>
+                                        <button type="button" class="btn-modern btn-delete" onclick="deleteShip(@item.MaTau, '@item.TenTau')" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -218,92 +211,94 @@
     </div>
 </div>
 
+@Html.AntiForgeryToken()
+
 @section Scripts {
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function() {
             var table = $('#dataTable').DataTable({
                 "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
-                    "search": "",
-                    "searchPlaceholder": "Tìm tên tàu, mã hiệu...",
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
+                    "searchPlaceholder": "Tìm tên tàu...",
                     "paginate": {
-                        "previous": "<i class='fas fa-chevron-left'></i>",
-                        "next": "<i class='fas fa-chevron-right'></i>"
-                    }
+                    // Thêm icon vào nút phân trang
+                    "previous": "<i class='fas fa-angle-left'></i>",
+                    "next": "<i class='fas fa-angle-right'></i>",
+                    "first": "<i class='fas fa-angle-double-left'></i>",
+                    "last": "<i class='fas fa-angle-double-right'></i>"
+                }
                 },
                 "pageLength": 10,
                 "order": [[0, "desc"]],
                 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                       "<'row'<'col-sm-12'tr>>" +
-                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
             });
 
-            // 1. Hàm thực hiện lọc (Dùng chung)
-            function applyFilter(value) {
-                table.column(4).search(value ? '^' + value + '$' : '', true, false).draw();
-            }
-
-            // 2. Tương tác từ thanh Select phía trên
             $('#statusFilter').on('change', function() {
-                applyFilter($(this).val());
+                table.column(4).search($(this).val()).draw();
             });
 
-            // 3. Tương tác khi nhấn trực tiếp vào Badge Trạng thái trong bảng
-            $('#dataTable').on('click', '.clickable-status', function() {
-                var status = $(this).data('status');
-                $('#statusFilter').val(status); // Cập nhật lại dropdown cho đồng bộ
-                applyFilter(status);
-            });
+            // Toggle Status AJAX - Khắc phục lỗi click nhiều lần và lỗi filter
+            $('#dataTable').on('click', '.status-toggle', function () {
+                var $container = $(this);
+                var id = $container.data('id');
+                var $td = $container.closest('td');
 
-            // 4. Nút Reset
-            $('#btnResetFilter').on('click', function() {
-                $('#statusFilter').val('');
-                table.column(4).search('').draw();
-            });
-        });
-    </script>
+                $.post('@Url.Action("ToggleStatus")', { id: id }, function (res) {
+                    if (res.success) {
+                        var textStatus = res.newState ? "Hoạt động" : "Tạm dừng";
+                        var badgeClass = res.newState ? "badge-success" : "badge-secondary";
+                        var icon = res.newState ? "fa-check-circle" : "fa-pause-circle";
 
-    <script>
-               $(document).ready(function() {
-            // Sử dụng Event Delegation để tránh lỗi khi bảng DataTable vẽ lại (Phân trang)
-            $('#dataTable').on('click', '.status-toggle', function() {
-                var container = $(this);
-                var id = container.data('id');
+                        var newHtml = `
+                            <div class="status-toggle" data-id="${id}" style="cursor:pointer">
+                                <span class="badge badge-status ${badgeClass} shadow-sm">
+                                    <i class="fas ${icon} mr-1"></i>${textStatus}
+                                </span>
+                            </div>`;
 
-                // Debug: Xem ID có lấy được không
-                console.log("Đang đổi trạng thái cho MaTau: " + id);
+                        // Cập nhật giá trị search cho DataTable và vẽ lại ô đó
+                        $td.attr('data-search', textStatus);
+                        table.cell($td).data(newHtml).draw(false);
 
-                $.ajax({
-                    // Sửa lại URL để đảm bảo ăn vào Area Admin
-                    url: '/Admin/Taus/ToggleStatus',
-                    type: 'POST',
-                    data: { id: id },
-                    // Vì Controller có ValidateAntiForgeryToken ở các hàm khác,
-                    // tốt nhất là đảm bảo hàm này không bị chặn hoặc gửi Token kèm theo.
-                    success: function(response) {
-                        if (response.success) {
-                            if (response.newState) {
-                                container.html('<span class="badge badge-status shadow-sm badge-success"><i class="fas fa-check-circle mr-1"></i>Đang hoạt động</span>');
-                            } else {
-                                container.html('<span class="badge badge-status shadow-sm badge-secondary"><i class="fas fa-pause-circle mr-1"></i>Tạm dừng</span>');
-                            }
-                            // Thông báo nhẹ nếu cần (tùy Huy)
-                            // alert("Đã cập nhật!");
-                        } else {
-                            alert("Lỗi server: " + response.message);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Chi tiết lỗi:", xhr.responseText);
-                        alert("Lỗi kết nối: Có thể sai đường dẫn hoặc Controller bị lỗi.");
+                        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+                        Toast.fire({ icon: 'success', title: 'Cập nhật trạng thái thành công' });
                     }
                 });
             });
         });
+
+        function deleteShip(id, name) {
+            Swal.fire({
+                title: 'Xác nhận xóa?',
+                text: 'Bạn có chắc muốn xóa tàu "' + name + '"?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Delete")',
+                        type: 'POST',
+                        data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                        success: function(res) {
+                            if (res.success) {
+                                Swal.fire('Thành công', res.message, 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Lỗi', res.message, 'error');
+                            }
+                        }
+                    });
+                }
+            });
+        }
     </script>
 }

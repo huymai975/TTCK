@@ -124,22 +124,5 @@
 				reader.readAsDataURL(file);
 			}
 		});
-
-		// 2. Xử lý thông báo Toast bằng SweetAlert2
-		$(function() {
-			var success = '@Html.Raw(TempData["SuccessMessage"])';
-			var error = '@Html.Raw(TempData["ErrorMessage"])';
-
-			const Toast = Swal.mixin({
-				toast: true,
-				position: 'top-end',
-				showConfirmButton: false,
-				timer: 3000,
-				timerProgressBar: true
-			});
-
-			if (success) { Toast.fire({ icon: 'success', title: success }); }
-			if (error) { Toast.fire({ icon: 'error', title: error }); }
-		});
 	</script>
 }

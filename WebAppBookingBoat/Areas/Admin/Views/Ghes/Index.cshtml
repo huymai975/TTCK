@@ -5,28 +5,41 @@
 }
 
 <style>
-	/* 1. KHUNG BẢNG & TỈ LỆ CỘT */
+	/* 1. KHUNG BẢNG */
 	#dataTable {
-		table-layout: fixed;
-		width: 100%;
+		/* Bỏ table-layout: fixed để bảng tự dãn theo nội dung */
+		width: 100% !important;
 		border-collapse: separate;
 		border-spacing: 0;
 	}
 
+	/* Đặt min-width để khi màn hình nhỏ hoặc có search, cột không bị nát chữ */
 	.col-id {
-		width: 40px;
+		width: 65px;
 	}
 
+	.col-route {
+		min-width: 250px;
+	}
+	/* Cho Tuyến đường nhiều đất diễn */
 	.col-boat {
-		width: auto;
+		width: 160px;
 	}
 
-	.col-seatname {
+	.col-time {
+		width: 180px;
+	}
+
+	.col-price {
 		width: 120px;
 	}
 
-	.col-type {
-		width: 150px;
+	.col-seats {
+		width: 100px;
+	}
+
+	.col-status {
+		width: 140px;
 	}
 
 	.col-action {
@@ -34,66 +47,32 @@
 	}
 
 	/* 2. STYLE NỘI DUNG */
-	.seat-label {
+	#dataTable td, #dataTable th {
+		vertical-align: middle !important;
+		padding: 12px 10px !important; /* Tăng padding cho thoáng */
+	}
+
+	/* Đảm bảo chữ không bị rớt hàng dọc vô lý */
+	.text-route-main {
 		font-weight: 700;
 		color: #2c3e50;
-		font-size: 0.95rem;
+		display: block;
+		line-height: 1.4;
 	}
 
-	/* 3. NÚT THAO TÁC */
-	.btn-modern {
-		width: 32px;
-		height: 32px;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 8px;
-		transition: all 0.2s ease;
-		margin: 0 2px;
-		text-decoration: none !important;
-	}
-
-		.btn-modern:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-		}
-
-	.btn-edit {
-		background-color: #fff8e1;
-		color: #f57f17;
-	}
-
-	.btn-delete {
-		background-color: #ffebee;
-		color: #c62828;
-	}
-
-	.btn-edit:hover {
-		background-color: #f57f17;
-		color: #fff;
-	}
-
-	.btn-delete:hover {
-		background-color: #c62828;
-		color: #fff;
-	}
-
-	/* 4. BADGE TRẠNG THÁI */
-	.badge-status {
-		padding: 6px 12px;
-		border-radius: 20px;
-		font-size: 0.7rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		display: inline-block;
-		width: 100%;
-		text-align: center;
-		border: none;
-	}
-
+	/* 3. ĐỒNG BỘ PHÂN TRANG (Giống trang Ghế) */
 	.pagination .page-item.active .page-link {
 		background-color: #4e73df;
 		border-color: #4e73df;
+		color: #fff;
+	}
+
+	.dataTables_wrapper .dataTables_filter input {
+		margin-left: 0.5em;
+		display: inline-block;
+		width: auto;
+		border-radius: 5px;
+		border: 1px solid #d1d3e2;
 	}
 </style>
 
@@ -192,7 +171,10 @@
 								<td class="text-center align-middle">
 									<div class="d-flex justify-content-center">
 										<a asp-action="Edit" asp-route-id="@item.MaGhe" class="btn-modern btn-edit" title="Sửa"><i class="fas fa-edit"></i></a>
-										<a asp-action="Delete" asp-route-id="@item.MaGhe" class="btn-modern btn-delete" title="Xóa"><i class="fas fa-trash"></i></a>
+										<button type="button" class="btn-modern btn-delete"
+												onclick="deleteGheAjax(@item.MaGhe, '@item.TenGhe', '@item.Tau?.TenTau')" title="Xóa">
+											<i class="fas fa-trash"></i>
+										</button>
 									</div>
 								</td>
 							</tr>
@@ -263,22 +245,75 @@
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 	<script>
+
+		// NOTIFICATION DELETE
+					function deleteGheAjax(id, name, tau) {
+			Swal.fire({
+				title: 'Xác nhận xóa ghế?',
+				text: `Bạn có chắc muốn xóa ghế "${name}" tàu "${tau}"?`,
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#e74a3b',
+				cancelButtonColor: '#858796',
+				confirmButtonText: 'Đồng ý',
+				cancelButtonText: 'Hủy'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					$.ajax({
+						// URL trỏ đến Action vừa tạo ở trên
+						url: '@Url.Action("DeleteConfirmedAjax", "Ghes")',
+						type: 'POST',
+						data: {
+							id: id,
+							// Token chống giả mạo của ASP.NET Core
+							__RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+						},
+						success: function (response) {
+							if (response.success) {
+								Swal.fire({
+									title: 'Thành công!',
+									text: response.message,
+									icon: 'success',
+									timer: 1500,
+									showConfirmButton: false
+								}).then(() => {
+									// Tải lại trang hoặc xóa dòng trong bảng
+									location.reload();
+								});
+							} else {
+								// Hiển thị lỗi từ hàm logic (ví dụ: ghế đã có vé)
+								Swal.fire('Không thể xóa!', response.message, 'error');
+							}
+						},
+						error: function () {
+							Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ.', 'error');
+						}
+					});
+				}
+			});
+		}
+
 		$(document).ready(function() {
 			// 1. CẤU HÌNH DATATABLE
 			var table = $('#dataTable').DataTable({
 				"language": {
 					"url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
 					"searchPlaceholder": "Tìm ghế, tàu...",
-					"search": "",
+					"search": "Tìm kiếm:",
 					"paginate": {
 						"previous": "<i class='fas fa-chevron-left'></i>",
 						"next": "<i class='fas fa-chevron-right'></i>"
 					}
 				},
 				"pageLength": 10,
+				"order": [[0, "desc"]],
+				"columnDefs": [ { "orderable": false, "targets": [4] } ],
 				"dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-						"<'row'<'col-sm-12'tr>>" +
-						"<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+					   "<'row'<'col-sm-12'tr>>" +
+					   "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+				"drawCallback": function() {
+					$('.dataTables_paginate > .pagination').addClass('pagination-sm');
+				}
 			});
 
 			// 2. BỘ LỌC LOẠI GHẾ
