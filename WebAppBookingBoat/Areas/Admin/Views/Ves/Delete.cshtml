@@ -1,0 +1,135 @@
+﻿@model WebAppBookingBoat.Models.Ve
+
+@{
+    ViewData["Title"] = "Xác nhận hủy vé";
+}
+
+<div class="container-fluid">
+    @* Tiêu đề đồng bộ *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-ticket-alt text-danger mr-2"></i>Thu hồi Vé hành khách
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            @* Alert cảnh báo *@
+            <div class="alert alert-danger border-left-danger shadow-sm py-3 mb-4 bg-white">
+                <div class="row no-gutters align-items-center">
+                    <div class="col-auto mr-3">
+                        <i class="fas fa-exclamation-circle fa-2x text-danger"></i>
+                    </div>
+                    <div class="col">
+                        <h6 class="m-0 font-weight-bold text-danger">Hành động không thể hoàn tác!</h6>
+                        <span class="text-muted small">Việc xóa vé sẽ giải phóng ghế và hủy bỏ ghi nhận doanh thu liên quan đến mã hóa đơn này.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-4 border-left-danger">
+                @* Card Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-danger text-uppercase">
+                        Xác nhận xóa vé: #@Model.MaVe
+                    </h6>
+                    <span class="badge badge-secondary px-3 py-2 shadow-sm">
+                        <i class="fas fa-file-invoice-dollar mr-1"></i> HĐ: #@Model.MaHoaDon
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        @* Thông tin vé *@
+                        <div class="col-md-7 border-right">
+                            <h6 class="font-weight-bold text-muted text-uppercase mb-3 small">Thông tin chi tiết</h6>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5 text-muted small">Khách hàng (HĐ):</dt>
+                                <dd class="col-sm-7 font-weight-bold">@Model.HoaDon?.PhuongThucTT</dd>
+
+                                <dt class="col-sm-5 text-muted small">Chuyến đi:</dt>
+                                <dd class="col-sm-7">@Model.LichTrinh?.TuyenDuong?.TenTuyen</dd>
+
+                                <dt class="col-sm-5 text-muted small">Vị trí ghế:</dt>
+                                <dd class="col-sm-7"><span class="badge badge-dark">@Model.MaGhe</span></dd>
+                            </dl>
+                        </div>
+
+                        @* Thông tin tài chính & Trạng thái *@
+                        <div class="col-md-5 pl-md-4">
+                            <h6 class="font-weight-bold text-muted text-uppercase mb-3 small">Tài chính & Trạng thái</h6>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Giá trị vé:</small>
+                                <div class="h4 font-weight-bold text-success">@Model.GiaVe.ToString("N0") VNĐ</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Trạng thái hiện tại:</small>
+                                <span class="badge badge-warning">@Model.TrangThai</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Footer hành động *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Hủy bỏ</span>
+                    </a>
+
+                    <form asp-action="Delete" id="confirmDeleteTicketForm">
+                        <input type="hidden" asp-for="MaVe" />
+                        <button type="button" class="btn btn-danger btn-icon-split shadow-sm font-weight-bold" id="btnDeleteTicketConfirm">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-trash-alt"></i>
+                            </span>
+                            <span class="text">Xác nhận xóa</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <p class="mb-5 small text-muted text-center italic text-uppercase" style="letter-spacing: 1px;">
+                <i class="fas fa-shield-alt mr-1"></i> Hệ thống lưu vết hành động xóa này
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('click', '#btnDeleteTicketConfirm', function () {
+            Swal.fire({
+                title: 'Bạn chắc chắn chứ?',
+                text: "Vé số #@Model.MaVe sẽ bị xóa vĩnh viễn khỏi hệ thống!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Đồng ý xóa!',
+                cancelButtonText: 'Quay lại',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#confirmDeleteTicketForm').submit();
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .border-left-danger {
+        border-left: 4px solid #e74a3b !important;
+    }
+
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+</style>

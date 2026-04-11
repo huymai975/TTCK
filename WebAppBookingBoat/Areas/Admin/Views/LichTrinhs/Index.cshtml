@@ -14,7 +14,7 @@
     }
 
     .col-id {
-        width: 55px;
+        width: 30px;
     }
 
     .col-route {
@@ -22,23 +22,23 @@
     }
 
     .col-boat {
-        width: 160px;
+        width: 150px;
     }
 
     .col-time {
-        width: 165px;
+        width: 90px;
     }
 
     .col-price {
-        width: 115px;
-    }
-
-    .col-seats {
         width: 100px;
     }
 
+    .col-seats {
+        width: 80px;
+    }
+
     .col-status {
-        width: 145px;
+        width: 125px;
     }
 
     .col-action {
@@ -166,12 +166,12 @@
                 <div class="card shadow-sm border-0" style="background-color: #f8f9fc;">
                     <div class="card-body py-2">
                         <div class="row align-items-center">
-                            <div class="col-md-6 d-flex align-items-center">
-                                <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
+                            <div class="col-md-12 d-flex align-items-center flex-wrap">
+                                <div class="input-group input-group-sm shadow-sm mr-3" style="width: 200px;">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text bg-primary text-white border-0"><i class="fas fa-filter"></i></span>
                                     </div>
-                                    <select id="statusFilter" class="form-control border-0 font-weight-bold text-primary" style="height: 35px;">
+                                    <select id="statusFilter" class="form-control border-0 font-weight-bold text-primary">
                                         <option value="">Tất cả trạng thái</option>
                                         <option value="Sắp khởi hành">Sắp khởi hành</option>
                                         <option value="Đang vận hành">Đang vận hành</option>
@@ -179,7 +179,15 @@
                                         <option value="Đã hủy">Đã hủy</option>
                                     </select>
                                 </div>
-                                <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary ml-2 border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
+
+                                <div class="input-group input-group-sm shadow-sm mr-2" style="width: 220px;">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-success text-white border-0"><i class="fas fa-calendar-day"></i></span>
+                                    </div>
+                                    <input type="date" id="dateFilter" class="form-control border-0 font-weight-bold text-success" placeholder="Chọn ngày khởi hành">
+                                </div>
+
+                                <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
                             </div>

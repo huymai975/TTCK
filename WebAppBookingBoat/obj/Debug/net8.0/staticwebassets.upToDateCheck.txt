@@ -17,6 +17,7 @@ wwwroot\css\owl.theme.default.min.css
 wwwroot\css\sb-admin-2.css
 wwwroot\css\sb-admin-2.min.css
 wwwroot\css\site.css
+wwwroot\css\style.css
 wwwroot\favicon.ico
 wwwroot\fonts\flaticon\backup.txt
 wwwroot\fonts\flaticon\font\flaticon.css
@@ -50,8 +51,6 @@ wwwroot\images\person_4_sq.jpg
 wwwroot\images\person_5.jpg
 wwwroot\images\tau\0ed53f9a-2e39-46ab-897c-856e7cde576d.jpg
 wwwroot\images\tau\2073e0cb-cf50-45b1-aa5e-9d40af4b7477.jpg
-wwwroot\images\tau\44eae152-587f-43d9-8a88-d7dac8b5ef20.jpg
-wwwroot\images\tau\586a3e84-9541-466e-87ce-ed2f25e34f2f.jpg
 wwwroot\images\tau\872b8a7a-79ae-4f8b-96da-53c7e3caa5e3.jpg
 wwwroot\images\tau\d0c7cc56-fd6c-4750-8095-2c250c2c3eed.jpg
 wwwroot\images\tuyen-duong\80eec6b7-1650-400a-afda-eec7573a7f48.jfif
@@ -2076,4 +2075,3 @@ wwwroot\vendor\jquery\jquery.min.map
 wwwroot\vendor\jquery\jquery.slim.js
 wwwroot\vendor\jquery\jquery.slim.min.js
 wwwroot\vendor\jquery\jquery.slim.min.map
-wwwroot\css\style.css

@@ -47,33 +47,25 @@
 							<div class="row">
 								<div class="col-12 form-group mb-4">
 									<label asp-for="TenTau" class="font-weight-bold text-dark">Tên phương tiện</label>
-									<div class="input-group">
+									<div class="input-group input-group-lg">
 										<div class="input-group-prepend">
-											<span class="input-group-text bg-primary text-white"><i class="fas fa-tag"></i></span>
+											<span class="input-group-text bg-primary text-white border-0"><i class="fas fa-ship"></i></span>
 										</div>
 										<input asp-for="TenTau" class="form-control border-left-0" placeholder="Ví dụ: Tàu cao tốc Express 01" />
 									</div>
 									<span asp-validation-for="TenTau" class="text-danger small font-italic"></span>
 								</div>
 
-								<div class="col-md-6 form-group mb-4">
-									<label asp-for="SoGheThuong" class="font-weight-bold text-dark">Số lượng ghế Thường</label>
-									<input asp-for="SoGheThuong" class="form-control shadow-sm" id="SoGheThuong" type="number" min="0" placeholder="0" />
-									<span asp-validation-for="SoGheThuong" class="text-danger small"></span>
-								</div>
-
-								<div class="col-md-6 form-group mb-4">
-									<label asp-for="SoGheVIP" class="font-weight-bold text-dark">Số lượng ghế VIP</label>
-									<input asp-for="SoGheVIP" class="form-control border-warning shadow-sm" id="SoGheVIP" type="number" min="0" placeholder="0" />
-									<span asp-validation-for="SoGheVIP" class="text-danger small"></span>
-								</div>
-
 								<div class="col-12 form-group mb-4">
-									<label asp-for="TongSoGhe" class="font-weight-bold text-danger text-uppercase small">Tổng sức chứa (Tự động)</label>
-									<input asp-for="TongSoGhe" class="form-control bg-light font-weight-bold text-primary shadow-sm" id="TongSoGhe" readonly style="font-size: 1.25rem;" />
-									<div class="form-text mt-1 text-muted small italic">
-										<i class="fas fa-info-circle"></i> Giá trị này được tính toán tự động dựa trên cấu hình ghế bên trên.
+									<label asp-for="TongSoGhe" class="font-weight-bold text-dark">Tổng sức chứa (Số lượng ghế)</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text bg-light text-dark"><i class="fas fa-couch"></i></span>
+										</div>
+										<input asp-for="TongSoGhe" class="form-control font-weight-bold" type="number" min="1" placeholder="Nhập tổng số ghế..." />
 									</div>
+									<span asp-validation-for="TongSoGhe" class="text-danger small font-italic"></span>
+									<small class="form-text text-muted">Số lượng ghế tối đa mà tàu có thể chở.</small>
 								</div>
 
 								<div class="col-12 form-group mb-0">
@@ -108,10 +100,6 @@
 					</div>
 				</div>
 			</form>
-
-			<p class="mb-5 small text-muted text-center">
-				<i class="fas fa-shield-alt mr-1"></i> Dữ liệu khởi tạo sẽ được lưu trữ bảo mật trên hệ thống Water Boat Booking.
-			</p>
 		</div>
 	</div>
 </div>
@@ -120,16 +108,13 @@
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}
-	<script src="~/js/tau-logic.js"></script>
 
 	<script>
-				// Hiển thị tên file và preview ảnh ngay lập tức
+		// 1. Hiển thị tên file và preview ảnh
 		$('.custom-file-input').on('change', function(e) {
-			// 1. Hiện tên file
 			let fileName = $(this).val().split('\\').pop();
-			$(this).next('.custom-file-label').addClass("selected").html(fileName);
+			$(this).next('.custom-file-label').addClass("selected").html(fileName || "Chọn tệp ảnh...");
 
-			// 2. Hiện ảnh xem trước
 			const file = e.target.files[0];
 			if (file) {
 				const reader = new FileReader();
@@ -140,7 +125,7 @@
 			}
 		});
 
-		// Xử lý thông báo Toast
+		// 2. Xử lý thông báo Toast bằng SweetAlert2
 		$(function() {
 			var success = '@Html.Raw(TempData["SuccessMessage"])';
 			var error = '@Html.Raw(TempData["ErrorMessage"])';

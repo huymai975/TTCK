@@ -112,16 +112,19 @@
 @section Scripts {
     <script>
         $(document).on('click', '#btnDeleteSchedConfirm', function () {
+            // Lấy tên tuyến đường và bọc trong dấu nháy đơn
+            const tenTuyen = '@Html.Raw(Model.TuyenDuong.TenTuyen)';
+
             Swal.fire({
                 title: 'Xác nhận xóa lịch trình?',
-                text: "Bạn đang thực hiện xóa lịch trình chuyến @Model.TuyenDuong.TenTuyen. Hành động này sẽ gỡ bỏ mọi dữ liệu liên quan.",
+                // Sử dụng template literal (dấu huyền) để truyền biến mượt hơn
+                text: `Bạn đang thực hiện xóa lịch trình chuyến ${tenTuyen}. Hành động này sẽ gỡ bỏ mọi dữ liệu liên quan.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74a3b',
                 cancelButtonColor: '#858796',
                 confirmButtonText: 'Đồng ý xóa',
-                cancelButtonText: 'Quay lại',
-                borderRadius: '12px'
+                cancelButtonText: 'Quay lại'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $('#confirmDeleteSchedForm').submit();

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebAppBookingBoat.Models
@@ -30,14 +28,6 @@ namespace WebAppBookingBoat.Models
         [Range(1, 1000, ErrorMessage = "Tổng số ghế phải từ 1 đến 1000")]
         [Display(Name = "Tổng số ghế")]
         public int TongSoGhe { get; set; }
-
-        [Range(0, 1000, ErrorMessage = "Số ghế không được âm")]
-        [Display(Name = "Số ghế thường")]
-        public int SoGheThuong { get; set; }
-
-        [Range(0, 1000, ErrorMessage = "Số ghế không được âm")]
-        [Display(Name = "Số ghế VIP")]
-        public int SoGheVIP { get; set; }
 
         [Display(Name = "Trạng thái")]
         public bool TrangThai { get; set; } = true; // true: Đang hoạt động, false: Bảo trì

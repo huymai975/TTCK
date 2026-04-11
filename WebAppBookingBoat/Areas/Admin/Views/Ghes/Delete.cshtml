@@ -1,0 +1,125 @@
+﻿@model WebAppBookingBoat.Models.Ghe
+
+@{
+    ViewData["Title"] = "Xác nhận xóa ghế";
+}
+
+<div class="container-fluid">
+    @* Tiêu đề đồng bộ *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-trash-alt text-danger mr-2"></i>Gỡ bỏ thông tin ghế
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            @* Alert cảnh báo tác động *@
+            <div class="alert alert-danger border-left-danger shadow-sm py-3 mb-4 bg-white">
+                <div class="row no-gutters align-items-center">
+                    <div class="col-auto mr-3">
+                        <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                    </div>
+                    <div class="col">
+                        <h6 class="m-0 font-weight-bold text-danger">Cảnh báo xóa dữ liệu!</h6>
+                        <span class="text-muted small">Việc xóa ghế này có thể ảnh hưởng đến các bản ghi vé đã bán hoặc sơ đồ chỗ ngồi của tàu <strong>@Model.Tau?.TenTau</strong>.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-4 border-left-danger">
+                @* Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-danger text-uppercase small">
+                        Mã định danh ghế: #@Model.MaGhe
+                    </h6>
+                    <span class="badge badge-danger px-3 py-2 shadow-sm">
+                        <i class="fas fa-couch mr-1"></i> Hạng: @Model.LoaiGhe
+                    </span>
+                </div>
+
+                <div class="card-body py-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-5 text-center border-right">
+                            <div class="text-xs font-weight-bold text-uppercase text-muted mb-1">Tên ghế hiện tại</div>
+                            <div class="h2 font-weight-bold text-gray-800 mb-0">@Model.TenGhe</div>
+                            <div class="mt-2">
+                                @if (Model.LoaiGhe == "VIP")
+                                {
+                                    <span class="badge badge-warning text-dark"><i class="fas fa-star mr-1"></i>Ghế cao cấp</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Ghế tiêu chuẩn</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-info-circle mr-2 text-danger"></i>Chi tiết liên kết</h6>
+                            <div class="mb-3">
+                                <small class="text-muted d-block text-uppercase font-weight-bold" style="font-size: 0.65rem;">Tàu sở hữu:</small>
+                                <div class="font-weight-bold text-primary">
+                                    <i class="fas fa-ship mr-1"></i> @Model.Tau?.TenTau
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="italic small text-danger font-weight-bold">
+                                <i class="fas fa-exclamation-circle mr-1"></i> Lưu ý: Thao tác này không thể hoàn tác sau khi xác nhận.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Footer hành động *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text font-weight-bold">Hủy & Quay lại</span>
+                    </a>
+
+                    <form asp-action="Delete" id="confirmDeleteSeatForm">
+                        <input type="hidden" asp-for="MaGhe" />
+                        <button type="button" class="btn btn-danger btn-icon-split shadow-sm font-weight-bold" id="btnDeleteSeatConfirm">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-trash-alt"></i>
+                            </span>
+                            <span class="text">Xác nhận xóa</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <p class="mb-5 small text-muted text-center italic">
+                <i class="fas fa-user-shield mr-1"></i> Phiên làm việc quản trị: @(User.Identity?.Name ?? "Admin")
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).on('click', '#btnDeleteSeatConfirm', function () {
+            const tenGhe = '@Model.TenGhe';
+            const tenTau = '@Html.Raw(Model.Tau?.TenTau)';
+
+            Swal.fire({
+                title: 'Xác nhận xóa ghế?',
+                text: `Bạn sắp xóa ghế [${tenGhe}] thuộc tàu [${tenTau}]. Hành động này có thể gây mất dữ liệu vé liên quan!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Quay lại'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#confirmDeleteSeatForm').submit();
+                }
+            });
+        });
+    </script>
+}

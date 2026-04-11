@@ -15,7 +15,7 @@
 		<div class="col-xl-10 col-lg-12">
 			<form asp-action="Edit" enctype="multipart/form-data" class="card shadow-lg mb-4 border-left-warning">
 				<div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
-					<h6 class="m-0 font-weight-bold text-primary text-uppercase">Mã phương tiện: #@Model.MaTau</h6>
+					<h6 class="m-0 font-weight-bold text-primary text-uppercase">Mã phương tiện: #@Model.MaTau.ToString("D3")</h6>
 					<span class="badge badge-warning text-white p-2">
 						<i class="fas fa-tools mr-1"></i> Chế độ chỉnh sửa
 					</span>
@@ -32,63 +32,48 @@
 						<div class="col-md-4 text-center border-right">
 							<label class="font-weight-bold text-dark d-block mb-3">Quản lý hình ảnh</label>
 
-							<div class="mb-3 p-2 border rounded bg-light">
+							<div class="mb-3 p-2 border rounded bg-light shadow-sm">
 								<small class="text-muted d-block mb-1 font-italic">Ảnh đang sử dụng:</small>
-								@if (!string.IsNullOrEmpty(Model.HinhAnhCu))
-								{
-									<img src="~/images/tau/@Model.HinhAnhCu" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;" alt="Ảnh cũ" />
-								}
-								else
-								{
-									<img src="~/images/tau/default-boat.jpg" class="img-fluid rounded shadow-sm" style="max-height: 150px; object-fit: cover;" alt="Default" />
-								}
-							</div>
-
-							<i class="fas fa-arrow-down text-warning mb-3"></i>
-
-							<div class="mb-3">
-								<small class="text-primary d-block mb-1 font-weight-bold">Ảnh mới thay thế:</small>
-								<img id="imgPreviewEdit" src="#" class="img-fluid rounded shadow-sm d-none"
-									 style="max-height: 150px; width: 100%; object-fit: cover; border: 2px dashed #f6c23e;" alt="Preview mới" />
+								<img id="imgPreview"
+									 src="@(string.IsNullOrEmpty(Model.HinhAnhCu) ? "/images/tau/default-boat.jpg" : "/images/tau/" + Model.HinhAnhCu)"
+									 class="img-fluid rounded shadow-sm"
+									 style="max-height: 200px; width: 100%; object-fit: cover;"
+									 alt="Ảnh phương tiện" />
 							</div>
 
 							<div class="custom-file text-left mt-2">
-								<input asp-for="ImageFile" id="imageInputEdit" type="file" class="custom-file-input" accept="image/*" />
-								<label class="custom-file-label text-truncate" for="imageInputEdit">Chọn ảnh mới...</label>
+								<input asp-for="ImageFile" id="imageInput" type="file" class="custom-file-input" accept="image/*" />
+								<label class="custom-file-label text-truncate" for="imageInput">Thay đổi ảnh mới...</label>
+								<span asp-validation-for="ImageFile" class="text-danger small font-italic"></span>
 							</div>
+							<small class="form-text text-muted mt-2 small font-italic">
+								<i class="fas fa-info-circle mr-1"></i> Chọn ảnh mới nếu muốn thay thế ảnh cũ.
+							</small>
 						</div>
 
 						<div class="col-md-8 pl-md-4">
 							<div class="row">
 								<div class="col-12 form-group mb-4">
-									<label asp-for="TenTau" class="font-weight-bold text-dark">Tên tàu</label>
-									<div class="input-group">
+									<label asp-for="TenTau" class="font-weight-bold text-dark">Tên phương tiện</label>
+									<div class="input-group input-group-lg">
 										<div class="input-group-prepend">
-											<span class="input-group-text bg-warning text-white"><i class="fas fa-ship"></i></span>
+											<span class="input-group-text bg-warning text-white border-0"><i class="fas fa-ship"></i></span>
 										</div>
-										<input asp-for="TenTau" class="form-control border-left-0" />
+										<input asp-for="TenTau" class="form-control border-left-0" placeholder="Nhập tên tàu..." />
 									</div>
 									<span asp-validation-for="TenTau" class="text-danger small font-italic"></span>
 								</div>
 
-								<div class="col-md-6 form-group mb-4">
-									<label asp-for="SoGheThuong" class="font-weight-bold text-dark">Số ghế Thường</label>
-									<input asp-for="SoGheThuong" class="form-control shadow-sm" id="SoGheThuong" type="number" min="0" />
-									<span asp-validation-for="SoGheThuong" class="text-danger small"></span>
-								</div>
-
-								<div class="col-md-6 form-group mb-4">
-									<label asp-for="SoGheVIP" class="font-weight-bold text-dark">Số ghế VIP</label>
-									<input asp-for="SoGheVIP" class="form-control border-warning shadow-sm" id="SoGheVIP" type="number" min="0" />
-									<span asp-validation-for="SoGheVIP" class="text-danger small"></span>
-								</div>
-
 								<div class="col-12 form-group mb-4">
-									<label asp-for="TongSoGhe" class="font-weight-bold text-danger text-uppercase small">Tổng sức chứa (Tự động)</label>
-									<input asp-for="TongSoGhe" class="form-control bg-light font-weight-bold text-primary shadow-sm" id="TongSoGhe" readonly style="font-size: 1.25rem;" />
-									<div class="form-text mt-1 text-muted small italic">
-										<i class="fas fa-info-circle"></i> Giá trị này được tính toán tự động dựa trên cấu hình ghế bên trên.
+									<label asp-for="TongSoGhe" class="font-weight-bold text-dark">Tổng sức chứa (Số lượng ghế)</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text bg-light"><i class="fas fa-users"></i></span>
+										</div>
+										<input asp-for="TongSoGhe" class="form-control font-weight-bold text-primary" type="number" min="1" />
 									</div>
+									<span asp-validation-for="TongSoGhe" class="text-danger small font-italic"></span>
+									<small class="form-text text-muted">Số lượng ghế được phép đặt trên tàu.</small>
 								</div>
 
 								<div class="col-12 form-group mb-0">
@@ -112,9 +97,9 @@
 
 					<button type="submit" class="btn btn-warning btn-icon-split shadow-sm font-weight-bold">
 						<span class="icon text-white-50">
-							<i class="fas fa-check-circle"></i>
+							<i class="fas fa-save"></i>
 						</span>
-						<span class="text">Cập nhật dữ liệu</span>
+						<span class="text">Lưu thay đổi</span>
 					</button>
 				</div>
 			</form>
@@ -130,20 +115,19 @@
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}
-	<script src="~/js/tau-logic.js"></script>
-	<script>
-				// Hiển thị tên file và preview ảnh ngay lập tức
-		$('.custom-file-input').on('change', function(e) {
-			// 1. Hiện tên file
-			let fileName = $(this).val().split('\\').pop();
-			$(this).next('.custom-file-label').addClass("selected").html(fileName);
 
-			// 2. Hiện ảnh xem trước
+	<script>
+		// Xử lý hiển thị tên file và preview ảnh ngay lập tức
+		$('.custom-file-input').on('change', function(e) {
+			let fileName = $(this).val().split('\\').pop();
+			$(this).next('.custom-file-label').addClass("selected").html(fileName || "Thay đổi ảnh mới...");
+
 			const file = e.target.files[0];
 			if (file) {
 				const reader = new FileReader();
 				reader.onload = function(e) {
-					$('#imgPreview').attr('src', e.target.result);
+					// Cập nhật trực tiếp vào ảnh hiện tại để người dùng thấy sự thay đổi
+					$('#imgPreview').attr('src', e.target.result).css('border', '2px dashed #f6c23e');
 				}
 				reader.readAsDataURL(file);
 			}

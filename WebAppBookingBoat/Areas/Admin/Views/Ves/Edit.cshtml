@@ -1,0 +1,211 @@
+﻿@model WebAppBookingBoat.Models.Ve
+
+@{
+    ViewData["Title"] = "Cập nhật thông tin Vé";
+}
+
+<head>
+    <style>
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
+
+        .border-left-success {
+            border-left: 4px solid #1cc88a !important;
+        }
+
+        .form-control:focus {
+            border-color: #36b9cc;
+            box-shadow: 0 0 0 0.2rem rgba(54, 185, 204, 0.15);
+        }
+    </style>
+</head>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-ticket-alt text-info mr-2"></i>Chỉnh sửa chi tiết Vé
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <form asp-action="Edit" method="post" id="editTicketForm" class="card shadow-lg mb-4 border-left-info">
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-info text-uppercase">Mã vé: #@Model.MaVe</h6>
+                    <span class="badge badge-info text-white p-2 shadow-sm">
+                        <i class="fas fa-user-edit mr-1"></i> Quản lý trạng thái & thanh toán
+                    </span>
+                </div>
+
+                <div class="card-body px-lg-5 py-4">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+                    <input type="hidden" asp-for="MaVe" />
+
+                    <div class="row">
+                        @* Cột 1 *@
+                        <div class="col-md-6 border-right">
+                            <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-info-circle mr-2 text-info"></i>Thông tin gốc</h6>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaHoaDon" class="small font-weight-bold text-muted text-uppercase">Hóa đơn liên kết</label>
+                                <select asp-for="MaHoaDon" class="form-control border-left-primary shadow-sm" asp-items="ViewBag.MaHoaDon"></select>
+                                <span asp-validation-for="MaHoaDon" class="text-danger small mt-1"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaLichTrinh" class="small font-weight-bold text-muted text-uppercase">Chuyến hành trình</label>
+                                <select asp-for="MaLichTrinh" class="form-control border-left-success shadow-sm" asp-items="ViewBag.MaLichTrinh"></select>
+                                <span asp-validation-for="MaLichTrinh" class="text-danger small mt-1"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaGhe" class="small font-weight-bold text-muted text-uppercase">Vị trí ghế</label>
+                                <select asp-for="MaGhe" class="form-control shadow-sm" asp-items="ViewBag.MaGhe">
+                                    <option value="">-- Chọn ghế --</option>
+                                </select>
+                                <span asp-validation-for="MaGhe" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+
+                        @* Cột 2 *@
+                        <div class="col-md-6 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-cog mr-2 text-info"></i>Điều chỉnh thực tế</h6>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="GiaVe" class="small font-weight-bold text-muted text-uppercase">Giá vé (VNĐ)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="fas fa-tag text-info"></i></span>
+                                    </div>
+                                    <input type="text" id="GiaVeDisplay"
+                                           class="form-control shadow-sm border-left-0 font-weight-bold text-primary"
+                                           value="@(Model.GiaVe > 0 ? ((long)Model.GiaVe).ToString() : "0")" />
+
+                                    <input type="hidden" asp-for="GiaVe" id="GiaVeReal" />
+                                </div>
+                                <span asp-validation-for="GiaVe" class="text-danger small mt-1"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Trạng thái vé</label>
+                                <select asp-for="TrangThai" class="form-control shadow-sm font-weight-bold">
+                                    <option value="Hợp lệ">Hợp lệ</option>
+                                    <option value="Đang chờ">Đang chờ</option>
+                                    <option value="Đã hủy">Đã hủy</option>
+                                </select>
+                                <span asp-validation-for="TrangThai" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                        <span class="text">Quay lại</span>
+                    </a>
+                    <button type="submit" class="btn btn-info btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                        <span class="text">Lưu thay đổi</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // --- PHẦN 1: XỬ LÝ ĐỊNH DẠNG TIỀN TỆ (Giữ nguyên logic của bạn) ---
+            const displayInput = $('#GiaVeDisplay');
+            const realInput = $('#GiaVeReal');
+
+            function formatCurrency(n) {
+                if (!n) return "0";
+                let value = n.toString().replace(/\D/g, "");
+                value = value.replace(/^0+/, "");
+                if (value === "") return "0";
+                return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
+            if (displayInput.val()) {
+                let initialRaw = displayInput.val().replace(/,/g, '');
+                realInput.val(initialRaw);
+                displayInput.val(formatCurrency(initialRaw));
+            }
+
+            displayInput.on('input', function () {
+                let rawValue = $(this).val().replace(/\D/g, "");
+                if (rawValue === "") rawValue = "0";
+                realInput.val(rawValue);
+                $(this).val(formatCurrency(rawValue));
+            });
+
+            // --- PHẦN 2: XỬ LÝ LOAD GHẾ TRỐNG THEO LỊCH TRÌNH (Bổ sung mới) ---
+            function loadAvailableGhes() {
+                var maLT = $('#MaLichTrinh').val();
+                var maVe = $('#MaVe').val();
+                var $gheSelect = $('#MaGhe');
+                var currentGheSelected = '@Model.MaGhe'; // Ghế hiện tại của vé
+
+                if (maLT) {
+                    $.ajax({
+                        url: '@Url.Action("GetGhesByLichTrinh", "Ves")',
+                        type: 'GET',
+                        data: {
+                            maLichTrinh: maLT,
+                            maVeHienTai: maVe
+                        },
+                        success: function (data) {
+                            $gheSelect.empty();
+                            $gheSelect.append('<option value="">-- Chọn ghế còn trống --</option>');
+
+                            $.each(data, function (i, item) {
+                                var option = $('<option>', {
+                                    value: item.value,
+                                    text: item.text
+                                });
+
+                                // Nếu ID ghế trùng với ghế đang lưu, thực hiện chọn nó
+                                if(item.value == currentGheSelected) {
+                                    option.attr('selected', 'selected');
+                                }
+                                $gheSelect.append(option);
+                            });
+                        },
+                        error: function() {
+                            console.error("Không thể tải danh sách ghế.");
+                        }
+                    });
+                } else {
+                    $gheSelect.empty().append('<option value="">-- Chọn ghế --</option>');
+                }
+            }
+
+            // Lắng nghe sự kiện thay đổi Lịch trình
+            $('#MaLichTrinh').on('change', function () {
+                loadAvailableGhes();
+            });
+
+            // Chạy lần đầu khi load trang để đảm bảo danh sách ghế chỉ hiện ghế trống
+            loadAvailableGhes();
+
+            // --- PHẦN 3: TRƯỚC KHI SUBMIT ---
+            $('#editTicketForm').on('submit', function () {
+                let finalRaw = displayInput.val().replace(/,/g, '');
+                realInput.val(finalRaw);
+                displayInput.removeAttr('name');
+            });
+        });
+    </script>
+}
