@@ -1,0 +1,179 @@
+﻿@model WebAppBookingBoat.Models.Ghe
+
+@{
+    ViewData["Title"] = "Thêm ghế mới";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-couch text-primary mr-2"></i>Thêm ghế mới
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header py-3 bg-white border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                        <i class="fas fa-info-circle mr-1"></i> Thông tin chi tiết ghế
+                    </h6>
+                </div>
+
+                <div class="card-body px-lg-5 py-4">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-ship mr-2 text-primary"></i>Phân loại & Vị trí</h6>
+
+                                <div class="form-group mb-4">
+                                    <label asp-for="MaTau" class="small font-weight-bold text-muted text-uppercase">Tàu sở hữu</label>
+                                    <select asp-for="MaTau" class="form-control form-control-user border-left-primary shadow-sm" asp-items="ViewBag.MaTau" id="MaTauSelect">
+                                        <option value="">-- Chọn tàu gán ghế --</option>
+                                    </select>
+                                    <span asp-validation-for="MaTau" class="text-danger small mt-1"></span>
+
+                                    <div id="seatStatus" class="mt-2 small d-none">
+                                        <span id="seatStatusText" class="badge badge-light p-2 w-100 text-left border"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-4">
+                                            <label asp-for="TenGhe" class="small font-weight-bold text-muted text-uppercase">Tên / Số ghế</label>
+                                            <input asp-for="TenGhe" class="form-control form-control-user border-left-info shadow-sm" placeholder="Ví dụ: A01, T05..." />
+                                            <span asp-validation-for="TenGhe" class="text-danger small mt-1"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-4">
+                                            <label asp-for="LoaiGhe" class="small font-weight-bold text-muted text-uppercase">Hạng ghế</label>
+                                            <select asp-for="LoaiGhe" class="form-control form-control-user border-left-warning shadow-sm">
+                                                <option value="Thường">Ghế Thường</option>
+                                                <option value="VIP">Ghế VIP</option>
+                                            </select>
+                                            <span asp-validation-for="LoaiGhe" class="text-danger small mt-1"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                                <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                                <span class="text font-weight-bold">Quay lại danh sách</span>
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-light btn-icon-split mr-2">
+                                    <span class="text">Nhập lại</span>
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-icon-split shadow-sm">
+                                    <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                                    <span class="text font-weight-bold">Lưu thông tin</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            let boatLimit = 0;
+            let currentSeats = 0;
+            let boatName = "";
+
+            // 1. Khi thay đổi Tàu trong Dropdown
+            $('#MaTauSelect').change(function () {
+                const maTau = $(this).val();
+                if (!maTau) {
+                    $('#seatStatus').addClass('d-none');
+                    return;
+                }
+
+                // Gọi AJAX đến hàm GetBoatInfo trong GhesController
+                $.get(`/Admin/Ghes/GetBoatInfo/${maTau}`, function (data) {
+                    if (data) {
+                        boatName = data.tenTau;
+                        boatLimit = data.tongSoGhe;
+                        currentSeats = data.currentCount;
+
+                        // Cập nhật giao diện thông báo
+                        $('#seatStatus').removeClass('d-none');
+                        const statusText = `Tàu ${boatName}: Hiện có ${currentSeats}/${boatLimit} ghế`;
+
+                        const statusBadge = $('#seatStatusText');
+                        statusBadge.html(`<i class="fas fa-info-circle mr-1"></i> ${statusText}`);
+
+                        // Nếu đầy chỗ thì hiện màu đỏ cảnh báo
+                        if (currentSeats >= boatLimit) {
+                            statusBadge.removeClass('text-dark').addClass('text-danger border-danger font-weight-bold');
+                        } else {
+                            statusBadge.removeClass('text-danger border-danger').addClass('text-dark');
+                        }
+                    }
+                });
+            });
+
+            // 2. Chặn form trước khi submit nếu tàu đã đầy ghế
+            $('form').submit(function (e) {
+                if (boatLimit > 0 && currentSeats >= boatLimit) {
+                    e.preventDefault(); // Chặn không cho gửi form
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không thể thêm ghế!',
+                        text: `Tàu ${boatName} đã đạt giới hạn sức chứa (${boatLimit} ghế).`,
+                        confirmButtonColor: '#4e73df'
+                    });
+
+                    return false;
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .form-control-user {
+            border-radius: 8px;
+            height: calc(1.5em + .75rem + 10px);
+        }
+
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e !important;
+        }
+
+        /* Hiệu ứng focus cho chuyên nghiệp */
+        .form-control-user:focus {
+            color: #6e707e;
+            background-color: #fff;
+            border-color: #bac8f3;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(78,115,223,0.25);
+        }
+    </style>
+}

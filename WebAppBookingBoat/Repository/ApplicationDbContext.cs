@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
-using System.Linq;
 
 namespace WebAppBookingBoat.Repository
 {
@@ -12,19 +11,17 @@ namespace WebAppBookingBoat.Repository
             : base(options)
         {
         }
-
-        //public DbSet<TaiKhoan> TaiKhoans { get; set; } 
-        public DbSet<NhanVien> NhanViens { get; set; } 
-        public DbSet<KhachHang> KhachHangs { get; set; } 
-        public DbSet<Tau> Taus { get; set; } 
-        public DbSet<Ghe> Ghes { get; set; } 
-        public DbSet<TuyenDuong> TuyenDuongs { get; set; } 
-        public DbSet<LichTrinh> LichTrinhs { get; set; } 
-        public DbSet<KhuyenMai> KhuyenMais { get; set; } 
-        public DbSet<HoaDon> HoaDons { get; set; } 
-        public DbSet<Ve> Ves { get; set; } 
-        public DbSet<DanhGia> DanhGias { get; set; } 
-        public DbSet<Log> Logs { get; set; } 
+        public DbSet<NhanVien> NhanViens { get; set; }
+        public DbSet<KhachHang> KhachHangs { get; set; }
+        public DbSet<Tau> Taus { get; set; }
+        public DbSet<Ghe> Ghes { get; set; }
+        public DbSet<TuyenDuong> TuyenDuongs { get; set; }
+        public DbSet<LichTrinh> LichTrinhs { get; set; }
+        public DbSet<KhuyenMai> KhuyenMais { get; set; }
+        public DbSet<HoaDon> HoaDons { get; set; }
+        public DbSet<Ve> Ves { get; set; }
+        public DbSet<DanhGia> DanhGias { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,32 +44,37 @@ namespace WebAppBookingBoat.Repository
             // --- 2. CHECK CONSTRAINTS ---
 
             // Khách hàng
-            modelBuilder.Entity<KhachHang>().ToTable(t => {
+            modelBuilder.Entity<KhachHang>().ToTable(t =>
+            {
                 t.HasCheckConstraint("CK_KH_Sdt_Format", "LEN([Sdt]) >= 10 AND [Sdt] NOT LIKE '%[^0-9]%'");
                 t.HasCheckConstraint("CK_KH_Email_Format", "[Email] LIKE '%_@_%._%'");
             });
 
             // Nhân viên
-            modelBuilder.Entity<NhanVien>().ToTable(t => {
+            modelBuilder.Entity<NhanVien>().ToTable(t =>
+            {
                 t.HasCheckConstraint("CK_NV_Sdt_Format", "LEN([Sdt]) >= 10 AND [Sdt] NOT LIKE '%[^0-9]%'");
                 t.HasCheckConstraint("CK_NV_Email_Format", "[Email] LIKE '%_@_%._%'");
             });
 
             // Lịch trình
-            modelBuilder.Entity<LichTrinh>(e => {
+            modelBuilder.Entity<LichTrinh>(e =>
+            {
                 e.ToTable(t => t.HasCheckConstraint("CK_LT_ThoiGian", "[NgayGioCapBenDuKien] > [NgayGioKhoiHanh]"));
                 e.ToTable(t => t.HasCheckConstraint("CK_LT_GheTrong", "[SoGheTrong] >= 0"));
                 e.ToTable(t => t.HasCheckConstraint("CK_LT_GiaVe", "[GiaVeCoBan] >= 0"));
             });
 
             // Khuyến mãi
-            modelBuilder.Entity<KhuyenMai>(e => {
+            modelBuilder.Entity<KhuyenMai>(e =>
+            {
                 e.ToTable(t => t.HasCheckConstraint("CK_KM_PhanTram", "[PhanTramGiam] >= 0 AND [PhanTramGiam] <= 100"));
                 e.ToTable(t => t.HasCheckConstraint("CK_KM_ThoiGian", "[NgayKetThuc] > [NgayBatDau]"));
             });
 
             // Đánh giá (Thêm N cho tiếng Việt)
-            modelBuilder.Entity<DanhGia>().ToTable(t => {
+            modelBuilder.Entity<DanhGia>().ToTable(t =>
+            {
                 t.HasCheckConstraint("CK_DG_SoSao", "[SoSao] BETWEEN 1 AND 5");
                 t.HasCheckConstraint("CK_DG_TrangThai", "[TrangThai] IN (N'Chờ duyệt', N'Đã hiển thị', N'Đã ẩn')");
             });
@@ -82,15 +84,11 @@ namespace WebAppBookingBoat.Repository
                 t.HasCheckConstraint("CK_Ghe_LoaiGhe", "[LoaiGhe] IN (N'Thường', N'VIP')"));
 
             // Hóa đơn
-            modelBuilder.Entity<HoaDon>(e => {
+            modelBuilder.Entity<HoaDon>(e =>
+            {
                 e.ToTable(t => t.HasCheckConstraint("CK_HD_Tien", "[TamTinh] >= 0 AND [SoTienGiam] >= 0 AND [TongTien] >= 0"));
                 e.ToTable(t => t.HasCheckConstraint("CK_HD_SoLuong", "[SoLuongVe] > 0"));
             });
-
-            // Tàu
-            // Ghi chú: Ràng buộc tổng số ghế phải bằng ghế thường + ghế VIP tại tầng Database
-            modelBuilder.Entity<Tau>()
-                .ToTable(t => t.HasCheckConstraint("CK_Tau_TongGhe", "[TongSoGhe] = [SoGheThuong] + [SoGheVIP]"));
 
             // --- 3. CẤU HÌNH DECIMAL ---
             foreach (var property in modelBuilder.Model.GetEntityTypes()

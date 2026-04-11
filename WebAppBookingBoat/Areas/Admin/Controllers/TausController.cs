@@ -19,19 +19,28 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         }
 
         // GET: Admin/Taus
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, bool? trangThai)
         {
-            return View(await _context.Taus.ToListAsync());
+            var query = _context.Taus.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(s => s.TenTau.Contains(searchString));
+            }
+
+            if (trangThai.HasValue)
+            {
+                query = query.Where(x => x.TrangThai == trangThai.Value);
+            }
+
+            return View(await query.OrderByDescending(t => t.MaTau).ToListAsync());
         }
 
-        // GET: Admin/Taus/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-
             var tau = await _context.Taus.FirstOrDefaultAsync(m => m.MaTau == id);
             if (tau == null) return NotFound();
-
             return View(tau);
         }
 
@@ -46,25 +55,17 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TauViewModel vm)
         {
-            // Kiểm tra ràng buộc logic ghế
-            if (vm.TongSoGhe != (vm.SoGheThuong + vm.SoGheVIP))
-            {
-                ModelState.AddModelError("TongSoGhe", "Tổng số ghế không khớp (Thường + VIP)!");
-            }
-
+            // Loại bỏ logic kiểm tra tổng ghế (Thường + VIP) vì đã bỏ các trường lẻ
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Chuyển từ ViewModel sang Model thực
                     var tau = new Tau
                     {
                         TenTau = vm.TenTau,
-                        SoGheThuong = vm.SoGheThuong,
-                        SoGheVIP = vm.SoGheVIP,
-                        TongSoGhe = vm.TongSoGhe,
+                        TongSoGhe = vm.TongSoGhe, // Chỉ dùng một trường tổng duy nhất
                         TrangThai = vm.TrangThai,
-                        HinhAnh = "default-boat.jpg" // Mặc định nếu không up ảnh
+                        HinhAnh = "default-boat.jpg"
                     };
 
                     if (vm.ImageFile != null)
@@ -74,7 +75,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                     _context.Add(tau);
                     await _context.SaveChangesAsync();
-
 
                     TempData["SuccessMessage"] = $"Đã thêm mới tàu {tau.TenTau} thành công!";
                     return RedirectToAction(nameof(Index));
@@ -95,13 +95,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             var tau = await _context.Taus.FindAsync(id);
             if (tau == null) return NotFound();
 
-            // Đổ dữ liệu từ Model vào ViewModel để hiển thị lên Form
             var vm = new TauViewModel
             {
                 MaTau = tau.MaTau,
                 TenTau = tau.TenTau,
-                SoGheThuong = tau.SoGheThuong,
-                SoGheVIP = tau.SoGheVIP,
+                TongSoGhe = tau.TongSoGhe, // Cập nhật sang ViewModel
                 TrangThai = tau.TrangThai,
                 HinhAnhCu = tau.HinhAnh
             };
@@ -116,11 +114,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != vm.MaTau) return NotFound();
 
-            if (vm.TongSoGhe != (vm.SoGheThuong + vm.SoGheVIP))
-            {
-                ModelState.AddModelError("TongSoGhe", "Tổng số ghế không khớp!");
-            }
-
             if (ModelState.IsValid)
             {
                 try
@@ -128,16 +121,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     var tau = await _context.Taus.FindAsync(id);
                     if (tau == null) return NotFound();
 
-                    // Cập nhật thông tin từ ViewModel vào Model đã tìm thấy
                     tau.TenTau = vm.TenTau;
-                    tau.SoGheThuong = vm.SoGheThuong;
-                    tau.SoGheVIP = vm.SoGheVIP;
                     tau.TongSoGhe = vm.TongSoGhe;
                     tau.TrangThai = vm.TrangThai;
 
                     if (vm.ImageFile != null)
                     {
-                        // Xóa ảnh cũ trước khi lưu ảnh mới (tránh rác server)
                         DeleteOldImage(tau.HinhAnh);
                         tau.HinhAnh = await SaveImage(vm.ImageFile);
                     }
@@ -160,14 +149,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
-
             var tau = await _context.Taus.FirstOrDefaultAsync(m => m.MaTau == id);
             if (tau == null) return NotFound();
-
             return View(tau);
         }
 
-        // POST: Admin/Taus/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -177,40 +163,43 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 var tau = await _context.Taus.FindAsync(id);
                 if (tau != null)
                 {
-                    DeleteOldImage(tau.HinhAnh); // Xóa ảnh khi xóa tàu
+                    DeleteOldImage(tau.HinhAnh);
                     _context.Taus.Remove(tau);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Xóa dữ liệu thành công.";
                 }
             }
-            catch (Exception ex) // Dùng Exception chung để bắt mọi tình huống
+            catch (Exception)
             {
-                // Ghi log lỗi nếu cần:
-                Console.WriteLine(ex.Message);
-                TempData["ErrorMessage"] = "Không thể xóa bản ghi này. Nguyên nhân có thể do dữ liệu đang được sử dụng ở danh mục khác (Ghế, Lịch trình).";
+                TempData["ErrorMessage"] = "Không thể xóa. Dữ liệu này có thể đang liên kết với Ghế hoặc Lịch trình.";
             }
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
-        public async Task<IActionResult> ToggleStatus(int id) // Tên tham số là 'id' nhé
+        public async Task<IActionResult> ToggleStatus(int id)
         {
             var tau = await _context.Taus.FindAsync(id);
-            if (tau == null) return Json(new { success = false, message = "Không tìm thấy tàu" });
+            if (tau == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy tàu này." });
+            }
 
+            // Đảo trạng thái
             tau.TrangThai = !tau.TrangThai;
+
+            _context.Update(tau);
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, newState = tau.TrangThai });
         }
 
-        #region Helper Methods (Các hàm bổ trợ)
+        #region Helper Methods
 
         private async Task<string> SaveImage(IFormFile file)
         {
             string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
             string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau");
-
             if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
 
             string filePath = Path.Combine(uploadDir, fileName);
@@ -224,17 +213,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         private void DeleteOldImage(string? fileName)
         {
             if (string.IsNullOrEmpty(fileName) || fileName == "default-boat.jpg") return;
-            string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau");
-            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileName);
+            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau", fileName);
             if (System.IO.File.Exists(filePath))
             {
                 System.IO.File.Delete(filePath);
             }
-        }
-
-        private bool TauExists(int id)
-        {
-            return _context.Taus.Any(e => e.MaTau == id);
         }
 
         #endregion

@@ -1,0 +1,350 @@
+﻿@model IEnumerable<WebAppBookingBoat.Models.Ghe>
+
+@{
+	ViewData["Title"] = "Quản lý Sơ đồ Ghế";
+}
+
+<style>
+	/* 1. KHUNG BẢNG & TỈ LỆ CỘT */
+	#dataTable {
+		table-layout: fixed;
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+	}
+
+	.col-id {
+		width: 40px;
+	}
+
+	.col-boat {
+		width: auto;
+	}
+
+	.col-seatname {
+		width: 120px;
+	}
+
+	.col-type {
+		width: 150px;
+	}
+
+	.col-action {
+		width: 130px;
+	}
+
+	/* 2. STYLE NỘI DUNG */
+	.seat-label {
+		font-weight: 700;
+		color: #2c3e50;
+		font-size: 0.95rem;
+	}
+
+	/* 3. NÚT THAO TÁC */
+	.btn-modern {
+		width: 32px;
+		height: 32px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		transition: all 0.2s ease;
+		margin: 0 2px;
+		text-decoration: none !important;
+	}
+
+		.btn-modern:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+		}
+
+	.btn-edit {
+		background-color: #fff8e1;
+		color: #f57f17;
+	}
+
+	.btn-delete {
+		background-color: #ffebee;
+		color: #c62828;
+	}
+
+	.btn-edit:hover {
+		background-color: #f57f17;
+		color: #fff;
+	}
+
+	.btn-delete:hover {
+		background-color: #c62828;
+		color: #fff;
+	}
+
+	/* 4. BADGE TRẠNG THÁI */
+	.badge-status {
+		padding: 6px 12px;
+		border-radius: 20px;
+		font-size: 0.7rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		display: inline-block;
+		width: 100%;
+		text-align: center;
+		border: none;
+	}
+
+	.pagination .page-item.active .page-link {
+		background-color: #4e73df;
+		border-color: #4e73df;
+	}
+</style>
+
+<div class="container-fluid">
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+			<i class="fas fa-couch text-primary mr-2"></i>Quản lý Ghế ngồi
+		</h1>
+	</div>
+
+	<div class="mb-3 d-flex">
+		<a asp-action="Create" class="btn btn-primary btn-icon-split shadow-sm border-0 mr-2">
+			<span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+			<span class="text font-weight-bold">Thêm ghế lẻ</span>
+		</a>
+		<button type="button" class="btn btn-success btn-icon-split shadow-sm border-0" data-toggle="modal" data-target="#autoGenerateModal">
+			<span class="icon text-white-50"><i class="fas fa-magic"></i></span>
+			<span class="text font-weight-bold">Sinh ghế hàng loạt</span>
+		</button>
+	</div>
+
+	<div class="card shadow-sm mb-4 border-0">
+		<div class="card-header py-3 bg-white border-bottom">
+			<h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+				<i class="fas fa-list mr-1"></i> Danh sách sơ đồ ghế
+			</h6>
+		</div>
+
+		<div class="card-body p-0">
+			<div class="px-3 pt-3">
+				<div class="card shadow-sm border-0" style="background-color: #f8f9fc;">
+					<div class="card-body py-2">
+						<div class="d-flex align-items-center flex-wrap">
+							<form method="get" class="d-flex align-items-center mr-3">
+								<div class="input-group input-group-sm shadow-sm" style="width: 250px;">
+									<div class="input-group-prepend">
+										<span class="input-group-text bg-primary text-white border-0"><i class="fas fa-ship"></i></span>
+									</div>
+									<select name="maTau" class="form-control border-0 font-weight-bold text-primary" onchange="this.form.submit()">
+										<option value="">Tất cả các tàu</option>
+										@foreach (var item in (SelectList)ViewBag.MaTau)
+										{
+											<option value="@item.Value" selected="@(ViewBag.CurrentMaTau?.ToString() == item.Value)">@item.Text</option>
+										}
+									</select>
+								</div>
+							</form>
+
+							<div class="input-group input-group-sm shadow-sm mr-2" style="width: 200px;">
+								<div class="input-group-prepend">
+									<span class="input-group-text bg-info text-white border-0"><i class="fas fa-tag"></i></span>
+								</div>
+								<select id="typeFilter" class="form-control border-0 font-weight-bold text-info">
+									<option value="">Tất cả loại ghế</option>
+									<option value="Thường">Ghế Thường</option>
+									<option value="VIP">Ghế VIP</option>
+								</select>
+							</div>
+
+							<a asp-action="Index" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
+								<i class="fas fa-sync-alt"></i>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="table-responsive mt-2">
+				<table class="table table-hover align-middle mb-0" id="dataTable">
+					<thead class="bg-light text-muted small font-weight-bold">
+						<tr>
+							<th class="text-center col-id border-0">ID</th>
+							<th class="col-boat border-0">Thuộc Tàu</th>
+							<th class="text-center col-seatname border-0">Tên Ghế</th>
+							<th class="text-center col-type border-0">Loại Ghế</th>
+							<th class="text-center col-action border-0">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model)
+						{
+							<tr>
+								<td class="text-center font-weight-bold text-gray-500 small align-middle">#@item.MaGhe</td>
+								<td class="align-middle">
+									<div class="font-weight-bold text-dark small">@item.Tau?.TenTau</div>
+								</td>
+								<td class="text-center align-middle">
+									<span class="seat-label">@item.TenGhe</span>
+								</td>
+								<td class="text-center align-middle">
+									@{
+										var typeClass = item.LoaiGhe == "VIP" ? "badge-warning text-dark" : "badge-secondary";
+									}
+									<span class="badge badge-status shadow-sm @typeClass">@item.LoaiGhe</span>
+								</td>
+								<td class="text-center align-middle">
+									<div class="d-flex justify-content-center">
+										<a asp-action="Edit" asp-route-id="@item.MaGhe" class="btn-modern btn-edit" title="Sửa"><i class="fas fa-edit"></i></a>
+										<a asp-action="Delete" asp-route-id="@item.MaGhe" class="btn-modern btn-delete" title="Xóa"><i class="fas fa-trash"></i></a>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="autoGenerateModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content border-0 shadow">
+			<div class="modal-header bg-success text-white">
+				<h5 class="modal-title font-weight-bold"><i class="fas fa-magic mr-2"></i>Sinh ghế hàng loạt</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form asp-action="AutoGenerate" method="post" id="autoGenerateForm">
+				<div class="modal-body">
+					<div class="form-group">
+						<label class="small font-weight-bold text-dark text-uppercase">Chọn Tàu áp dụng</label>
+						<select name="MaTau" id="ModalMaTau" class="form-control" asp-items="ViewBag.MaTau" required>
+							<option value="">-- Chọn tàu --</option>
+						</select>
+						<div id="modalSeatStatus" class="mt-2 small d-none">
+							<span id="modalStatusText" class="badge badge-light p-2 w-100 text-left border shadow-sm"></span>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="small font-weight-bold text-dark text-uppercase">Số lượng ghế</label>
+								<input type="number" name="SoLuong" id="ModalSoLuong" class="form-control" min="1" max="200" placeholder="VD: 50" required />
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="small font-weight-bold text-dark text-uppercase">Loại ghế</label>
+								<select name="LoaiGhe" id="ModalLoaiGhe" class="form-control">
+									<option value="Thường">Ghế Thường</option>
+									<option value="VIP">Ghế VIP</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="alert alert-info small border-0 mb-0">
+						<i class="fas fa-info-circle mr-1"></i> Định dạng tên ghế: <b id="previewPrefix">T-01, T-02...</b>
+					</div>
+				</div>
+				<div class="modal-footer bg-light">
+					<button type="button" class="btn btn-secondary btn-sm px-3" data-dismiss="modal">Hủy</button>
+					<button type="submit" class="btn btn-success btn-sm px-3 font-weight-bold" id="btnConfirmGenerate">
+						<i class="fas fa-check mr-1"></i> Bắt đầu sinh ghế
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script>
+		$(document).ready(function() {
+			// 1. CẤU HÌNH DATATABLE
+			var table = $('#dataTable').DataTable({
+				"language": {
+					"url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
+					"searchPlaceholder": "Tìm ghế, tàu...",
+					"search": "",
+					"paginate": {
+						"previous": "<i class='fas fa-chevron-left'></i>",
+						"next": "<i class='fas fa-chevron-right'></i>"
+					}
+				},
+				"pageLength": 10,
+				"dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+						"<'row'<'col-sm-12'tr>>" +
+						"<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+			});
+
+			// 2. BỘ LỌC LOẠI GHẾ
+			$('#typeFilter').on('change', function() {
+				var val = $(this).val();
+				table.column(3).search(val ? '^' + val + '$' : '', true, false).draw();
+			});
+
+			// 3. LOGIC MODAL SINH GHẾ (AJAX CHECK)
+			let mLimit = 0;
+			let mCurrent = 0;
+			let mName = "";
+
+			$('#ModalMaTau').change(function () {
+				const maTau = $(this).val();
+				if (!maTau) {
+					$('#modalSeatStatus').addClass('d-none');
+					return;
+				}
+
+						$.get(`/Admin/Ghes/GetBoatInfo/${maTau}`, function (data) {
+			if (data) {
+				// Lưu ý: Chữ cái đầu viết THƯỜNG (tenTau, tongSoGhe, currentCount)
+				mName = data.tenTau;
+				mLimit = data.tongSoGhe;
+				mCurrent = data.currentCount;
+
+				$('#modalSeatStatus').removeClass('d-none');
+				const remaining = mLimit - mCurrent;
+				const statusBadge = $('#modalStatusText');
+
+				statusBadge.html(`<i class="fas fa-ship mr-1"></i> Tàu <b>${mName}</b>: Còn trống <b>${remaining}</b> / ${mLimit} chỗ.`);
+
+				if (remaining <= 0) {
+					statusBadge.removeClass('text-dark').addClass('text-danger border-danger font-weight-bold');
+					$('#btnConfirmGenerate').prop('disabled', true).text('Tàu đã đầy ghế');
+				} else {
+					statusBadge.removeClass('text-danger border-danger').addClass('text-dark');
+					$('#btnConfirmGenerate').prop('disabled', false).html('<i class="fas fa-check mr-1"></i> Bắt đầu sinh ghế');
+				}
+			}
+		});
+			});
+
+			// Chặn form nếu nhập quá số lượng còn lại
+			$('#autoGenerateForm').submit(function (e) {
+				const soLuongNhap = parseInt($('#ModalSoLuong').val());
+				const conLai = mLimit - mCurrent;
+
+				if (soLuongNhap > conLai) {
+					e.preventDefault();
+					Swal.fire({
+						icon: 'warning',
+						title: 'Vượt quá sức chứa!',
+						text: `Tàu ${mName} chỉ còn ${conLai} chỗ trống, không thể thêm ${soLuongNhap} ghế.`,
+						confirmButtonColor: '#1cc88a'
+					});
+					return false;
+				}
+			});
+
+			// Cập nhật prefix hiển thị cho vui mắt
+			$('#ModalLoaiGhe').change(function() {
+				const type = $(this).val();
+				$('#previewPrefix').text(type === "VIP" ? "V-01, V-02..." : "T-01, T-02...");
+			});
+		});
+	</script>
+}

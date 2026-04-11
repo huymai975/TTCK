@@ -160,14 +160,16 @@ namespace WebAppBookingBoat.Repository
 
             // --- 5. SEED TUYẾN ĐƯỜNG ---
             modelBuilder.Entity<TuyenDuong>().HasData(
-                new TuyenDuong { MaTuyen = 1, TenTuyen = "Sài Gòn - Vũng Tàu", DiemDi = "Sài Gòn", DiemDen = "Vũng Tàu", KhoangCach = 100, ThoiGianDuKien = new TimeSpan(2, 30, 0), HinhAnh = "vungtau.jpg" },
-                new TuyenDuong { MaTuyen = 2, TenTuyen = "Rạch Giá - Phú Quốc", DiemDi = "Rạch Giá", DiemDen = "Phú Quốc", KhoangCach = 120, ThoiGianDuKien = new TimeSpan(2, 45, 0), HinhAnh = "phuquoc.jpg" }
+                new TuyenDuong { MaTuyen = 1, TenTuyen = "Sài Gòn - Vũng Tàu", DiemDi = "Sài Gòn", DiemDen = "Vũng Tàu", KhoangCach = 100, ThoiGianDuKien = new TimeSpan(2, 30, 0), HinhAnh = "80eec6b7-1650-400a-afda-eec7573a7f48.jfif" },
+                new TuyenDuong { MaTuyen = 2, TenTuyen = "Rạch Giá - Phú Quốc", DiemDi = "Rạch Giá", DiemDen = "Phú Quốc", KhoangCach = 120, ThoiGianDuKien = new TimeSpan(2, 45, 0), HinhAnh = "dcc6e003-7560-4d50-8933-98682d3da2ef.jfif" }
             );
 
             // --- 6. SEED TÀU ---
             modelBuilder.Entity<Tau>().HasData(
-                new Tau { MaTau = 1, TenTau = "Tàu Cao Tốc 01", TongSoGhe = 20, SoGheThuong = 15, SoGheVIP = 5, TrangThai = true, HinhAnh = "tau01.jpg" },
-                new Tau { MaTau = 2, TenTau = "Tàu Express 02", TongSoGhe = 20, SoGheThuong = 15, SoGheVIP = 5, TrangThai = true, HinhAnh = "tau02.jpg" }
+                new Tau { MaTau = 1, TenTau = "Tàu Cao Tốc 01", TongSoGhe = 20, TrangThai = true, HinhAnh = "0ed53f9a-2e39-46ab-897c-856e7cde576d.jpg" },
+                new Tau { MaTau = 2, TenTau = "Tàu Express 01", TongSoGhe = 20, TrangThai = true, HinhAnh = "2073e0cb-cf50-45b1-aa5e-9d40af4b7477.jpg" },
+                new Tau { MaTau = 3, TenTau = "Tàu Cao Tốc 02", TongSoGhe = 20, TrangThai = true, HinhAnh = "872b8a7a-79ae-4f8b-96da-53c7e3caa5e3.jpg" },
+                new Tau { MaTau = 4, TenTau = "Tàu Express 02", TongSoGhe = 20, TrangThai = true, HinhAnh = "d0c7cc56-fd6c-4750-8095-2c250c2c3eed.jpg" }
             );
 
             // --- 7. TỰ ĐỘNG SEED GHẾ (40 ghế cho 2 tàu) ---
@@ -221,17 +223,77 @@ namespace WebAppBookingBoat.Repository
                 }
             );
 
+            modelBuilder.Entity<HoaDon>().HasData(
+                new HoaDon
+                {
+                    MaHoaDon = 2,
+                    MaKH = 1,
+                    MaNV = 1,
+                    MaKM = "KM10",
+                    NgayLap = DateTime.Now,
+                    SoLuongVe = 1,
+                    TamTinh = 200000,
+                    SoTienGiam = 20000,
+                    TongTien = 180000,
+                    PhuongThucTT = "Tiền mặt",
+                    TrangThai = "Đã thanh toán"
+                }
+            );
+
+            modelBuilder.Entity<HoaDon>().HasData(
+                new HoaDon
+                {
+                    MaHoaDon = 3,
+                    MaKH = 1,
+                    MaNV = 1,
+                    MaKM = "KM10",
+                    NgayLap = DateTime.Now,
+                    SoLuongVe = 1,
+                    TamTinh = 200000,
+                    SoTienGiam = 20000,
+                    TongTien = 180000,
+                    PhuongThucTT = "Tiền mặt",
+                    TrangThai = "Đã thanh toán"
+                }
+            );
+
             // --- 10. SEED VÉ MẪU ---
             modelBuilder.Entity<Ve>().HasData(
                 new Ve
                 {
                     MaVe = 1,
+                    MaGhe = 2,
                     MaHoaDon = 1,
                     MaLichTrinh = 1,
                     GiaVe = 180000,
                     TrangThai = "Hợp lệ"
                 }
             );
+
+            modelBuilder.Entity<Ve>().HasData(
+                new Ve
+                {
+                    MaVe = 2,
+                    MaGhe = 3,
+                    MaHoaDon = 2,
+                    MaLichTrinh = 1,
+                    GiaVe = 180000,
+                    TrangThai = "Hợp lệ"
+                }
+            );
+
+            modelBuilder.Entity<Ve>().HasData(
+               new Ve
+               {
+                   MaVe = 3,
+                   MaGhe = 4,
+                   MaHoaDon = 3,
+                   MaLichTrinh = 1,
+                   GiaVe = 180000,
+                   TrangThai = "Hợp lệ"
+               }
+           );
+
 
             // --- 11. SEED LOG HỆ THỐNG ---
             modelBuilder.Entity<Log>().HasData(
