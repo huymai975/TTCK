@@ -1,0 +1,197 @@
+﻿@model WebAppBookingBoat.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Cập nhật Khách hàng";
+}
+
+<head>
+    <style>
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e !important;
+        }
+
+        .border-left-danger {
+            border-left: 4px solid #e74a3b !important;
+        }
+
+        .border-left-success {
+            border-left: 4px solid #1cc88a !important;
+        }
+
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
+        }
+
+        .input-group-text {
+            background-color: #f8f9fc;
+            border-right: none;
+        }
+
+        .form-control-prepended {
+            border-left: none !important;
+        }
+    </style>
+</head>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-user-edit text-primary mr-2"></i>Chỉnh sửa hồ sơ Khách hàng
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <form asp-action="Edit" method="post" class="card shadow-lg mb-4 border-left-primary">
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                        Mã khách hàng: #@Model.MaKH
+                    </h6>
+                    <span class="badge badge-primary text-white p-2 shadow-sm">
+                        <i class="fas fa-database mr-1"></i> Dữ liệu định danh
+                    </span>
+                </div>
+
+                <div class="card-body px-lg-5 py-4">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+
+                    <input type="hidden" asp-for="MaKH" />
+
+                    <div class="row">
+                        @* Cột 1 *@
+                        <div class="col-md-6 border-right">
+                            <h6 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-id-card mr-2 text-primary"></i>Thông tin cá nhân
+                            </h6>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="HoTen" class="small font-weight-bold text-muted text-uppercase">Họ và Tên</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-user text-primary"></i></span>
+                                    </div>
+                                    <input asp-for="HoTen" class="form-control shadow-sm form-control-prepended" />
+                                </div>
+                                <span asp-validation-for="HoTen" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="NgaySinh" class="small font-weight-bold text-muted text-uppercase">Ngày sinh</label>
+                                <input asp-for="NgaySinh" type="date" class="form-control shadow-sm border-left-info" />
+                                <span asp-validation-for="NgaySinh" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaTK" class="small font-weight-bold text-muted text-uppercase">Tài khoản hệ thống</label>
+                                <select asp-for="MaTK" class="form-control border-left-success shadow-sm" asp-items="ViewBag.MaTK">
+                                    <option value="">-- Khách vãng lai (Không có TK) --</option>
+                                </select>
+                                <span asp-validation-for="MaTK" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        @* Cột 2 *@
+                        <div class="col-md-6 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-address-book mr-2 text-primary"></i>Thông tin liên hệ
+                            </h6>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="Sdt" class="small font-weight-bold text-muted text-uppercase">Số điện thoại</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-phone text-success"></i></span>
+                                    </div>
+                                    <input asp-for="Sdt" class="form-control shadow-sm form-control-prepended" />
+                                </div>
+                                <span asp-validation-for="Sdt" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="Email" class="small font-weight-bold text-muted text-uppercase">Địa chỉ Email</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-envelope text-danger"></i></span>
+                                    </div>
+                                    <input asp-for="Email" class="form-control shadow-sm form-control-prepended" />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="DiaChi" class="small font-weight-bold text-muted text-uppercase">Địa chỉ thường trú</label>
+                                <textarea asp-for="DiaChi" class="form-control shadow-sm border-left-warning" rows="2"></textarea>
+                                <span asp-validation-for="DiaChi" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                        <span class="text">Quay lại danh sách</span>
+                    </a>
+
+                    <button type="submit" class="btn btn-primary btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                        <span class="text">Lưu thay đổi</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="alert alert-info border-0 shadow-sm small">
+                <i class="fas fa-info-circle mr-1"></i>
+                <strong>Mẹo:</strong> Đảm bảo <strong>Email</strong> và <strong>Số điện thoại</strong> chính xác để khách hàng nhận được mã vé điện tử.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @* <script>
+        $(document).ready(function () {
+            // Lấy thông báo từ TempData (Controller đã sửa ở bước trước)
+            var successMessage = '@Html.Raw(TempData["SuccessMessage"] ?? "")';
+            var errorMessage = '@Html.Raw(TempData["ErrorMessage"] ?? "")';
+
+            // Nếu có thông báo thành công
+            if (successMessage !== '') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: successMessage,
+                    confirmButtonColor: '#4e73df',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+
+            // Nếu có thông báo lỗi (Ví dụ: Trùng Email, Trùng Tài khoản, hoặc Lỗi ràng buộc SQL)
+            if (errorMessage !== '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Rất tiếc...',
+                    text: errorMessage,
+                    confirmButtonColor: '#e74a3b',
+                    footer: '<span class="text-danger">Vui lòng kiểm tra lại các ràng buộc dữ liệu.</span>'
+                });
+            }
+        });
+    </script> *@
+}

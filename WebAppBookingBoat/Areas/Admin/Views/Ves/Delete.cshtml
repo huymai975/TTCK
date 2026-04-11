@@ -100,21 +100,13 @@
 
 @section Scripts {
     <script>
-        $(document).on('click', '#btnDeleteTicketConfirm', function () {
-            Swal.fire({
-                title: 'Bạn chắc chắn chứ?',
-                text: "Vé số #@Model.MaVe sẽ bị xóa vĩnh viễn khỏi hệ thống!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#e74a3b',
-                cancelButtonColor: '#858796',
-                confirmButtonText: 'Đồng ý xóa!',
-                cancelButtonText: 'Quay lại',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('#confirmDeleteTicketForm').submit();
-                }
+        $(document).ready(function () {
+            // Gọi hàm confirmDelete từ Layout khi bấm nút
+            $('#btnDeleteConfirm').on('click', function () {
+                confirmDelete(
+                    'confirmDeleteForm',
+                    'Bạn có chắc chắn muốn xóa vé @Model.MaVe? Dữ liệu sẽ không thể khôi phục!'
+                );
             });
         });
     </script>

@@ -1,0 +1,140 @@
+﻿@model WebAppBookingBoat.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Chi tiết hồ sơ khách hàng";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-id-card text-info mr-2"></i>Hồ sơ khách hàng
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow-lg mb-4 border-left-info">
+                @* Card Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-info text-uppercase">Mã khách hàng: #@Model.MaKH</h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-user-check mr-1"></i> Trạng thái: Hoạt động
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        @* Cột trái: Thông tin định danh *@
+                        <div class="col-md-6 border-right">
+                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="fas fa-user-circle mr-2 text-info"></i>Thông tin định danh
+                            </h5>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block">Họ và Tên</label>
+                                <div class="h5 font-weight-bold text-primary">@Model.HoTen</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block">Ngày sinh</label>
+                                <div class="h6 font-weight-bold text-dark">
+                                    <i class="fas fa-birthday-cake text-danger mr-2"></i>@(Model.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block">Tài khoản liên kết</label>
+                                <div class="d-flex align-items-center p-2 bg-light rounded border shadow-sm">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-weight-bold text-dark">@(Model.AppUser?.UserName ?? "Khách vãng lai")</div>
+                                        <div class="text-xs text-muted">ID: @(Model.AppUser?.Id ?? "N/A")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Cột phải: Thông tin liên hệ *@
+                        <div class="col-md-6 pl-md-4">
+                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="fas fa-address-book mr-2 text-info"></i>Thông tin liên lạc
+                            </h5>
+
+                            <div class="mb-4">
+                                <div class="p-3 bg-light rounded border-left-success mb-3 shadow-sm">
+                                    <label class="small font-weight-bold text-success text-uppercase d-block mb-1">Số điện thoại</label>
+                                    <div class="h5 font-weight-bold mb-0 text-dark">
+                                        <i class="fas fa-phone-alt mr-2 small text-muted"></i>@Model.Sdt
+                                    </div>
+                                </div>
+
+                                <div class="p-3 bg-light rounded border-left-danger mb-3 shadow-sm">
+                                    <label class="small font-weight-bold text-danger text-uppercase d-block mb-1">Địa chỉ Email</label>
+                                    <div class="h5 font-weight-bold mb-0 text-dark">
+                                        <i class="fas fa-envelope mr-2 small text-muted"></i>@Model.Email
+                                    </div>
+                                </div>
+
+                                <div class="p-3 bg-light rounded border-left-warning mb-3 shadow-sm">
+                                    <label class="small font-weight-bold text-warning text-uppercase d-block mb-1">Địa chỉ thường trú</label>
+                                    <div class="h6 font-weight-bold mb-0 text-dark">
+                                        <i class="fas fa-map-marker-alt mr-2 small text-muted"></i>@Model.DiaChi
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Card Footer *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Quay lại danh sách</span>
+                    </a>
+
+                    <a asp-action="Edit" asp-route-id="@Model.MaKH" class="btn btn-warning btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span class="text">Chỉnh sửa hồ sơ</span>
+                    </a>
+                </div>
+            </div>
+
+            <p class="mb-5 small text-muted text-center italic">
+                <i class="fas fa-shield-alt mr-1"></i> Thông tin khách hàng được bảo mật theo chính sách quyền riêng tư của hệ thống.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-info {
+        border-left: 4px solid #36b9cc !important;
+    }
+
+    .border-left-success {
+        border-left: 4px solid #1cc88a !important;
+    }
+
+    .border-left-danger {
+        border-left: 4px solid #e74a3b !important;
+    }
+
+    .border-left-warning {
+        border-left: 4px solid #f6c23e !important;
+    }
+
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+</style>

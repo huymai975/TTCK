@@ -30,7 +30,7 @@ namespace WebAppBookingBoat.Models
         public int TongSoGhe { get; set; }
 
         [Display(Name = "Trạng thái")]
-        public bool TrangThai { get; set; } = true; // true: Đang hoạt động, false: Bảo trì
+        public bool TrangThai { get; set; } = true; // true: Đang vận hành, false: Tạm dừng hoạt động
 
         // --- Navigation Properties ---
 

@@ -1,0 +1,227 @@
+﻿@model IEnumerable<WebAppBookingBoat.Models.KhachHang>
+
+@{
+    ViewData["Title"] = "Quản lý Khách hàng";
+}
+
+<style>
+    /* 1. KHUNG BẢNG & TỈ LỆ CỘT */
+    #dataTable {
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .col-id {
+        width: 50px;
+    }
+
+    .col-info {
+        width: auto;
+    }
+
+    .col-contact {
+        width: 180px;
+    }
+
+    .col-address {
+        width: 200px;
+    }
+
+    .col-account {
+        width: 150px;
+    }
+
+    .col-action {
+        width: 130px;
+    }
+
+    /* 2. STYLE NỘI DUNG */
+    .text-name {
+        display: block;
+        font-weight: 700;
+        color: #2c3e50;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.95rem;
+    }
+
+    .info-box {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    /* 3. NÚT THAO TÁC (SOFT UI) */
+    .btn-modern {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        margin: 0 2px;
+        text-decoration: none !important;
+    }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    .btn-view {
+        background-color: #e1f5fe;
+        color: #039be5;
+    }
+
+    .btn-edit {
+        background-color: #fff8e1;
+        color: #f57f17;
+    }
+
+    .btn-delete {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+
+    .btn-view:hover {
+        background-color: #039be5;
+        color: #fff;
+    }
+
+    .btn-edit:hover {
+        background-color: #f57f17;
+        color: #fff;
+    }
+
+    .btn-delete:hover {
+        background-color: #c62828;
+        color: #fff;
+    }
+
+    /* Custom Pagination */
+    .pagination .page-item.active .page-link {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-users text-primary mr-2"></i>Quản lý Khách hàng
+        </h1>
+    </div>
+
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-primary btn-icon-split shadow-sm border-0">
+            <span class="icon text-white-50"><i class="fas fa-user-plus"></i></span>
+            <span class="text font-weight-bold">Thêm khách hàng mới</span>
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header py-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                <i class="fas fa-list mr-1"></i> Danh sách khách hàng
+            </h6>
+            @if (TempData["Success"] != null)
+            {
+                <div class="badge badge-success p-2 shadow-sm animate__animated animate__fadeInRight">
+                    <i class="fas fa-check-circle mr-1"></i> @TempData["Success"]
+                </div>
+            }
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive mt-2">
+                <table class="table table-hover align-middle mb-0" id="dataTable">
+                    <thead class="bg-light text-muted small font-weight-bold">
+                        <tr>
+                            <th class="text-center col-id border-0">ID</th>
+                            <th class="col-info border-0">Khách hàng</th>
+                            <th class="col-contact border-0">Liên hệ</th>
+                            <th class="col-address border-0">Địa chỉ</th>
+                            <th class="col-account border-0">Tài khoản</th>
+                            <th class="text-center col-action border-0">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center font-weight-bold text-gray-500 small align-middle">#@item.MaKH</td>
+                                <td class="align-middle">
+                                    <span class="text-name">@item.HoTen</span>
+                                    <small class="text-muted">
+                                        <i class="fas fa-birthday-cake mr-1"></i>@(item.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")
+                                    </small>
+                                </td>
+                                <td class="info-box align-middle">
+                                    <div class="text-dark font-weight-bold"><i class="fas fa-phone-alt mr-2 text-success" style="width:12px"></i>@item.Sdt</div>
+                                    <div class="text-muted small"><i class="fas fa-envelope mr-2 text-primary" style="width:12px"></i>@item.Email</div>
+                                </td>
+                                <td class="align-middle text-truncate small text-muted" title="@item.DiaChi">
+                                    <i class="fas fa-map-marker-alt mr-1 text-danger"></i> @item.DiaChi
+                                </td>
+                                <td class="align-middle">
+                                    <div class="badge badge-light border text-primary px-3 shadow-sm">
+                                        <i class="fas fa-user-circle mr-1"></i> @(item.AppUser?.UserName ?? "N/A")
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <div class="d-flex justify-content-center">
+                                        <a asp-action="Details" asp-route-id="@item.MaKH" class="btn-modern btn-view" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                                        <a asp-action="Edit" asp-route-id="@item.MaKH" class="btn-modern btn-edit" title="Sửa"><i class="fas fa-edit"></i></a>
+                                        <form id="delete-form-@item.MaKH" asp-action="Delete" asp-route-id="@item.MaKH" method="post" style="display:none;"></form>
+
+                                        <a href="javascript:void(0)" onclick="confirmDelete('delete-form-@item.MaKH')" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
+                    "searchPlaceholder": "Tìm tên, sđt, email...",
+                    "search": "",
+                    "paginate": {
+                        "previous": "<i class='fas fa-chevron-left'></i>",
+                        "next": "<i class='fas fa-chevron-right'></i>"
+                    }
+                },
+                "pageLength": 10,
+                "order": [[0, "desc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": [5] },
+                    { "className": "align-middle", "targets": "_all" }
+                ],
+                "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                       "<'row'<'col-sm-12'tr>>" +
+                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "drawCallback": function() {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                }
+            });
+        });
+    </script>
+}

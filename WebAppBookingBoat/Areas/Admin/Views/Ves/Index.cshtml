@@ -5,7 +5,7 @@
 }
 
 <style>
-    /* Giữ nguyên các Style cũ của bạn */
+    /* 1. Định dạng bảng và cột */
     #dataTable {
         table-layout: fixed;
         width: 100% !important;
@@ -14,7 +14,7 @@
     }
 
     .col-id {
-        width: 60px;
+        width: 70px;
     }
 
     .col-info {
@@ -22,11 +22,11 @@
     }
 
     .col-seat {
-        width: 130px;
+        width: 140px;
     }
 
     .col-price {
-        width: 110px;
+        width: 120px;
     }
 
     .col-status {
@@ -37,6 +37,7 @@
         width: 130px;
     }
 
+    /* 2. Hiển thị text */
     .text-main {
         display: block;
         font-weight: 700;
@@ -55,6 +56,7 @@
         margin-top: 2px;
     }
 
+    /* 3. Button Modern Style */
     .btn-modern {
         width: 32px;
         height: 32px;
@@ -66,6 +68,7 @@
         margin: 0 2px;
         text-decoration: none !important;
         border: none;
+        cursor: pointer;
     }
 
         .btn-modern:hover {
@@ -103,6 +106,7 @@
         color: #fff;
     }
 
+    /* 4. Badge Status */
     .badge-status {
         padding: 6px 12px;
         border-radius: 20px;
@@ -174,7 +178,7 @@
                 </div>
             </div>
 
-            <div class="table-responsive mt-2">
+            <div class="table-responsive mt-2 px-3 pb-3">
                 <table class="table table-hover align-middle mb-0" id="dataTable">
                     <thead class="bg-light text-muted small font-weight-bold">
                         <tr>
@@ -189,12 +193,12 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr>
+                            <tr id="row-@item.MaVe">
                                 <td class="text-center font-weight-bold text-gray-500 small">#@item.MaVe</td>
                                 <td>
                                     <span class="text-main">@item.TenKhachHang</span>
                                     <small class="sub-text text-truncate">
-                                        <i class="fas fa-ship mr-1"></i>@item.TenTau | <span class="route-info">@item.ThongTinChuyen</span>
+                                        <i class="fas fa-ship mr-1"></i>@item.TenTau | <span>@item.ThongTinChuyen</span>
                                     </small>
                                 </td>
                                 <td>
@@ -216,11 +220,20 @@
                                     }
                                     <span class="badge badge-status shadow-sm @sClass">@item.TrangThai</span>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     <div class="d-flex justify-content-center">
-                                        <a asp-action="Details" asp-route-id="@item.MaVe" class="btn-modern btn-view" title="Chi tiết"><i class="fas fa-eye"></i></a>
-                                        <a asp-action="Edit" asp-route-id="@item.MaVe" class="btn-modern btn-edit" title="Sửa"><i class="fas fa-edit"></i></a>
-                                        <a asp-action="Delete" asp-route-id="@item.MaVe" class="btn-modern btn-delete" title="Xóa"><i class="fas fa-trash"></i></a>
+                                        <a asp-action="Details" asp-route-id="@item.MaVe" class="btn-modern btn-view" title="Chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
+                                        <a asp-action="Edit" asp-route-id="@item.MaVe" class="btn-modern btn-edit" title="Sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <button type="button" class="btn-modern btn-delete" title="Xóa"
+                                                onclick="deleteVeAjax(@item.MaVe, '@item.TenKhachHang')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -232,39 +245,35 @@
     </div>
 </div>
 
+@Html.AntiForgeryToken()
+
 @section Scripts {
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <script src="https://cdn.datatables.net/1.13.6/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/dataTables.bootstrap4.min.js"></script>
 
     <script>
+        var table;
         $(document).ready(function() {
-            var table = $('#dataTable').DataTable({
+            table = $('#dataTable').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
                     "searchPlaceholder": "Tìm kiếm nhanh...",
-                    "search": "",
-                    "paginate": {
-                        "previous": "<i class='fas fa-chevron-left'></i>",
-                        "next": "<i class='fas fa-chevron-right'></i>"
-                    }
+                    "search": ""
                 },
                 "pageLength": 10,
                 "order": [[0, "desc"]],
                 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                        "<'row'<'col-sm-12'tr>>" +
-                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-                "drawCallback": function() {
-                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
-                }
+                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
             });
 
-            // Lọc theo Tuyến đi (Cột index 1)
+            // Lọc theo Tuyến đi
             $('#routeFilter').on('change', function() {
                 table.column(1).search($(this).val()).draw();
             });
 
-            // Lọc theo Trạng thái (Cột index 4)
+            // Lọc theo Trạng thái
             $('#statusFilter').on('change', function() {
                 var val = $(this).val();
                 table.column(4).search(val ? '^' + val + '$' : '', true, false).draw();
@@ -277,5 +286,47 @@
                 table.columns().search('').draw();
             });
         });
+
+        // HÀM AJAX XÓA TOÀN VẸN
+        function deleteVeAjax(id, name) {
+            Swal.fire({
+                title: 'Xác nhận xóa vé?',
+                text: "Bạn muốn xóa vé #" + id + " của khách " + name + "? Hệ thống sẽ hoàn trả 1 ghế trống cho lịch trình này.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Ves")',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (res) {
+                            if (res.success) {
+                                Swal.fire({
+                                    title: 'Đã xóa!',
+                                    text: res.message,
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                // Xóa dòng trong DataTable mà không reload trang
+                                table.row($('#row-' + id)).remove().draw(false);
+                            } else {
+                                Swal.fire('Lỗi!', res.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ.', 'error');
+                        }
+                    });
+                }
+            });
+        }
     </script>
 }

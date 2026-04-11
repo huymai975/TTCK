@@ -15,7 +15,8 @@ builder.Services.AddControllersWithViews();
 
 
 // 1. Cấu hình Identity kết nối với ApplicationDbContext
-builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
     // Cấu hình mật khẩu (Tùy chỉnh theo ý bạn)
     options.Password.RequireDigit = false; // Không bắt buộc có số
     options.Password.RequiredLength = 4;    // Độ dài tối thiểu 6 ký tự
@@ -34,7 +35,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
 .AddDefaultTokenProviders();
 
 // 2. Cấu hình Cookie (Đường dẫn trang Login, Logout, AccessDenied)
-builder.Services.ConfigureApplicationCookie(options => {
+builder.Services.ConfigureApplicationCookie(options =>
+{
     options.LoginPath = "/Account/Login"; // Đường dẫn đến trang đăng nhập
     options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied"; // Trang báo lỗi khi không có quyền
@@ -69,6 +71,9 @@ app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
+app.MapControllerRoute(
+      name: "areas",
+      pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

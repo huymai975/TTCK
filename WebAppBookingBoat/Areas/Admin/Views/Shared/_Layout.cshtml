@@ -531,22 +531,107 @@
 
 	<!-- Custom scripts for all pages-->
 
-	<script src="~/js/notification.js"></script>
 	<script src="~/js/sb-admin-2.min.js"></script>
 
-	@await RenderSectionAsync("Scripts", required: false)
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+	<script src="~/js/notification.js"></script>
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
+			// 1. LẤY DỮ LIỆU TỪ CONTROLLER
 			var success = '@Html.Raw(TempData["SuccessMessage"] ?? "")';
 			var error = '@Html.Raw(TempData["ErrorMessage"] ?? "")';
 
-			if (success || error) {
-				showNotifications(success, error);
+			// 2. CẤU HÌNH TOAST (CÁI "NGON" CỦA HUY ĐÂY)
+			const Toast = Swal.mixin({
+				toast: true,
+				position: 'top-end',
+				showConfirmButton: false,
+				timer: 3000,
+				timerProgressBar: true,
+				didOpen: (toast) => {
+					toast.addEventListener('mouseenter', Swal.stopTimer)
+					toast.addEventListener('mouseleave', Swal.resumeTimer)
+				}
+			});
+
+			// Cho nổ thông báo nếu có nội dung
+			if (success.trim()) {
+				Toast.fire({ icon: 'success', title: success });
 			}
+			if (error.trim()) {
+				Toast.fire({ icon: 'error', title: error });
+			}
+		});
+
+		// 3. HÀM XÁC NHẬN XÓA (DÙNG CHUNG TOÀN APP)
+		function confirmDelete(formId, message = "Dữ liệu này sẽ bị xóa vĩnh viễn!") {
+			Swal.fire({
+				title: 'Bạn có chắc chắn?',
+				text: message,
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#e74a3b',
+				cancelButtonColor: '#858796',
+				confirmButtonText: 'Đồng ý xóa',
+				cancelButtonText: 'Hủy'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					var form = document.getElementById(formId);
+					if(form) {
+						form.submit();
+					}
+				}
+			});
+				}$(document).on('submit', '.ajax-form', function (e) {
+			e.preventDefault();
+			const $form = $(this);
+			const $btn = $form.find('button[type="submit"]');
+
+			// Vô hiệu hóa nút tránh bấm liên tục
+			$btn.prop('disabled', true);
+
+			$.ajax({
+				url: $form.attr('action'),
+				type: 'POST',
+				data: $form.serialize(),
+				success: function (res) {
+					if (res.success) {
+						Swal.fire({
+							icon: 'success',
+							title: 'Thành công!',
+							text: res.message,
+							timer: 2000,
+							showConfirmButton: false
+						}).then(() => {
+							if (res.redirectUrl) {
+								window.location.href = res.redirectUrl;
+							} else {
+								location.reload();
+							}
+						});
+					} else {
+						// ĐÂY LÀ NƠI HIỆN RÀNG BUỘC LOGIC (ví dụ: Chuyến đã chạy, sai giờ...)
+						Swal.fire({
+							icon: 'error',
+							title: 'Không thực hiện được',
+							text: res.message,
+							confirmButtonColor: '#4e73df'
+						});
+						$btn.prop('disabled', false);
+					}
+				},
+				error: function () {
+					Swal.fire('Lỗi!', 'Hệ thống không phản hồi, vui lòng thử lại sau.', 'error');
+					$btn.prop('disabled', false);
+				}
+			});
 		});
 	</script>
 
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>
