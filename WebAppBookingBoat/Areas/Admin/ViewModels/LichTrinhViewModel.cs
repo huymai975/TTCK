@@ -36,9 +36,9 @@ namespace WebAppBookingBoat.ViewModels
         // --- BỔ SUNG CÁC TRƯỜNG HIỂN THỊ (FIX LỖI CS1061) ---
         public string? TenTuyen { get; set; }
         public string? TenTau { get; set; }
-        public string? DiemDi { get; set; }     // Thêm để fix lỗi dòng 200
-        public string? DiemDen { get; set; }    // Thêm để fix lỗi dòng 200
-        public int TongSoGhe { get; set; }      // Thêm để fix lỗi dòng 214
+        public string? DiemDi { get; set; }
+        public string? DiemDen { get; set; }
+        public int TongSoGhe { get; set; }
         public int SoGheTrong { get; set; }
 
         // --- Danh sách SelectList để đổ vào Dropdown trong View ---

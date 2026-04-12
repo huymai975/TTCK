@@ -1,87 +1,230 @@
 ﻿@model WebAppBookingBoat.Models.HoaDon
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Chi tiết Hóa đơn thanh toán";
 }
 
-<!DOCTYPE html>
+<div class="container-fluid">
+    @* Tiêu đề trang *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-file-invoice text-primary mr-2"></i>Chi tiết Hóa đơn
+        </h1>
+    </div>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
-</head>
-<body>
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow-lg mb-4 border-left-primary">
+                @* Card Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                        Mã hóa đơn: #@Model.MaHoaDon
+                    </h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-calendar-alt mr-1"></i> Ngày lập: @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                </div>
 
-<div>
-    <h4>HoaDon</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.KhachHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.KhachHang.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NhanVien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NhanVien.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.KhuyenMai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.KhuyenMai.MaKM)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayLap)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayLap)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoLuongVe)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoLuongVe)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TamTinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TamTinh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoTienGiam)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoTienGiam)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TongTien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TongTien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhuongThucTT)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhuongThucTT)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
+                <div class="card-body px-lg-5">
+                    <div class="row">
+                        @* Cột 1: Thông tin khách hàng & Nhân viên *@
+                        <div class="col-md-6 border-right">
+                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="fas fa-user-circle mr-2 text-primary"></i>Thông tin thực hiện
+                            </h5>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block">Khách hàng đặt vé</label>
+                                <div class="h6 font-weight-bold text-dark">@Model.KhachHang?.HoTen</div>
+                                <div class="text-muted small"><i class="fas fa-envelope mr-1"></i> @Model.KhachHang?.Email</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block">Nhân viên lập hóa đơn</label>
+                                @if (Model.NhanVien != null)
+                                {
+                                    <div class="h6 font-weight-bold text-dark">@Model.NhanVien.HoTen</div>
+                                    <div class="text-muted small"><i class="fas fa-id-badge mr-1"></i> @Model.NhanVien.Email</div>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Hệ thống (Online)</span>
+                                }
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block">Hình thức thanh toán</label>
+                                <div class="p-2 bg-light rounded border d-inline-block px-3">
+                                    <i class="fas fa-credit-card text-info mr-2"></i> @Model.PhuongThucTT
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Cột 2: Chi tiết tài chính *@
+                        <div class="col-md-6 pl-md-4">
+                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="fas fa-receipt mr-2 text-success"></i>Chi tiết tài chính
+                            </h5>
+
+                            <div class="row mb-3">
+                                <div class="col-7 text-muted">Số lượng vé đặt:</div>
+                                <div class="col-5 text-right font-weight-bold">@Model.SoLuongVe vé</div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-7 text-muted">Tạm tính:</div>
+                                <div class="col-5 text-right">@Model.TamTinh.ToString("N0") <small>đ</small></div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-7 text-muted">Khuyến mãi (@Model.KhuyenMai?.MaKM):</div>
+                                <div class="col-5 text-right text-danger">- @Model.SoTienGiam.ToString("N0") <small>đ</small></div>
+                            </div>
+
+                            <div class="p-3 bg-light rounded mb-4">
+                                <div class="row align-items-center">
+                                    <div class="col-6">
+                                        <span class="font-weight-bold text-uppercase small">Tổng thanh toán</span>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <span class="h4 font-weight-bold text-success mb-0">@Model.TongTien.ToString("N0") <small>đ</small></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block mb-2">Trạng thái thanh toán</label>
+                                @{
+                                    var statusBadge = Model.TrangThai switch
+                                    {
+                                        "Đã thanh toán" => "badge-success",
+                                        "Chưa thanh toán" => "badge-warning",
+                                        "Đã hủy" => "badge-danger",
+                                        _ => "badge-secondary"
+                                    };
+                                }
+                                <div class="h4">
+                                    <span class="badge @statusBadge px-4 py-2 shadow-sm rounded-pill">
+                                        <i class="fas @(Model.TrangThai == "Đã thanh toán" ? "fa-check-circle" : "fa-exclamation-circle") mr-1"></i>
+                                        @Model.TrangThai
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* --- DANH SÁCH VÉ CHI TIẾT --- *@
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-ticket-alt mr-2 text-info"></i>Danh sách vé trong hóa đơn
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover small">
+                                    <thead class="bg-light text-center">
+                                        <tr>
+                                            <th>Mã vé</th>
+                                            <th>Chuyến đi</th>
+                                            <th>Ghế</th>
+                                            <th>Giá vé</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Ves != null && Model.Ves.Any())
+                                        {
+                                            foreach (var ve in Model.Ves)
+                                            {
+                                                <tr>
+                                                    <td class="text-center font-weight-bold">#@ve.MaVe</td>
+                                                    <td>
+                                                        <span class="d-block font-weight-bold">@ve.LichTrinh?.TuyenDuong?.TenTuyen</span>
+                                                        <small class="text-muted">Khởi hành: @ve.LichTrinh?.NgayGioKhoiHanh.ToString("dd/MM/yyyy HH:mm")</small>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-info">@ve.Ghe?.TenGhe</span>
+                                                    </td>
+                                                    <td class="text-right font-weight-bold text-primary">
+                                                        @ve.GiaVe.ToString("N0")đ
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge @(ve.TrangThai == "Đã hủy" ? "badge-danger" : "badge-light border")">
+                                                            @ve.TrangThai
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">Chưa có vé nào cho hóa đơn này.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Card Footer *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Danh sách hóa đơn</span>
+                    </a>
+
+                    @if (Model.TrangThai == "Chưa thanh toán")
+                    {
+                        <button type="button" onclick="confirmPayment(@Model.MaHoaDon)" class="btn btn-success btn-icon-split shadow-sm mr-2">
+                            <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                            <span class="text">Xác nhận thanh toán</span>
+                        </button>
+                    }
+
+                    <div class="btn-group">
+                        <button type="button" onclick="window.print()" class="btn btn-info btn-icon-split shadow-sm mr-2">
+                            <span class="icon text-white-50"><i class="fas fa-print"></i></span>
+                            <span class="text">In hóa đơn</span>
+                        </button>
+
+                        <a asp-action="Edit" asp-route-id="@Model.MaHoaDon" class="btn btn-primary btn-icon-split shadow-sm font-weight-bold">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            <span class="text">Chỉnh sửa</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaHoaDon">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
-</body>
-</html>
+
+<style>
+    .border-left-primary {
+        border-left: 4px solid #4e73df !important;
+    }
+
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+
+    @@media print {
+        .btn, .card-header .badge, .container-fluid > .d-sm-flex {
+            display: none !important;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .border-right {
+            border-right: none !important;
+        }
+    }
+</style>

@@ -1,88 +1,211 @@
 ﻿@model WebAppBookingBoat.Models.HoaDon
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Cập nhật Hóa đơn";
 }
 
-<!DOCTYPE html>
-
-<html>
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Edit</title>
-</head>
-<body>
+    <style>
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
 
-<h4>HoaDon</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MaHoaDon" />
-            <div class="form-group">
-                <label asp-for="MaKH" class="control-label"></label>
-                <select asp-for="MaKH" class="form-control" asp-items="ViewBag.MaKH"></select>
-                <span asp-validation-for="MaKH" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaNV" class="control-label"></label>
-                <select asp-for="MaNV" class="form-control" asp-items="ViewBag.MaNV"></select>
-                <span asp-validation-for="MaNV" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaKM" class="control-label"></label>
-                <select asp-for="MaKM" class="form-control" asp-items="ViewBag.MaKM"></select>
-                <span asp-validation-for="MaKM" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayLap" class="control-label"></label>
-                <input asp-for="NgayLap" class="form-control" />
-                <span asp-validation-for="NgayLap" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SoLuongVe" class="control-label"></label>
-                <input asp-for="SoLuongVe" class="form-control" />
-                <span asp-validation-for="SoLuongVe" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TamTinh" class="control-label"></label>
-                <input asp-for="TamTinh" class="form-control" />
-                <span asp-validation-for="TamTinh" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SoTienGiam" class="control-label"></label>
-                <input asp-for="SoTienGiam" class="form-control" />
-                <span asp-validation-for="SoTienGiam" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TongTien" class="control-label"></label>
-                <input asp-for="TongTien" class="form-control" />
-                <span asp-validation-for="TongTien" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhuongThucTT" class="control-label"></label>
-                <input asp-for="PhuongThucTT" class="form-control" />
-                <span asp-validation-for="PhuongThucTT" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TrangThai" class="control-label"></label>
-                <input asp-for="TrangThai" class="form-control" />
-                <span asp-validation-for="TrangThai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        .border-left-success {
+            border-left: 4px solid #1cc88a !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e !important;
+        }
+
+        .border-left-danger {
+            border-left: 4px solid #e74a3b !important;
+        }
+
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+        }
+
+        .input-group-text {
+            background-color: #f8f9fc;
+            border-right: none;
+        }
+
+        .money-input {
+            font-weight: bold;
+            color: #1cc88a;
+        }
+    </style>
+</head>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-file-invoice-dollar text-primary mr-2"></i>Điều chỉnh Hóa đơn
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <form asp-action="Edit" method="post" class="card shadow-lg mb-4 border-left-primary">
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                        Chứng từ: #@Model.MaHoaDon
+                    </h6>
+                    <span class="badge badge-primary text-white p-2 shadow-sm">
+                        <i class="fas fa-edit mr-1"></i> Hiệu chỉnh thông tin thanh toán
+                    </span>
+                </div>
+
+                <div class="card-body px-lg-5 py-4">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+                    <input type="hidden" asp-for="MaHoaDon" />
+
+                    <div class="row">
+                        @* Cột 1: Thông tin đối tượng *@
+                        <div class="col-md-6 border-right">
+                            <h6 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-user-tag mr-2 text-primary"></i>Thông tin thực thể
+                            </h6>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaKH" class="small font-weight-bold text-muted text-uppercase">Khách hàng nhận hóa đơn</label>
+                                <select asp-for="MaKH" class="form-control border-left-info shadow-sm" asp-items="ViewBag.MaKH"></select>
+                                <span asp-validation-for="MaKH" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaNV" class="small font-weight-bold text-muted text-uppercase">Nhân viên phụ trách</label>
+                                <select asp-for="MaNV" class="form-control shadow-sm" asp-items="ViewBag.MaNV">
+                                    <option value="">-- Khách tự mua Online --</option>
+                                </select>
+                                <span asp-validation-for="MaNV" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="MaKM" class="small font-weight-bold text-muted text-uppercase">Chương trình khuyến mãi</label>
+                                <select asp-for="MaKM" class="form-control shadow-sm border-left-warning" asp-items="ViewBag.MaKM">
+                                    <option value="">-- Không áp dụng mã --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="NgayLap" class="small font-weight-bold text-muted text-uppercase">Ngày giờ lập hóa đơn</label>
+                                <input asp-for="NgayLap" class="form-control shadow-sm" type="datetime-local" />
+                                <span asp-validation-for="NgayLap" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        @* Cột 2: Thông tin tài chính & trạng thái *@
+                        <div class="col-md-6 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-calculator mr-2 text-success"></i>Chi tiết thanh toán
+                            </h6>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group mb-4">
+                                        <label asp-for="SoLuongVe" class="small font-weight-bold text-muted text-uppercase">Số lượng vé</label>
+                                        <input asp-for="SoLuongVe" class="form-control shadow-sm text-center font-weight-bold" type="number" min="1" />
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group mb-4">
+                                        <label asp-for="PhuongThucTT" class="small font-weight-bold text-muted text-uppercase">HT Thanh toán</label>
+                                        <select asp-for="PhuongThucTT" class="form-control shadow-sm">
+                                            <option value="Tiền mặt">Tiền mặt</option>
+                                            <option value="Chuyển khoản">Chuyển khoản</option>
+                                            <option value="Ví điện tử">Ví điện tử (VNPay/Momo)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="TongTien" class="small font-weight-bold text-muted text-uppercase text-success">Tổng tiền cuối cùng (VNĐ)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-coins text-success"></i></span>
+                                    </div>
+                                    <input type="text" id="TongTienDisplay" class="form-control shadow-sm money-input"
+                                           value="@Model.TongTien.ToString("N0")" placeholder="0" />
+                                    <input type="hidden" asp-for="TongTien" id="TongTienRaw" />
+                                </div>
+                                <span asp-validation-for="TongTien" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Trạng thái chứng từ</label>
+                                <select asp-for="TrangThai" class="form-control shadow-sm font-weight-bold" id="statusSelect">
+                                    <option value="Chưa thanh toán" class="text-warning">Chưa thanh toán</option>
+                                    <option value="Đã thanh toán" class="text-success">Đã thanh toán</option>
+                                    <option value="Đã hủy" class="text-danger">Đã hủy</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50"><i class="fas fa-times"></i></span>
+                        <span class="text">Hủy thay đổi</span>
+                    </a>
+
+                    <button type="submit" class="btn btn-primary btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                        <span class="text">Cập nhật hóa đơn</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            const displayInput = $('#TongTienDisplay');
+            const rawInput = $('#TongTienRaw');
+
+            // Định dạng tiền tệ ngay khi nhập
+            displayInput.on('input', function () {
+                let value = $(this).val().replace(/\D/g, "");
+                if (value !== "") {
+                    rawInput.val(value); // Lưu số nguyên vào hidden field
+                    $(this).val(new Intl.NumberFormat('vi-VN').format(value));
+                } else {
+                    rawInput.val(0);
+                }
+            });
+
+            // Thay đổi màu sắc border theo trạng thái
+            $('#statusSelect').on('change', function() {
+                const val = $(this).val();
+                const card = $('.card.border-left-primary');
+                card.removeClass('border-left-primary border-left-success border-left-warning border-left-danger');
+
+                if (val === "Đã thanh toán") card.addClass('border-left-success');
+                else if (val === "Chưa thanh toán") card.addClass('border-left-warning');
+                else if (val === "Đã hủy") card.addClass('border-left-danger');
+                else card.addClass('border-left-primary');
+            }).trigger('change');
+
+            // Xử lý trước khi submit
+            $('form').on('submit', function () {
+                // Đảm bảo giá trị TongTien được gán đúng số nguyên
+                let rawValue = displayInput.val().replace(/\./g, '').replace(/,/g, '');
+                rawInput.val(rawValue);
+            });
+        });
+    </script>
 }
-</body>
-</html>

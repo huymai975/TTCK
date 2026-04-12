@@ -72,10 +72,14 @@
                                                 <i class="fas fa-tag text-success"></i>
                                             </span>
                                         </div>
-                                        <input type="text" id="GiaVeDisplay" class="form-control shadow-sm border-left-0"
-                                               placeholder="Ví dụ: 300,000" />
+                                        <input type="text" id="GiaVeDisplay" class="form-control shadow-sm border-left-0 font-weight-bold text-primary"
+                                               placeholder="Ví dụ: 300,000" readonly />
                                         <input type="hidden" asp-for="GiaVe" id="GiaVeReal" />
                                     </div>
+                                    @* Thêm thẻ span giải thích ở đây *@
+                                    <span id="GiaVeExplain" class="small text-info mt-1 d-block italic">
+                                        <i class="fas fa-info-circle mr-1"></i>Vui lòng chọn lịch trình và ghế để tính giá.
+                                    </span>
                                     <span asp-validation-for="GiaVe" class="text-danger small mt-1"></span>
                                 </div>
 
@@ -100,7 +104,7 @@
                             </a>
                             <div>
                                 <button type="reset" class="btn btn-light btn-icon-split mr-2">
-                                    <span class="text">Làm mới form</span>
+                                    <span class="text">Nhập lại</span>
                                 </button>
                                 <button type="submit" class="btn btn-primary btn-icon-split shadow-sm">
                                     <span class="icon text-white-50"><i class="fas fa-save"></i></span>
@@ -122,6 +126,83 @@
 
     <script>
         $(document).ready(function () {
+            var giaGocHienTai = 0;
+
+            // Hàm định dạng tiền
+            function formatCurrency(n) {
+                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
+            // 1. Khi chọn Lịch trình: Load ghế và lấy giá gốc
+            $('#MaLichTrinh').on('change', function () {
+                var maLT = $(this).val();
+                var $gheSelect = $('#MaGhe');
+
+                if (maLT) {
+                    // Lấy danh sách ghế
+                    $.get('@Url.Action("GetGhesByLichTrinh", "Ves", new { area = "Admin" })', { maLichTrinh: maLT }, function (data) {
+                        $gheSelect.empty().append('<option value="">-- Chọn ghế còn trống --</option>');
+                        $.each(data, function (i, item) {
+                            $gheSelect.append($('<option>', { value: item.value, text: item.text }));
+                        });
+                    });
+
+                    // Lấy giá gốc của tuyến đường
+                    $.get('@Url.Action("GetGiaCoBanByLichTrinh", "Ves", new { area = "Admin" })', { maLichTrinh: maLT }, function (res) {
+                        giaGocHienTai = res.giaGoc;
+                        tinhToanGiaVe();
+                    });
+                } else {
+                    $gheSelect.empty().append('<option value="">-- Chọn số ghế trống --</option>');
+                    giaGocHienTai = 0;
+                    tinhToanGiaVe();
+                }
+            });
+
+            // 2. Khi chọn Ghế: Tính lại giá nếu là VIP
+            $('#MaGhe').on('change', function () {
+                tinhToanGiaVe();
+            });
+
+            function tinhToanGiaVe() {
+                var selectedGheText = $("#MaGhe option:selected").text();
+                var $display = $('#GiaVeDisplay');
+                var $real = $('#GiaVeReal');
+                var $explain = $('#GiaVeExplain');
+
+                if (giaGocHienTai <= 0) {
+                    $display.val("");
+                    $real.val(0);
+                    $explain.html('<i class="fas fa-info-circle mr-1"></i>Vui lòng chọn lịch trình.');
+                    return;
+                }
+
+                let giaCuoi = giaGocHienTai;
+                let note = `Giá gốc: ${formatCurrency(giaGocHienTai)}đ`;
+
+                if (selectedGheText.includes("VIP")) {
+                    giaCuoi = giaGocHienTai * 1.2;
+                    note += ` + <span class="badge badge-warning">Phụ phí VIP 20%</span> = <strong>${formatCurrency(giaCuoi)}đ</strong>`;
+                } else if ($("#MaGhe").val() != "") {
+                    note += ` (Ghế tiêu chuẩn)`;
+                }
+
+                $real.val(giaCuoi);
+                $display.val(formatCurrency(giaCuoi));
+                $explain.html('<i class="fas fa-check-circle text-success mr-1"></i>' + note);
+            }
+
+            // 3. Xử lý khi Submit
+            $('#createTicketForm').on('submit', function () {
+                // Đảm bảo giá trị thực được cập nhật lần cuối
+                let finalRaw = $('#GiaVeDisplay').val().replace(/,/g, '');
+                $('#GiaVeReal').val(finalRaw);
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
             // --- 1. XỬ LÝ LOAD GHẾ THEO LỊCH TRÌNH ---
             function loadGhes() {
                 var maLT = $('#MaLichTrinh').val();
@@ -129,7 +210,7 @@
 
                 if (maLT) {
                     $.ajax({
-                        url: '@Url.Action("GetGhesByLichTrinh", "Ves")',
+                        url: '@Url.Action("GetGhesByLichTrinh", "Ves", new { area = "Admin" })',
                         type: 'GET',
                         data: { maLichTrinh: maLT },
                         success: function (data) {

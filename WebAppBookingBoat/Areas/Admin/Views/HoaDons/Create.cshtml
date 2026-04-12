@@ -1,84 +1,356 @@
-﻿@model WebAppBookingBoat.Models.HoaDon
+﻿@model WebAppBookingBoat.ViewModels.HoaDonCreateViewModel
 
 @{
-    Layout = null;
+	ViewData["Title"] = "Khởi tạo Hóa đơn mới";
 }
 
-<!DOCTYPE html>
+<div class="container-fluid">
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+			<i class="fas fa-file-medical text-primary mr-2"></i>Khởi tạo Hóa đơn mới
+		</h1>
+	</div>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Create</title>
-</head>
-<body>
+	<div class="row justify-content-center">
+		<div class="col-xl-11 col-lg-12">
+			<div class="card shadow-sm mb-4 border-0 border-left-primary">
+				<div class="card-header py-3 bg-white border-bottom">
+					<h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+						<i class="fas fa-info-circle mr-1"></i> Thông tin chứng từ thanh toán
+					</h6>
+				</div>
 
-<h4>HoaDon</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="MaKH" class="control-label"></label>
-                <select asp-for="MaKH" class ="form-control" asp-items="ViewBag.MaKH"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaNV" class="control-label"></label>
-                <select asp-for="MaNV" class ="form-control" asp-items="ViewBag.MaNV"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaKM" class="control-label"></label>
-                <select asp-for="MaKM" class ="form-control" asp-items="ViewBag.MaKM"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayLap" class="control-label"></label>
-                <input asp-for="NgayLap" class="form-control" />
-                <span asp-validation-for="NgayLap" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SoLuongVe" class="control-label"></label>
-                <input asp-for="SoLuongVe" class="form-control" />
-                <span asp-validation-for="SoLuongVe" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TamTinh" class="control-label"></label>
-                <input asp-for="TamTinh" class="form-control" />
-                <span asp-validation-for="TamTinh" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SoTienGiam" class="control-label"></label>
-                <input asp-for="SoTienGiam" class="form-control" />
-                <span asp-validation-for="SoTienGiam" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TongTien" class="control-label"></label>
-                <input asp-for="TongTien" class="form-control" />
-                <span asp-validation-for="TongTien" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhuongThucTT" class="control-label"></label>
-                <input asp-for="PhuongThucTT" class="form-control" />
-                <span asp-validation-for="PhuongThucTT" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TrangThai" class="control-label"></label>
-                <input asp-for="TrangThai" class="form-control" />
-                <span asp-validation-for="TrangThai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+				<div class="card-body px-lg-5 py-4">
+					<form asp-action="Create" method="post" id="createInvoiceForm">
+						<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+						<div class="row">
+							<div class="col-md-7 border-right">
+								<div class="row">
+									<div class="form-group col-md-6">
+										<label asp-for="MaKH" class="font-weight-bold"></label>
+										<select asp-for="MaKH" class="form-control select2" asp-items="Model.DanhSachKhachHang">
+											<option value="">-- Chọn khách hàng --</option>
+										</select>
+										<span asp-validation-for="MaKH" class="text-danger small"></span>
+									</div>
+
+									<div class="form-group col-md-6">
+										<label asp-for="MaKM" class="font-weight-bold"></label>
+										<select asp-for="MaKM" id="SelectKhuyenMai" class="form-control" asp-items="Model.DanhSachKhuyenMai">
+											<option value="">-- Không có khuyến mãi --</option>
+										</select>
+									</div>
+
+									<div class="form-group col-md-6">
+										<label asp-for="MaLichTrinh" class="font-weight-bold"></label>
+										<select asp-for="MaLichTrinh" id="SelectLichTrinh" class="form-control font-weight-bold text-primary" asp-items="Model.DanhSachLichTrinh">
+											<option value="">-- Chọn chuyến đi --</option>
+										</select>
+										<span asp-validation-for="MaLichTrinh" class="text-danger small"></span>
+									</div>
+
+									<div class="form-group col-md-6">
+										<label asp-for="PhuongThucTT" class="font-weight-bold"></label>
+										<select asp-for="PhuongThucTT" class="form-control">
+											<option value="Tiền mặt">Tiền mặt</option>
+											<option value="Chuyển khoản">Chuyển khoản</option>
+											<option value="Ví điện tử">Ví điện tử</option>
+										</select>
+									</div>
+
+									<div class="form-group col-md-6">
+										<label asp-for="TrangThai" class="font-weight-bold"></label>
+										<select asp-for="TrangThai" class="form-control">
+											<option value="Chưa thanh toán">Chưa thanh toán</option>
+											<option value="Đã thanh toán">Đã thanh toán</option>
+										</select>
+									</div>
+
+									<div class="form-group col-md-6">
+										<label asp-for="NgayLap" class="font-weight-bold"></label>
+										<input asp-for="NgayLap" class="form-control" type="datetime-local" />
+									</div>
+
+									<div class="form-group col-12">
+										<label asp-for="GhiChu" class="font-weight-bold"></label>
+										<textarea asp-for="GhiChu" class="form-control" rows="2" placeholder="Lưu ý về hóa đơn..."></textarea>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-5 bg-light p-4 rounded">
+								<h6 class="font-weight-bold text-dark mb-3 text-uppercase">Tóm tắt thanh toán</h6>
+
+								<div class="d-flex justify-content-between mb-2">
+									<span>Tạm tính:</span>
+									<strong id="TamTinhDisplay">0 đ</strong>
+									<input type="hidden" asp-for="TamTinh" id="TamTinhRaw" />
+								</div>
+
+								<div class="d-flex justify-content-between mb-2 text-danger">
+									<span>Giảm giá:</span>
+									<strong id="SoTienGiamDisplay">0 đ</strong>
+									<input type="hidden" asp-for="SoTienGiam" id="SoTienGiamRaw" />
+								</div>
+
+								<hr />
+
+								<div class="d-flex justify-content-between mb-4">
+									<span class="h5 font-weight-bold">Tổng tiền:</span>
+									<strong class="h5 font-weight-bold text-primary" id="TongTienDisplay">0 đ</strong>
+									<input type="hidden" asp-for="TongTien" id="TongTienRaw" />
+								</div>
+
+								<div id="HiddenTicketIds"></div>
+
+								<button type="submit" class="btn btn-primary btn-block btn-lg shadow">
+									<i class="fas fa-check-circle mr-2"></i>Xác nhận & Xuất hóa đơn
+								</button>
+								<a asp-action="Index" class="btn btn-outline-secondary btn-block mt-2">Quay lại danh sách</a>
+							</div>
+
+							<div class="col-12 mt-4">
+								<div class="d-flex align-items-center justify-content-between mb-2">
+									<label class="font-weight-bold text-primary h5 mb-0">
+										<i class="fas fa-couch mr-1"></i> Sơ đồ ghế trống:
+									</label>
+
+									<div class="d-flex small border rounded bg-white p-2 shadow-sm">
+										<div class="mr-3"><i class="fas fa-square text-info mr-1"></i>Thường</div>
+										<div class="mr-3"><i class="fas fa-crown text-warning mr-1"></i>VIP</div>
+										<div class="mr-3"><i class="fas fa-square text-primary mr-1"></i>Đang chọn</div>
+										<div><i class="fas fa-square text-gray-400 mr-1"></i>Đã đặt</div>
+									</div>
+								</div>
+
+								<div class="ship-layout-container border rounded p-4 bg-white shadow-inner">
+									<div class="text-center mb-4">
+										<div class="d-inline-block px-5 py-1 bg-gradient-dark text-white rounded-pill shadow-sm"
+											 style="background: #5a5c69; font-size: 0.75rem; letter-spacing: 2px;">
+											<i class="fas fa-chevron-up d-block"></i>
+											MŨI TÀU
+										</div>
+									</div>
+
+									<div id="SelectedSeatsWrapper" style="min-height: 200px;">
+										<div class="text-center py-5 text-muted font-italic">
+											<i class="fas fa-ship fa-2x d-block mb-3"></i>
+											Vui lòng chọn một lịch trình chuyến đi để hiển thị danh sách ghế còn trống.
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+
+	<script>
+				$(document).ready(function () {
+					// URL động từ Server để tránh lỗi đường dẫn
+					const getGhesUrl = '@Url.Action("GetGhesByLichTrinh", "HoaDons", new { area = "Admin" })';
+					const getKmUrl = '@Url.Action("GetKhuyenMaiInfo", "HoaDons", new { area = "Admin" })';
+
+					// 1. Load ghế khi đổi Lịch trình
+					$('#SelectLichTrinh').on('change', function () {
+						const maLT = $(this).val();
+						const wrapper = $('#SelectedSeatsWrapper');
+
+						// Xóa các vé đã chọn cũ khi đổi lịch trình
+						$('#HiddenTicketIds').empty();
+
+						if (!maLT) {
+							wrapper.html('<div class="text-center py-5 text-muted">Vui lòng chọn lịch trình...</div>');
+							tinhToanHoaDon();
+							return;
+						}
+
+						wrapper.html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Đang tải sơ đồ ghế...</p></div>');
+
+											   $.get(getGhesUrl, { maLT: maLT }, function (data) {
+			let html = '<div class="row w-100">';
+			data.forEach(item => {
+				const canSelect = item.isAvailable;
+				const isVip = item.loaiGhe === "VIP";
+
+				// Style cho ghế
+				let seatStyle = canSelect ? 'seat-card border-left-info' : 'booked-seat';
+				if (canSelect && isVip) {
+					seatStyle = 'seat-card border-left-warning bg-light-gold';
+				}
+
+				let disabledAttr = canSelect ? '' : 'disabled';
+				let priceDisplay = canSelect
+					? new Intl.NumberFormat('vi-VN').format(item.giaThucTe) + ' đ'
+					: 'Đã đặt';
+
+				html += `
+					<div class="col-6 col-md-3 col-lg-2 mb-3">
+						<div class="custom-control custom-checkbox card p-2 shadow-sm ${seatStyle}">
+							<input type="checkbox" class="custom-control-input ghe-checkbox"
+								   id="ghe_${item.maGhe}" value="${item.maGhe}" data-price="${item.giaThucTe}" ${disabledAttr}>
+							<label class="custom-control-label pl-2 ${canSelect ? 'cursor-pointer' : ''} w-100" for="ghe_${item.maGhe}">
+								<span class="d-block font-weight-bold ${canSelect ? 'text-dark' : 'text-muted'}">
+									${item.tenGhe} ${isVip ? '<i class="fas fa-crown text-warning small"></i>' : ''}
+								</span>
+								<small class="${canSelect ? 'text-success' : 'text-muted'} font-weight-bold">${priceDisplay}</small>
+							</label>
+						</div>
+					</div>`;
+			});
+			html += '</div>';
+			$('#SelectedSeatsWrapper').html(html);
+		});
+					});
+
+					// 2. Sự kiện khi chọn ghế hoặc mã KM
+					$(document).on('change', '.ghe-checkbox', function () {
+						// Hiệu ứng đổi màu card khi chọn
+						$(this).closest('.seat-card').toggleClass('border-left-primary bg-primary-light shadow-lg', this.checked);
+						$(this).closest('.seat-card').find('span, small').toggleClass('text-white', this.checked);
+
+						tinhToanHoaDon();
+					});
+
+					$('#SelectKhuyenMai').on('change', function() {
+						tinhToanHoaDon();
+					});
+
+					// 3. Hàm tính tiền (Logic lưu tạm nằm ở đây)
+					async function tinhToanHoaDon() {
+						let tamTinh = 0;
+						let htmlHidden = '';
+						let count = 0;
+
+						$('.ghe-checkbox:checked').each(function () {
+							let id = $(this).val();
+							let price = parseFloat($(this).data('price')) || 0;
+							tamTinh += price;
+							count++;
+
+							// Tạo input hidden ĐÚNG tên thuộc tính trong ViewModel
+							htmlHidden += `<input type="hidden" name="SelectedVeIds" value="${id}" />`;
+						});
+
+						// Cập nhật mảng ID vé vào Form (Đây là bước "Lưu tạm")
+						$('#HiddenTicketIds').html(htmlHidden);
+
+						// Cập nhật hiển thị Tạm tính
+						$('#TamTinhRaw').val(tamTinh);
+						$('#TamTinhDisplay').text(new Intl.NumberFormat('vi-VN').format(tamTinh) + " đ");
+
+						// Xử lý Khuyến mãi
+						let soTienGiam = 0;
+						const maKM = $('#SelectKhuyenMai').val();
+
+						if (maKM && tamTinh > 0) {
+							try {
+								const km = await $.get(getKmUrl, { maKM: maKM });
+								if (km) {
+									soTienGiam = (tamTinh * km.phanTram) / 100;
+									if (km.toiDa > 0 && soTienGiam > km.toiDa) soTienGiam = km.toiDa;
+								}
+							} catch (e) {
+								console.error("Lỗi lấy thông tin khuyến mãi");
+							}
+						}
+
+						let tongTien = Math.max(tamTinh - soTienGiam, 0);
+
+						// Cập nhật hiển thị Giảm giá
+						$('#SoTienGiamRaw').val(soTienGiam);
+						$('#SoTienGiamDisplay').text("-" + new Intl.NumberFormat('vi-VN').format(soTienGiam) + " đ");
+
+						// Cập nhật hiển thị Tổng tiền
+						$('#TongTienRaw').val(tongTien);
+						$('#TongTienDisplay').text(new Intl.NumberFormat('vi-VN').format(tongTien) + " đ");
+					}
+
+					// 4. Chặn submit nếu chưa chọn ghế
+					$('#createInvoiceForm').on('submit', function(e) {
+						if ($('.ghe-checkbox:checked').length === 0) {
+							e.preventDefault();
+							// Dùng SweetAlert2 nếu đã cài, không thì dùng alert thường
+							if (typeof Swal !== 'undefined') {
+								Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một chỗ ngồi trước khi lập hóa đơn!', 'error');
+							} else {
+								alert('Vui lòng chọn ít nhất một chỗ ngồi!');
+							}
+						}
+					});
+				});
+	</script>
+
+	<style>
+		/* Thêm một chút hiệu ứng cho chuyên nghiệp */
+		.seat-card {
+			transition: all 0.2s ease;
+			cursor: pointer;
+		}
+
+			.seat-card:hover {
+				transform: scale(1.05);
+				z-index: 5;
+			}
+
+		.bg-primary-light {
+			background-color: #4e73df !important;
+			color: white !important;
+		}
+
+		.cursor-pointer {
+			cursor: pointer;
+		}
+
+		.shadow-inner {
+			box-shadow: inset 0 2px 4px rgba(0,0,0,.05);
+		}
+
+		.seat-card.border-left-primary {
+			border-left: .25rem solid #2e59d9 !important;
+		}
+
+		/* Ghế đã có người đặt */
+		.booked-seat {
+			background-color: #f8f9fc; /* Màu xám nhạt */
+			border-left: .25rem solid #b7b9cc !important; /* Viền xám */
+			opacity: 0.6;
+			cursor: not-allowed;
+			pointer-events: none; /* Không cho click vào card luôn */
+		}
+
+			/* Hiệu ứng gạch ngang tên ghế đã bán (tùy chọn) */
+			.booked-seat span {
+				text-decoration: line-through;
+			}
+
+		/* Đảm bảo checkbox disabled nhìn rõ */
+		.custom-control-input:disabled ~ .custom-control-label {
+			color: #b7b9cc;
+		}
+
+		/* Màu cho chú thích */
+		.text-gray-400 {
+			color: #d1d3e2 !important;
+		}
+
+		.ship-layout-container {
+			position: relative;
+			background-image: linear-gradient(to bottom, #f8f9fc 0%, #ffffff 100%);
+		}
+
+		/* Hiệu ứng bo góc nhẹ cho vùng chứa ghế để giống thân tàu hơn */
+		.ship-layout-container {
+			border-radius: 40px 40px 10px 10px !important;
+		}
+	</style>
 }
-</body>
-</html>

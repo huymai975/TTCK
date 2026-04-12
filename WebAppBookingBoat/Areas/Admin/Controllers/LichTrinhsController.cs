@@ -24,7 +24,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             var bayGio = DateTime.Now;
 
-            // 1. Tự động cập nhật trạng thái trước khi hiển thị
+            // 1. Tự động cập nhật trạng thái (Giữ nguyên của Huy)
             var lichTrinhsUpdate = await _context.LichTrinhs
                 .Where(l => l.TrangThai == "Sắp khởi hành" || l.TrangThai == "Đang vận hành")
                 .ToListAsync();
@@ -35,13 +35,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 var trangThaiGoc = item.TrangThai;
                 if (bayGio >= item.NgayGioCapBenDuKien) item.TrangThai = "Hoàn thành";
                 else if (bayGio >= item.NgayGioKhoiHanh) item.TrangThai = "Đang vận hành";
-
                 if (trangThaiGoc != item.TrangThai) coThayDoi = true;
             }
-
             if (coThayDoi) await _context.SaveChangesAsync();
 
-            // 2. Lấy dữ liệu và MAPPING sang ViewModel (Để fix lỗi CS1061)
+            // 2. Lấy dữ liệu và tính toán ghế thực tế
             var list = await _context.LichTrinhs
                 .Include(l => l.Tau)
                 .Include(l => l.TuyenDuong)
@@ -53,13 +51,17 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     NgayGioCapBenDuKien = l.NgayGioCapBenDuKien,
                     GiaVeCoBan = l.GiaVeCoBan,
                     TrangThai = l.TrangThai,
-                    // Gán dữ liệu cho các trường hiển thị
                     TenTuyen = l.TuyenDuong!.TenTuyen,
                     DiemDi = l.TuyenDuong!.DiemDi,
                     DiemDen = l.TuyenDuong!.DiemDen,
                     TenTau = l.Tau!.TenTau,
-                    TongSoGhe = l.Tau!.TongSoGhe,
-                    SoGheTrong = l.SoGheTrong
+
+                    // Đếm tổng số ghế thực tế từ bảng Ghes
+                    TongSoGhe = _context.Ghes.Count(g => g.MaTau == l.MaTau),
+
+                    // Ghế trống = Tổng ghế thực tế - Vé đã đặt (chưa hủy)
+                    SoGheTrong = _context.Ghes.Count(g => g.MaTau == l.MaTau)
+                                 - _context.Ves.Count(v => v.MaLichTrinh == l.MaLichTrinh && v.TrangThai != "Đã hủy")
                 })
                 .ToListAsync();
 
@@ -77,6 +79,16 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 .FirstOrDefaultAsync(m => m.MaLichTrinh == id);
 
             if (lichTrinh == null) return NotFound();
+
+            // --- TÍNH TOÁN CON SỐ THỰC TẾ TẠI ĐÂY ---
+            // 1. Tổng số ghế thực tế có trong bảng Ghes của con tàu này
+            ViewBag.TongSoGheThucTe = await _context.Ghes.CountAsync(g => g.MaTau == lichTrinh.MaTau);
+
+            // 2. Số vé thực tế đã đặt (chưa hủy) cho lịch trình này
+            var soVeDaDat = await _context.Ves.CountAsync(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy");
+
+            // 3. Số ghế trống thực tế = Tổng ghế thực tế - Vé đã đặt
+            ViewBag.SoGheTrongThucTe = (int)ViewBag.TongSoGheThucTe - soVeDaDat;
 
             return View(lichTrinh);
         }
@@ -105,7 +117,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var tau = await _context.Taus.FindAsync(vm.MaTau);
+                // Đếm ghế thực tế để khởi tạo số ghế trống ban đầu
+                var soGheThucTe = await _context.Ghes.CountAsync(g => g.MaTau == vm.MaTau);
+
                 var lichTrinh = new LichTrinh
                 {
                     MaTuyen = vm.MaTuyen,
@@ -114,7 +128,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     NgayGioCapBenDuKien = vm.NgayGioCapBenDuKien,
                     GiaVeCoBan = vm.GiaVeCoBan,
                     TrangThai = "Sắp khởi hành",
-                    SoGheTrong = tau?.TongSoGhe ?? 0
+                    SoGheTrong = soGheThucTe // Lúc mới tạo, chưa có vé nên trống = tổng
                 };
                 _context.Add(lichTrinh);
                 await _context.SaveChangesAsync();
@@ -133,21 +147,37 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-            var lt = await _context.LichTrinhs.FindAsync(id);
-            if (lt == null) return NotFound();
 
-            var vm = new LichTrinhViewModel
+            var lichTrinh = await _context.LichTrinhs
+                .Include(l => l.Tau)
+                .Include(l => l.TuyenDuong)
+                .FirstOrDefaultAsync(m => m.MaLichTrinh == id);
+
+            if (lichTrinh == null) return NotFound();
+
+            // Tính toán số ghế thực tế
+            var tongGhe = await _context.Ghes.CountAsync(g => g.MaTau == lichTrinh.MaTau);
+            var veDaDat = await _context.Ves.CountAsync(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy");
+
+            var viewModel = new LichTrinhViewModel
             {
-                MaLichTrinh = lt.MaLichTrinh,
-                MaTau = lt.MaTau,
-                MaTuyen = lt.MaTuyen,
-                NgayGioKhoiHanh = lt.NgayGioKhoiHanh,
-                NgayGioCapBenDuKien = lt.NgayGioCapBenDuKien,
-                GiaVeCoBan = lt.GiaVeCoBan,
-                TrangThai = lt.TrangThai
+                MaLichTrinh = lichTrinh.MaLichTrinh,
+                MaTuyen = lichTrinh.MaTuyen,
+                MaTau = lichTrinh.MaTau,
+                NgayGioKhoiHanh = lichTrinh.NgayGioKhoiHanh,
+                NgayGioCapBenDuKien = lichTrinh.NgayGioCapBenDuKien,
+                GiaVeCoBan = lichTrinh.GiaVeCoBan,
+                TrangThai = lichTrinh.TrangThai,
+
+                // Gán con số thực tế vào ViewModel
+                TongSoGhe = tongGhe,
+                SoGheTrong = tongGhe - veDaDat,
+
+                DanhSachTuyen = new SelectList(_context.TuyenDuongs, "MaTuyen", "TenTuyen", lichTrinh.MaTuyen),
+                DanhSachTau = new SelectList(_context.Taus.Where(t => t.TrangThai == true || t.MaTau == lichTrinh.MaTau), "MaTau", "TenTau", lichTrinh.MaTau)
             };
-            LoadDropdownData(vm);
-            return View(vm);
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -156,36 +186,37 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != vm.MaLichTrinh) return NotFound();
 
-            var lichTrinhDb = await _context.LichTrinhs.AsNoTracking().FirstOrDefaultAsync(x => x.MaLichTrinh == id);
-            if (lichTrinhDb == null) return NotFound();
-
-            await ValidateLichTrinhBusiness(vm, isEdit: true, lichTrinhDb: lichTrinhDb);
-
             if (ModelState.IsValid)
             {
-                var lichTrinh = await _context.LichTrinhs.FindAsync(id);
-                if (lichTrinh == null) return NotFound();
-
-                // Cập nhật lại số ghế nếu đổi tàu
-                if (lichTrinh.MaTau != vm.MaTau)
+                try
                 {
-                    var tauMoi = await _context.Taus.FindAsync(vm.MaTau);
-                    lichTrinh.SoGheTrong = tauMoi?.TongSoGhe ?? 0;
+                    var lichTrinh = await _context.LichTrinhs.FindAsync(id);
+                    if (lichTrinh == null) return NotFound();
+
+                    // Cập nhật các thông tin cơ bản
+                    lichTrinh.MaTuyen = vm.MaTuyen;
+                    lichTrinh.NgayGioKhoiHanh = vm.NgayGioKhoiHanh;
+                    lichTrinh.NgayGioCapBenDuKien = vm.NgayGioCapBenDuKien;
+                    lichTrinh.GiaVeCoBan = vm.GiaVeCoBan;
+                    lichTrinh.TrangThai = vm.TrangThai;
+
+                    // XỬ LÝ GHẾ TRỐNG KHI ĐỔI TÀU
+                    // Luôn đếm lại để đảm bảo chính xác tuyệt đối
+                    var tongGheTauMoi = await _context.Ghes.CountAsync(g => g.MaTau == vm.MaTau);
+                    var veDaBan = await _context.Ves.CountAsync(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy");
+
+                    lichTrinh.MaTau = vm.MaTau;
+                    lichTrinh.SoGheTrong = tongGheTauMoi - veDaBan;
+
+                    _context.Update(lichTrinh);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Cập nhật lịch trình thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                lichTrinh.MaTuyen = vm.MaTuyen;
-                lichTrinh.MaTau = vm.MaTau;
-                lichTrinh.NgayGioKhoiHanh = vm.NgayGioKhoiHanh;
-                lichTrinh.NgayGioCapBenDuKien = vm.NgayGioCapBenDuKien;
-                lichTrinh.GiaVeCoBan = vm.GiaVeCoBan;
-                lichTrinh.TrangThai = vm.TrangThai;
-
-                _context.Update(lichTrinh);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Cập nhật lịch trình thành công!";
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateConcurrencyException) { /* Handle error */ }
             }
-            LoadDropdownData(vm);
+            // Load lại dữ liệu nếu lỗi...
             return View(vm);
         }
 
@@ -232,12 +263,35 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             var bayGio = DateTime.Now;
 
+            // 1. Kiểm tra thời gian logic cơ bản
             if (vm.NgayGioCapBenDuKien <= vm.NgayGioKhoiHanh)
                 ModelState.AddModelError("NgayGioCapBenDuKien", "Thời gian cập bến phải sau thời gian khởi hành!");
 
             if (vm.NgayGioKhoiHanh < bayGio.AddMinutes(-2))
                 ModelState.AddModelError("NgayGioKhoiHanh", "Thời gian khởi hành không được ở trong quá khứ!");
 
+            // 2. KIỂM TRA TRÙNG LỊCH TÀU (Overlap Check)
+            // Tìm các lịch trình khác của cùng con tàu này mà thời gian giao thoa với thời gian đang chọn
+            var trungLich = await _context.LichTrinhs
+                .AnyAsync(l => l.MaTau == vm.MaTau
+                          && l.MaLichTrinh != vm.MaLichTrinh // Không tự kiểm tra chính nó khi Edit
+                          && l.TrangThai != "Hoàn thành"    // Bỏ qua các chuyến đã xong
+                          && l.NgayGioKhoiHanh < vm.NgayGioCapBenDuKien
+                          && l.NgayGioCapBenDuKien > vm.NgayGioKhoiHanh);
+
+            if (trungLich)
+            {
+                ModelState.AddModelError("MaTau", "Tàu này đã có lịch trình khác trong khoảng thời gian này!");
+            }
+
+            // 3. KIỂM TRA TRẠNG THÁI TÀU (Sẵn sàng hay Bảo trì)
+            var tau = await _context.Taus.AsNoTracking().FirstOrDefaultAsync(t => t.MaTau == vm.MaTau);
+            if (tau != null && !tau.TrangThai) // Giả sử TrangThai = true là Sẵn sàng
+            {
+                ModelState.AddModelError("MaTau", "Tàu này hiện đang bảo trì hoặc không sẵn sàng hoạt động!");
+            }
+
+            // 4. Các logic cũ về Vé đã đặt
             if (isEdit && lichTrinhDb != null)
             {
                 bool daCoVe = await _context.Ves.AnyAsync(v => v.MaLichTrinh == vm.MaLichTrinh);
@@ -247,12 +301,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         ModelState.AddModelError("MaTau", "Đã có khách đặt vé, không được phép thay đổi tàu!");
                     if (vm.GiaVeCoBan != lichTrinhDb.GiaVeCoBan)
                         ModelState.AddModelError("GiaVeCoBan", "Đã có khách đặt vé, không được thay đổi giá cơ bản!");
-                }
-
-                if (lichTrinhDb.TrangThai != "Sắp khởi hành")
-                {
-                    if (vm.NgayGioKhoiHanh != lichTrinhDb.NgayGioKhoiHanh || vm.NgayGioCapBenDuKien != lichTrinhDb.NgayGioCapBenDuKien)
-                        ModelState.AddModelError("", "Không thể sửa thời gian khi chuyến đi đã hoặc đang chạy!");
                 }
             }
         }
@@ -274,11 +322,57 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         private void LoadDropdownData(LichTrinhViewModel vm)
         {
             vm.DanhSachTuyen = _context.TuyenDuongs.Select(t => new SelectListItem { Value = t.MaTuyen.ToString(), Text = t.TenTuyen });
-            vm.DanhSachTau = _context.Taus.Where(t => t.TrangThai).Select(t => new SelectListItem
+
+            // Lấy danh sách tàu sẵn sàng
+            var tàuReady = _context.Taus
+                .Where(t => t.TrangThai == true)
+                .Select(t => new SelectListItem
+                {
+                    Value = t.MaTau.ToString(),
+                    // Hiển thị số ghế đếm từ bảng Ghes
+                    Text = $"{t.TenTau} ({_context.Ghes.Count(g => g.MaTau == t.MaTau)} ghế thực tế)"
+                }).ToList();
+
+            if (!tàuReady.Any())
             {
-                Value = t.MaTau.ToString(),
-                Text = $"{t.TenTau} ({t.TongSoGhe} ghế)"
-            });
+                // Nếu không có tàu, tạo một item giả để thông báo
+                vm.DanhSachTau = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "⚠️ Hiện không có tàu nào sẵn sàng" }
+        };
+            }
+            else
+            {
+                vm.DanhSachTau = tàuReady;
+            }
+
+            //if (vm.MaTau <= 0)
+            //{
+            //    ModelState.AddModelError("MaTau", "Bạn không thể tạo lịch trình khi chưa chọn tàu!");
+            //}
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableBoats(DateTime start, DateTime end, int? currentLichTrinhId = null)
+        {
+            // Lấy danh sách ID các tàu đã bận trong khoảng thời gian này
+            var busyBoatIds = await _context.LichTrinhs
+                .Where(l => l.MaLichTrinh != currentLichTrinhId && l.TrangThai != "Đã hủy")
+                .Where(l => (start < l.NgayGioCapBenDuKien && end > l.NgayGioKhoiHanh))
+                .Select(l => l.MaTau)
+                .ToListAsync();
+
+            var availableBoats = await _context.Taus
+                .Where(t => t.TrangThai == true && !busyBoatIds.Contains(t.MaTau))
+                .Select(t => new
+                {
+                    // Quan trọng: Tên thuộc tính phải là chữ thường hoặc khớp với JS
+                    value = t.MaTau,
+                    text = t.TenTau + " (" + _context.Ghes.Count(g => g.MaTau == t.MaTau) + " ghế)"
+                })
+                .ToListAsync();
+
+            return Json(availableBoats); // Trả về dạng [{value: 1, text: "..."}, ...]
         }
 
         #endregion

@@ -38,10 +38,23 @@
 
 								<div class="form-group mb-4">
 									<label asp-for="MaTau" class="small font-weight-bold text-muted text-uppercase">Phương tiện thực hiện</label>
-									<select asp-for="MaTau" class="form-control form-control-user border-left-info shadow-sm" asp-items="Model.DanhSachTau">
-										<option value="">-- Chọn tàu trong đội ngũ --</option>
+									<select asp-for="MaTau" class="form-control form-control-user border-left-info shadow-sm @(Model.DanhSachTau!.Any(x => x.Value == "") && Model.DanhSachTau!.Count() == 1 ? "is-invalid" : "")"
+											asp-items="Model.DanhSachTau">
+										@if (Model.DanhSachTau!.Any(x => x.Value != ""))
+										{
+											<option value="">-- Chọn tàu trong đội ngũ --</option>
+										}
 									</select>
 									<span asp-validation-for="MaTau" class="text-danger small mt-1"></span>
+
+									@* Thông báo hỗ trợ nếu danh sách chỉ có dòng cảnh báo *@
+									@if (Model.DanhSachTau!.Any(x => x.Value == "") && Model.DanhSachTau!.Count() == 1)
+									{
+										<div class="mt-2 p-2 bg-light border-left-danger small text-danger">
+											<i class="fas fa-exclamation-triangle mr-1"></i>
+											Tất cả tàu đang trong lịch trình khác hoặc bảo trì. Vui lòng kiểm tra lại mục Quản lý Tàu.
+										</div>
+									}
 								</div>
 
 								<div class="form-group mb-4">
@@ -143,46 +156,71 @@
 	</style>
 
 	<script>
-		$(document).ready(function () {
+				$(document).ready(function () {
 			const giaVeInput = $('#GiaVeDisplay');
 			const ngayDiInput = $('#NgayGioKhoiHanh');
 			const ngayDenInput = $('#NgayGioCapBenDuKien');
 			const trangThaiSelect = $('#TrangThai');
+			const maTauSelect = $('#MaTau');
 
 			// --- 1. ĐỊNH DẠNG TIỀN (VNĐ) ---
-					function formatCurrency(n) {
-			// Xóa tất cả ký tự không phải số
-			let value = n.replace(/\D/g, "");
+			function formatCurrency(n) {
+				let value = n.toString().replace(/\D/g, "");
+				value = value.replace(/^0+/, "");
+				return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			}
 
-			// CHỖ NÀY: Xóa số 0 ở đầu nếu có (trừ khi chỉ có duy nhất một số 0)
-			value = value.replace(/^0+/, "");
+			giaVeInput.on('input', function () {
+				$(this).val(formatCurrency($(this).val()));
+			});
 
-			// Định dạng dấu phẩy hàng nghìn
-			return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-		}
+			// Định dạng lại giá nếu có sẵn (dành cho trang Edit hoặc khi Load lại form)
+			if (giaVeInput.val()) {
+				giaVeInput.val(formatCurrency(giaVeInput.val()));
+			}
 
-					giaVeInput.on('input', function () {
-			let rawValue = $(this).val();
-			let formatted = formatCurrency(rawValue);
-
-			$(this).val(formatted);
-		});
-
-			// --- 2. GHI ĐÈ VALIDATION (Quan trọng để không bị lỗi 1,000đ) ---
+			// --- 2. GHI ĐÈ VALIDATION (Tránh lỗi dấu phẩy) ---
 			if ($.validator) {
 				$.validator.methods.range = function (value, element, param) {
-					// Xóa dấu phẩy trước khi validate giá trị range
-					var cleanValue = value.replace(/,/g, '');
-					return this.optional(element) || (cleanValue >= param[0] && cleanValue <= param[1]);
+					var cleanValue = value.toString().replace(/,/g, '');
+					return this.optional(element) || (Number(cleanValue) >= param[0] && Number(cleanValue) <= param[1]);
 				};
-
 				$.validator.methods.number = function (value, element) {
-					// Cho phép dấu phẩy khi check có phải là số hay không
 					return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value);
 				};
 			}
 
-			// --- 3. TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI ---
+			// --- 3. LOGIC LỌC TÀU RẢNH (TRÙNG LỊCH THÌ ẨN) ---
+			function loadAvailableBoats() {
+				const start = ngayDiInput.val();
+				const end = ngayDenInput.val();
+				const currentId = $('input[name="MaLichTrinh"]').val(); // Lấy ID nếu là trang Edit
+
+				if (start && end) {
+					// Hiển thị trạng thái đang tải
+					maTauSelect.html('<option value="">-- Đang quét tàu trống... --</option>');
+
+					$.get('@Url.Action("GetAvailableBoats", "LichTrinhs", new { area = "Admin" })', {
+						start: start,
+						end: end,
+						currentLichTrinhId: currentId
+					}, function (data) {
+						let options = '<option value="">-- Chọn tàu rảnh --</option>';
+						if (data.length === 0) {
+							options = '<option value="">⚠️ Không có tàu rảnh trong giờ này</option>';
+						} else {
+							$.each(data, function (i, item) {
+								options += `<option value="${item.value}">${item.text}</option>`;
+							});
+						}
+						maTauSelect.html(options).prop('disabled', false);
+					});
+				} else {
+					maTauSelect.prop('disabled', true).html('<option value="">-- Chọn thời gian trước --</option>');
+				}
+			}
+
+			// --- 4. TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI ---
 			function updateStatusByTime() {
 				const now = new Date();
 				const ngayDi = new Date(ngayDiInput.val());
@@ -195,35 +233,43 @@
 
 				if (now < ngayDi) {
 					trangThaiSelect.val("Sắp khởi hành");
-				} else if (now >= ngayDi && (!ngayDenInput.val() || now < ngayDen)) {
+				} else if (now >= ngayDi && (isNaN(ngayDen) || now < ngayDen)) {
 					trangThaiSelect.val("Đang vận hành");
-				} else if (ngayDenInput.val() && now >= ngayDen) {
+				} else if (!isNaN(ngayDen) && now >= ngayDen) {
 					trangThaiSelect.val("Hoàn thành");
 				}
+
+				// Mỗi khi thời gian đổi, load lại danh sách tàu rảnh
+				loadAvailableBoats();
 			}
 
 			ngayDiInput.on('change', updateStatusByTime);
 			ngayDenInput.on('change', updateStatusByTime);
 
-			// --- 4. XỬ LÝ KHI SUBMIT ---
-			$('#createScheduleForm').on('submit', function (e) {
-				// Làm sạch giá vé để gửi về Server
-				let displayVal = giaVeInput.val();
-				let rawValue = displayVal.replace(/,/g, '');
-
-				// Gán giá trị không dấu phẩy để Backend nhận đúng kiểu số
-				giaVeInput.val(rawValue);
+			// --- 5. XỬ LÝ KHI SUBMIT ---
+			$('#createScheduleForm, #editScheduleForm').on('submit', function (e) {
+				// Làm sạch dữ liệu trước khi gửi
+				let displayVal = giaVeInput.val() || "";
+				giaVeInput.val(displayVal.replace(/,/g, ''));
 
 				const ngayDi = new Date(ngayDiInput.val());
 				const ngayDen = new Date(ngayDenInput.val());
 
 				if (!isNaN(ngayDen) && ngayDen <= ngayDi) {
 					alert("Lỗi: Giờ cập bến dự kiến phải sau giờ khởi hành!");
-					giaVeInput.val(formatCurrency(rawValue)); // Trả lại định dạng cho đẹp nếu lỗi
+					giaVeInput.val(formatCurrency(giaVeInput.val()));
 					e.preventDefault();
 					return false;
 				}
+
+				// Quan trọng: Phải enable select trước khi submit để Controller nhận được MaTau
+				maTauSelect.prop('disabled', false);
 			});
+
+			// Khởi chạy kiểm tra ngay khi load (dành cho trang Edit)
+			if(ngayDiInput.val() && ngayDenInput.val()) {
+				loadAvailableBoats();
+			}
 		});
 	</script>
 }

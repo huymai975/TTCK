@@ -117,6 +117,56 @@
 		width: 100%;
 		text-align: center;
 	}
+
+
+	/* Badge cho Loại ghế */
+	.badge-seat {
+		padding: 4px 10px;
+		border-radius: 6px;
+		font-size: 0.7rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	/* Ghế VIP: Màu vàng Gold cực sang */
+	.seat-vip {
+		background-color: #fff9db;
+		color: #f08c00;
+		border: 1px solid #ffe066;
+	}
+
+	/* Ghế Thường: Màu xanh dịu */
+	.seat-standard {
+		background-color: #f1f3f5;
+		color: #495057;
+		border: 1px solid #dee2e6;
+	}
+
+	/* Icon nhấp nháy nhẹ cho VIP nếu muốn nổi bật hẳn */
+	.seat-vip i {
+		color: #fab005;
+		margin-right: 4px;
+	}
+
+	/* Căn giữa tất cả các ô trong hàng theo chiều dọc */
+	#dataTable tbody td {
+		vertical-align: middle !important;
+		height: 75px; /* Cố định độ cao tối thiểu để các dòng đều nhau */
+		padding: 8px 12px;
+	}
+
+	/* Xử lý phần thông tin khách hàng không bị quá dài làm lệch dòng */
+	.info-container {
+		max-width: 250px; /* Điều chỉnh tùy theo màn hình của Huy */
+	}
+
+	/* Đảm bảo badge seat và badge status có độ cao tương đồng */
+	.badge-seat, .badge-status {
+		line-height: 1.5;
+	}
 </style>
 
 <div class="container-fluid">
@@ -194,46 +244,89 @@
 						@foreach (var item in Model)
 						{
 							<tr id="row-@item.MaVe">
-								<td class="text-center font-weight-bold text-gray-500 small">#@item.MaVe</td>
-								<td>
-									<span class="text-main">@item.TenKhachHang</span>
-									<small class="sub-text text-truncate">
-										<i class="fas fa-ship mr-1"></i>@item.TenTau | <span>@item.ThongTinChuyen</span>
-									</small>
+								<td class="text-center font-weight-bold text-gray-500 small align-middle">
+									#@item.MaVe
 								</td>
-								<td>
-									<div class="font-weight-bold text-dark small">@item.TenGhe</div>
-									<span class="badge badge-light border small" style="font-size: 0.65rem;">@item.LoaiGhe</span>
+
+								<td class="align-middle">
+									<div class="info-container">
+										<span class="text-main text-truncate d-block" title="@item.TenKhachHang">@item.TenKhachHang</span>
+										<small class="sub-text text-truncate d-block">
+											<i class="fas fa-ship mr-1 text-info"></i>@item.TenTau | <span>@item.ThongTinChuyen</span>
+										</small>
+									</div>
 								</td>
-								<td class="text-center font-weight-bold text-primary">
-									@item.GiaVe.ToString("N0")đ
+
+								<td class="align-middle">
+									<div class="d-flex flex-column justify-content-center">
+										<div class="font-weight-bold text-dark mb-1" style="font-size: 0.9rem; line-height: 1;">@item.TenGhe</div>
+										@{
+											var isVip = item.LoaiGhe?.ToLower().Contains("vip") ?? false;
+											var seatClass = isVip ? "seat-vip" : "seat-standard";
+											var seatIcon = isVip ? "fas fa-crown" : "fas fa-chair";
+										}
+										<div>
+											<span class="badge-seat @seatClass">
+												<i class="@seatIcon mr-1"></i> @item.LoaiGhe
+											</span>
+										</div>
+									</div>
 								</td>
-								<td class="text-center">
+
+								<td class="text-center align-middle">
+									<div class="d-flex flex-column justify-content-center">
+										<span class="font-weight-bold @(isVip ? "text-warning" : "text-primary")" style="font-size: 1rem;">
+											@item.GiaVe.ToString("N0")đ
+										</span>
+										@if (isVip)
+										{
+											<small class="text-muted" style="font-size: 10px; margin-top: -2px;">(Phí dịch vụ VIP)</small>
+										}
+									</div>
+								</td>
+
+								<td class="text-center align-middle">
 									@{
 										var sClass = item.TrangThai switch
 										{
 											"Hợp lệ" => "badge-success",
-											"Đã sử dụng" => "badge-info",
+											"Đang chờ" => "badge-info",
 											"Đã hủy" => "badge-danger",
 											_ => "badge-secondary"
 										};
 									}
-									<span class="badge badge-status shadow-sm @sClass">@item.TrangThai</span>
+									<span class="badge badge-status shadow-sm @sClass m-0">@item.TrangThai</span>
 								</td>
+
 								<td class="text-center align-middle">
-									<div class="d-flex justify-content-center">
+									<div class="d-flex justify-content-center align-items-center">
 										<a asp-action="Details" asp-route-id="@item.MaVe" class="btn-modern btn-view" title="Chi tiết">
 											<i class="fas fa-eye"></i>
 										</a>
 
-										<a asp-action="Edit" asp-route-id="@item.MaVe" class="btn-modern btn-edit" title="Sửa">
-											<i class="fas fa-edit"></i>
-										</a>
+										@if (item.TrangThaiHoaDon != "Đã thanh toán")
+										{
+											<a asp-action="Edit" asp-route-id="@item.MaVe" class="btn-modern btn-edit" title="Sửa">
+												<i class="fas fa-edit"></i>
+											</a>
+											<button onclick="confirmDelete(@item.MaVe)" class="btn-modern btn-delete" title="Xóa">
+												<i class="fas fa-trash"></i>
+											</button>
+										}
+										else
+										{
+											<span class="d-inline-block" data-bs-toggle="tooltip" title="Hóa đơn đã thanh toán, không thể chỉnh sửa">
+												<button class="btn-modern btn-edit" style="opacity: 0.4; cursor: not-allowed;" disabled>
+													<i class="fas fa-edit"></i>
+												</button>
+											</span>
 
-										<button type="button" class="btn-modern btn-delete" title="Xóa"
-												onclick="deleteVeAjax(@item.MaVe, '@item.TenKhachHang')">
-											<i class="fas fa-trash"></i>
-										</button>
+											<span class="d-inline-block" data-bs-toggle="tooltip" title="Hóa đơn đã thanh toán, không thể xóa">
+												<button class="btn-modern btn-delete" style="opacity: 0.4; cursor: not-allowed;" disabled>
+													<i class="fas fa-trash"></i>
+												</button>
+											</span>
+										}
 									</div>
 								</td>
 							</tr>
@@ -296,6 +389,14 @@
 				$('#routeFilter').val('');
 				table.columns().search('').draw();
 			});
+
+			$(document).ready(function () {
+			// Khởi tạo tất cả tooltips trên trang
+			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+			var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+				return new bootstrap.Tooltip(tooltipTriggerEl)
+			})
+		});
 		});
 
 		function deleteVeAjax(id, name) {

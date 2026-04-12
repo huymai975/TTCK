@@ -208,11 +208,17 @@
                                         <div class="text-muted" style="font-size: 0.75rem;">Đến: @item.NgayGioCapBenDuKien.ToString("dd/MM HH:mm")</div>
                                     </td>
                                     <td class="text-center font-weight-bold text-primary">@item.GiaVeCoBan.ToString("N0")đ</td>
-                                    <td class="text-center">
-                                        <span class="badge @(item.SoGheTrong == 0 ? "badge-danger" : "badge-light border") shadow-sm">
-                                            @item.SoGheTrong/@(item.TongSoGhe)
-                                        </span>
-                                    </td>
+                                <td class="text-center">
+                                    @{
+                                        var phanTramTrong = (item.TongSoGhe > 0) ? (item.SoGheTrong * 100 / item.TongSoGhe) : 0;
+                                        var badgeClass = "badge-success";
+                                        if (item.SoGheTrong == 0) badgeClass = "badge-danger";
+                                        else if (phanTramTrong < 20) badgeClass = "badge-warning text-dark";
+                                    }
+                                    <span class="badge @badgeClass shadow-sm" style="font-size: 0.85rem;">
+                                        <i class="fas fa-chair mr-1"></i> @item.SoGheTrong / @item.TongSoGhe
+                                    </span>
+                                </td>
                                 <td class="text-center">
                                     @{
                                         // Lấy thời gian hiện tại để so sánh

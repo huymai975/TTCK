@@ -158,12 +158,12 @@ namespace WebAppBookingBoat.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "f32a22b7-4c5c-42a7-bc9d-4f5a574a9d6b",
+                            UserId = "3c180aac-020b-4779-bac5-e507271496ec",
                             RoleId = "1"
                         },
                         new
                         {
-                            UserId = "827ff1aa-db3d-4a03-a3fa-a0bfd02b85c8",
+                            UserId = "d4995c2e-ad18-44d1-a89e-c58465f9dad6",
                             RoleId = "2"
                         });
                 });
@@ -257,85 +257,85 @@ namespace WebAppBookingBoat.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f32a22b7-4c5c-42a7-bc9d-4f5a574a9d6b",
+                            Id = "3c180aac-020b-4779-bac5-e507271496ec",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "64a4f467-672d-4f97-8cdd-afb82a72371f",
+                            ConcurrencyStamp = "fc73992c-5a52-4c7e-ab47-7fddaa5324f0",
                             Email = "admin@booking.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@BOOKING.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAECvGak3A/oDZndHtLKuh09ev7XK1AAwWkKwyrK+Rc0xEqbYmjN0bL5glqEPsXuD1sQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELrRlSeIAGc4LR+/eA1CI6vYbmM7VardlZfHyD3+IcjNWD9r6iBrHANbgJ3G4uVJdQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "dc7a93fc-5600-47f7-9768-79d19b6e8ebf",
+                            SecurityStamp = "c95cd197-f79f-4a0f-bda1-f4eee948844c",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
                         new
                         {
-                            Id = "827ff1aa-db3d-4a03-a3fa-a0bfd02b85c8",
+                            Id = "d4995c2e-ad18-44d1-a89e-c58465f9dad6",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "848c464f-cbe6-46b5-a115-6d828e2b9d42",
+                            ConcurrencyStamp = "4295dc4a-a6ed-46c2-a18d-39eaa472f1d1",
                             Email = "nhanvien1@booking.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "NHANVIEN1@BOOKING.COM",
                             NormalizedUserName = "NHANVIEN1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGdtWzlA0pmhhlfLSIdCOannDlDbGzbWU0XuDRTgj0DFVyNR+gKG6LXaQG0ECjbBjw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDem5Beam3xPcAvRBS+EBppH55js0pUuW+j4OfYBZx8+TsU6ziLIglm9jD0A4POhVQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2ed533c3-2b0a-4394-9f15-1219baded8a7",
+                            SecurityStamp = "b96295e7-9648-49ad-8bcf-f8d876bb9160",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "nhanvien1"
                         },
                         new
                         {
-                            Id = "2867bf8d-9159-448a-a69d-2c18ee227b02",
+                            Id = "61bb25aa-fdc4-4a27-a040-6d4be02133cd",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a140b248-5043-481c-bacc-7b4a778097a3",
+                            ConcurrencyStamp = "c3c49710-f3bb-430c-8211-bd4f17c1fbde",
                             Email = "khachhang1@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "KHACHHANG1@GMAIL.COM",
                             NormalizedUserName = "KHACHHANG1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFRoQz0DtCNxDcup57jkLvJwcU3W+wTAlftuP/D9lxJQXaEC/7roup/CP6392XEjzw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEApeAZbU+pi4lB+lfgrTBeDSv697vqOeZknyJSfGX4nPO0wBAe5sRcDUw1BwWxj25w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "88e8e2e8-e32b-4b55-b7ca-1853af091e85",
+                            SecurityStamp = "06d17dda-685b-4a71-a209-fabfae2c8abf",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "khachhang1"
                         },
                         new
                         {
-                            Id = "6acbc8fc-9805-463c-8b03-4b64fa53f9ef",
+                            Id = "b05d89ad-364f-4995-9afc-6b79bd7b1320",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2f990ed4-5876-4768-a6e5-cedf9443e97b",
+                            ConcurrencyStamp = "451e2542-2d40-4795-9fb6-912ff7e81da0",
                             Email = "khachhang2@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "KHACHHANG2@GMAIL.COM",
                             NormalizedUserName = "KHACHHANG2",
-                            PasswordHash = "AQAAAAIAAYagAAAAEInpEnsCS23SFRrdJOPfOw5ZEAait+2RlOYgkO1yadwy5Xv8egRL7lkcBZI+QNws3A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPcQRvz8ZJ6rl8A9jth3XI8sYPgbI4RPTY1xQmfY6KEwvAnr3pQor6PbeLDFaHx0Ow==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "aa16d13a-cdf0-4f6c-b3de-1984b161db77",
+                            SecurityStamp = "e1394eb4-e701-4c18-9212-76881d3a1a29",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "khachhang2"
                         },
                         new
                         {
-                            Id = "146251c2-4cea-4c4d-a615-1f0f1f56cec9",
+                            Id = "0aa3d0bb-1966-4fac-8ae3-c2b46d5ddb4b",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2b27813b-79a2-47c7-a463-fecf0f4c1120",
+                            ConcurrencyStamp = "9020853b-ced2-4653-a9e1-ed295cace41a",
                             Email = "testuser@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "TESTUSER@GMAIL.COM",
                             NormalizedUserName = "TESTUSER",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJoyuAFTqKNOWHUYWwy8lPIyErhnhmWwr8IruhqAWA9VQtlWLin5rk95dD6zIhr2tQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEE3eKZTJAgSEMCUvFjQEJq9IcKbomV4utUBsA5pvrJIp1293JlAlPqN+of9Xwn3bLQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8eb5d386-39f4-4efb-aa47-8d4327789ef8",
+                            SecurityStamp = "d7dd906e-5912-4f85-9582-bce968d41518",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "testuser"
@@ -708,6 +708,10 @@ namespace WebAppBookingBoat.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaHoaDon"));
 
+                    b.Property<string>("GhiChu")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<int>("MaKH")
                         .HasColumnType("int");
 
@@ -719,6 +723,9 @@ namespace WebAppBookingBoat.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("NgayLap")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("NgayThanhToan")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PhuongThucTT")
@@ -762,10 +769,11 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaHoaDon = 1,
+                            GhiChu = "",
                             MaKH = 1,
                             MaKM = "KM10",
                             MaNV = 1,
-                            NgayLap = new DateTime(2026, 4, 12, 1, 55, 30, 81, DateTimeKind.Local).AddTicks(5342),
+                            NgayLap = new DateTime(2026, 4, 12, 17, 24, 19, 615, DateTimeKind.Local).AddTicks(4593),
                             PhuongThucTT = "Tiền mặt",
                             SoLuongVe = 1,
                             SoTienGiam = 20000m,
@@ -776,10 +784,11 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaHoaDon = 2,
+                            GhiChu = "",
                             MaKH = 1,
                             MaKM = "KM10",
                             MaNV = 1,
-                            NgayLap = new DateTime(2026, 4, 12, 1, 55, 30, 81, DateTimeKind.Local).AddTicks(5395),
+                            NgayLap = new DateTime(2026, 4, 12, 17, 24, 19, 615, DateTimeKind.Local).AddTicks(4643),
                             PhuongThucTT = "Tiền mặt",
                             SoLuongVe = 1,
                             SoTienGiam = 20000m,
@@ -790,10 +799,11 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaHoaDon = 3,
+                            GhiChu = "",
                             MaKH = 1,
                             MaKM = "KM10",
                             MaNV = 1,
-                            NgayLap = new DateTime(2026, 4, 12, 1, 55, 30, 81, DateTimeKind.Local).AddTicks(5548),
+                            NgayLap = new DateTime(2026, 4, 12, 17, 24, 19, 615, DateTimeKind.Local).AddTicks(4700),
                             PhuongThucTT = "Tiền mặt",
                             SoLuongVe = 1,
                             SoTienGiam = 20000m,
@@ -861,7 +871,7 @@ namespace WebAppBookingBoat.Migrations
                             MaKH = 1,
                             Email = "khach.tran@gmail.com",
                             HoTen = "Trần Thị Khách",
-                            MaTK = "146251c2-4cea-4c4d-a615-1f0f1f56cec9",
+                            MaTK = "0aa3d0bb-1966-4fac-8ae3-c2b46d5ddb4b",
                             NgaySinh = new DateTime(1995, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Sdt = "0912345678"
                         });
@@ -1026,9 +1036,9 @@ namespace WebAppBookingBoat.Migrations
                             MaLog = 1,
                             BangTacDong = "Hệ thống",
                             HanhDong = "Khởi tạo hệ thống",
-                            MaTK = "f32a22b7-4c5c-42a7-bc9d-4f5a574a9d6b",
+                            MaTK = "3c180aac-020b-4779-bac5-e507271496ec",
                             NoiDungChiTiet = "Seed dữ liệu mẫu thành công",
-                            ThoiGian = new DateTime(2026, 4, 12, 1, 55, 30, 81, DateTimeKind.Local).AddTicks(5848)
+                            ThoiGian = new DateTime(2026, 4, 12, 17, 24, 19, 615, DateTimeKind.Local).AddTicks(4985)
                         });
                 });
 
@@ -1058,7 +1068,6 @@ namespace WebAppBookingBoat.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("MaTK")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Sdt")
@@ -1075,7 +1084,8 @@ namespace WebAppBookingBoat.Migrations
                         .IsUnique();
 
                     b.HasIndex("MaTK")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[MaTK] IS NOT NULL");
 
                     b.HasIndex("Sdt")
                         .IsUnique();
@@ -1095,7 +1105,7 @@ namespace WebAppBookingBoat.Migrations
                             Email = "chay.nv@boat.com",
                             HoTen = "Nguyễn Văn Chạy",
                             Luong = 0m,
-                            MaTK = "f32a22b7-4c5c-42a7-bc9d-4f5a574a9d6b",
+                            MaTK = "3c180aac-020b-4779-bac5-e507271496ec",
                             Sdt = "0987654321",
                             TrangThai = true
                         });
@@ -1243,7 +1253,8 @@ namespace WebAppBookingBoat.Migrations
                     b.Property<int>("MaGhe")
                         .HasColumnType("int");
 
-                    b.Property<int>("MaHoaDon")
+                    b.Property<int?>("MaHoaDon")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<int>("MaLichTrinh")
@@ -1443,8 +1454,7 @@ namespace WebAppBookingBoat.Migrations
                     b.HasOne("WebAppBookingBoat.Models.AppUser", "AppUser")
                         .WithMany()
                         .HasForeignKey("MaTK")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("AppUser");
                 });

@@ -58,8 +58,10 @@
                                 </div>
                                 <div class="col-6">
                                     <label class="small font-weight-bold text-muted text-uppercase d-block">Ghế hiện trống</label>
-                                    <div class="h4 font-weight-bold @(Model.SoGheTrong > 0 ? "text-primary" : "text-danger")">
-                                        @Model.SoGheTrong <small class="text-muted">/ @Model.Tau.TongSoGhe</small>
+                                    <div class="h4 font-weight-bold @(ViewBag.SoGheTrongThucTe > 0 ? "text-primary" : "text-danger")">
+                                        @* Thay Model.SoGheTrong bằng ViewBag *@
+                                        @ViewBag.SoGheTrongThucTe
+                                        <small class="text-muted">/ @ViewBag.TongSoGheThucTe</small>
                                     </div>
                                 </div>
                             </div>
