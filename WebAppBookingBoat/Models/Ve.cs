@@ -33,7 +33,7 @@ namespace WebAppBookingBoat.Models
         [Required]
         [StringLength(50)]
         [Display(Name = "Trạng thái")]
-        public string TrangThai { get; set; } = "Hợp lệ"; // Ví dụ: Hợp lệ, Đã sử dụng, Đã hủy
+        public string TrangThai { get; set; } = "Chưa thanh toán"; // Ví dụ: Chưa thanh toán, Hợp lệ, Đã sử dụng, Đã hủy
 
 
         // --- LIÊN KẾT VỚI GHẾ ---

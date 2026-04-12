@@ -5,10 +5,27 @@ namespace WebAppBookingBoat.ViewModels
 {
     public class HoaDonCreateViewModel
     {
-        [Display(Name = "Khách hàng")]
-        [Required(ErrorMessage = "Vui lòng chọn khách hàng")]
-        public int MaKH { get; set; }
+        // 1. Phân loại khách hàng
+        public bool IsVangLai { get; set; } // Để bind từ checkbox chuyển đổi
 
+        [Display(Name = "Khách hàng hệ thống")]
+        // Bỏ Required ở đây vì nếu là khách vãng lai thì MaKH sẽ null
+        public int? MaKH { get; set; }
+
+        // 2. Thông tin khách vãng lai
+        [Display(Name = "Họ tên khách vãng lai")]
+        [StringLength(100, ErrorMessage = "Tên không quá 100 ký tự")]
+        public string? TenKhachVangLai { get; set; }
+
+        [Display(Name = "Số điện thoại")]
+        [RegularExpression(@"^(0[3|5|7|8|9])([0-9]{8})$", ErrorMessage = "Số điện thoại không đúng định dạng")]
+        public string? SdtKhachVangLai { get; set; }
+
+        [Display(Name = "Email khách hàng")]
+        [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
+        public string? EmailKhachVangLai { get; set; }
+
+        // 3. Thông tin hóa đơn
         [Display(Name = "Nhân viên lập")]
         public int? MaNV { get; set; }
 
@@ -18,9 +35,11 @@ namespace WebAppBookingBoat.ViewModels
         [Display(Name = "Ngày lập")]
         public DateTime NgayLap { get; set; } = DateTime.Now;
 
+        [Required]
         [Display(Name = "Phương thức thanh toán")]
         public string PhuongThucTT { get; set; } = "Tiền mặt";
 
+        [Required]
         [Display(Name = "Trạng thái")]
         public string TrangThai { get; set; } = "Chưa thanh toán";
 
@@ -29,29 +48,27 @@ namespace WebAppBookingBoat.ViewModels
         public string? GhiChu { get; set; }
 
         [Display(Name = "Lịch trình")]
-        [Required(ErrorMessage = "Vui lòng chọn lịch trình")]
+        [Required(ErrorMessage = "Vui lòng chọn chuyến đi")]
         public int MaLichTrinh { get; set; }
 
-        // Danh sách ID vé được chọn từ Checkbox
-        // Sửa: Đảm bảo không bị null khi bind dữ liệu từ Form gửi lên
+        // 4. Danh sách vé (Ghế)
         [Display(Name = "Danh sách vé chọn")]
         public List<int> SelectedVeIds { get; set; } = new List<int>();
 
+        // 5. Tài chính
         [Display(Name = "Tạm tính")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Tạm tính phải lớn hơn 0")]
         public decimal TamTinh { get; set; }
 
         [Display(Name = "Số tiền giảm")]
         public decimal SoTienGiam { get; set; } = 0;
 
         [Display(Name = "Tổng tiền")]
+        [Range(0, double.MaxValue)]
         public decimal TongTien { get; set; }
 
-        // Bổ sung: Thuộc tính này để View dễ dàng hiển thị số lượng vé mà không cần đếm mảng JS
-        [Display(Name = "Số lượng vé")]
         public int SoLuongVe => SelectedVeIds?.Count ?? 0;
 
-        // SelectLists khởi tạo rỗng để tránh NullReference ở View
+        // 6. Dữ liệu đổ lên Dropdown
         public SelectList? DanhSachKhachHang { get; set; }
         public SelectList? DanhSachKhuyenMai { get; set; }
         public SelectList? DanhSachLichTrinh { get; set; }

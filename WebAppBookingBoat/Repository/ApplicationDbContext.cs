@@ -34,7 +34,7 @@ namespace WebAppBookingBoat.Repository
             modelBuilder.Entity<NhanVien>().HasIndex(nv => nv.MaTK).IsUnique();
             modelBuilder.Entity<KhachHang>().HasIndex(kh => kh.Email).IsUnique();
             modelBuilder.Entity<KhachHang>().HasIndex(kh => kh.Sdt).IsUnique();
-            modelBuilder.Entity<KhachHang>().HasIndex(kh => kh.MaTK).IsUnique();
+            modelBuilder.Entity<KhachHang>().HasIndex(kh => kh.MaTK).IsUnique().HasFilter("[MaTK] IS NOT NULL");
             modelBuilder.Entity<Tau>().HasIndex(t => t.TenTau).IsUnique();
             modelBuilder.Entity<Ghe>().HasIndex(g => new { g.MaTau, g.TenGhe }).IsUnique();
             modelBuilder.Entity<TuyenDuong>().HasIndex(td => new { td.DiemDi, td.DiemDen }).IsUnique();

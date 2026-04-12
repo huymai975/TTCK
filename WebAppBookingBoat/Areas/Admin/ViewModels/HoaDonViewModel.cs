@@ -36,5 +36,6 @@
         public string TenGhe { get; set; } = string.Empty;
         public string LoaiGhe { get; set; } = string.Empty;
         public decimal GiaVe { get; set; }
+        public string TrangThai { get; set; } = string.Empty;
     }
 }

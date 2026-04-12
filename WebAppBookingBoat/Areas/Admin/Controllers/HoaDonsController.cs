@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
@@ -11,13 +12,16 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class HoaDonsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public HoaDonsController(ApplicationDbContext context) => _context = context;
+        private readonly UserManager<AppUser> _userManager;
+
+        public HoaDonsController(ApplicationDbContext context, UserManager<AppUser> userManager) { _context = context; _userManager = userManager; }
 
         // 1. Hiển thị danh sách hóa đơn
         public async Task<IActionResult> Index()
         {
             var hoadons = await _context.HoaDons
                 .Include(h => h.KhachHang)
+                .Include(h => h.NhanVien)
                 .Include(h => h.KhuyenMai)
                 .OrderByDescending(h => h.NgayLap)
                 .ToListAsync();
@@ -29,16 +33,50 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id == null) return NotFound();
 
+            // Lấy dữ liệu từ DB (Include đầy đủ các bảng liên quan)
             var hoaDon = await _context.HoaDons
                 .Include(h => h.KhachHang)
+                .Include(h => h.NhanVien)
                 .Include(h => h.KhuyenMai)
                 .Include(h => h.Ves).ThenInclude(v => v.Ghe)
-                .Include(h => h.Ves).ThenInclude(v => v.LichTrinh)
+                .Include(h => h.Ves).ThenInclude(v => v.LichTrinh).ThenInclude(lt => lt!.TuyenDuong)
                 .FirstOrDefaultAsync(m => m.MaHoaDon == id);
 
             if (hoaDon == null) return NotFound();
 
-            return View(hoaDon);
+            // Ánh xạ dữ liệu sang ViewModel
+            var viewModel = new HoaDonViewModel
+            {
+                MaHoaDon = hoaDon.MaHoaDon,
+                TenKhachHang = hoaDon.KhachHang?.HoTen ?? "Khách vãng lai",
+                SoDienThoaiKH = hoaDon.KhachHang?.Sdt ?? "N/A",
+                TenNhanVien = hoaDon.NhanVien?.HoTen ?? "Hệ thống",
+                NgayLap = hoaDon.NgayLap,
+                SoLuongVe = hoaDon.SoLuongVe,
+                TamTinh = hoaDon.TamTinh,
+                SoTienGiam = hoaDon.SoTienGiam,
+                TongTien = hoaDon.TongTien,
+                PhuongThucTT = hoaDon.PhuongThucTT,
+                TrangThai = hoaDon.TrangThai,
+                GhiChu = hoaDon.GhiChu,
+                // Ánh xạ danh sách vé con
+                DanhSachVe = hoaDon.Ves.Select(v => new VeChiTietViewModel
+                {
+                    MaVe = v.MaVe,
+                    TenGhe = v.Ghe?.TenGhe ?? "N/A",
+                    LoaiGhe = v.Ghe?.LoaiGhe ?? "Thường",
+                    GiaVe = v.GiaVe > 0 ? v.GiaVe : (v.Ghe?.LoaiGhe == "VIP" ? (v.LichTrinh?.GiaVeCoBan * 1.2m ?? 0) : (v.LichTrinh?.GiaVeCoBan ?? 0)),
+                    TrangThai = hoaDon.TrangThai switch
+                    {
+                        "Đã thanh toán" => "Hợp lệ",
+                        "Chưa thanh toán" => "Đang chờ",
+                        "Đã hủy" => "Đã hủy",
+                        _ => v.TrangThai // Mặc định nếu có trạng thái khác
+                    }
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         // 3. GET: Create
@@ -49,14 +87,26 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(vm);
         }
 
-        // 4. POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(HoaDonCreateViewModel vm)
         {
+            // 1. Kiểm tra logic chọn ghế
             if (vm.SelectedVeIds == null || !vm.SelectedVeIds.Any())
             {
-                ModelState.AddModelError("", "Vui lòng chọn ít nhất một chỗ ngồi.");
+                ModelState.AddModelError("", "Vui lòng chọn ít nhất một ghế trên sơ đồ.");
+            }
+
+            // 2. Kiểm tra logic khách hàng (Custom Validation)
+            if (vm.IsVangLai)
+            {
+                if (string.IsNullOrWhiteSpace(vm.TenKhachVangLai))
+                    ModelState.AddModelError("TenKhachVangLai", "Vui lòng nhập tên khách vãng lai.");
+            }
+            else
+            {
+                if (vm.MaKH == null || vm.MaKH == 0)
+                    ModelState.AddModelError("MaKH", "Vui lòng chọn một khách hàng từ hệ thống.");
             }
 
             if (ModelState.IsValid)
@@ -64,11 +114,39 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    // 1. Tạo đối tượng Hóa đơn
+                    int? maKH_Final = vm.MaKH;
+
+                    var userId = _userManager.GetUserId(User);
+                    var nhanVienThucTe = _context.NhanViens
+                        .FirstOrDefault(nv => nv.MaTK!.Trim().Equals(userId));
+
+
+                    if (nhanVienThucTe == null)
+                    {
+                        ModelState.AddModelError("", "Lỗi: Tài khoản này chưa được gán vào bất kỳ nhân viên nào trong danh sách Nhân Viên!");
+                        await PopulateListsAsync(vm);
+                        return View(vm);
+                    }
+
+                    // 3. Xử lý lưu khách hàng mới nếu là vãng lai
+                    if (vm.IsVangLai)
+                    {
+                        var khMoi = new KhachHang
+                        {
+                            HoTen = vm.TenKhachVangLai!,
+                            Sdt = vm.SdtKhachVangLai!,
+                            Email = vm.EmailKhachVangLai!,
+                        };
+                        _context.KhachHangs.Add(khMoi);
+                        await _context.SaveChangesAsync();
+                        maKH_Final = khMoi.MaKH;
+                    }
+
+                    // 4. Khởi tạo và lưu Hóa đơn
                     var hoaDon = new HoaDon
                     {
-                        MaKH = vm.MaKH,
-                        MaNV = vm.MaNV, // Tạm thời để 1 hoặc lấy từ User.Identity nếu có
+                        MaKH = maKH_Final ?? 0,
+                        MaNV = nhanVienThucTe!.MaNV,
                         MaKM = vm.MaKM,
                         NgayLap = DateTime.Now,
                         PhuongThucTT = vm.PhuongThucTT,
@@ -77,32 +155,38 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         TamTinh = vm.TamTinh,
                         SoTienGiam = vm.SoTienGiam,
                         TongTien = vm.TongTien,
-                        SoLuongVe = vm.SelectedVeIds?.Count ?? 0,
+                        SoLuongVe = vm.SelectedVeIds!.Count,
                         NgayThanhToan = vm.TrangThai == "Đã thanh toán" ? DateTime.Now : null
                     };
 
-
                     _context.HoaDons.Add(hoaDon);
-                    await _context.SaveChangesAsync(); // Lưu để lấy MaHoaDon
+                    await _context.SaveChangesAsync();
 
-                    // 2. Tạo mới các bản ghi Vé dựa trên danh sách ID Ghế đã chọn
-                    // Lưu ý: vm.SelectedVeIds lúc này chính là danh sách MaGhe gửi từ View lên
-                    foreach (var maGhe in vm.SelectedVeIds!)
+                    // 5. Tạo các bản ghi Vé
+                    foreach (var maGhe in vm.SelectedVeIds)
                     {
-                        // Kiểm tra xem ghế này đã được ai đặt cho lịch trình này chưa (Bảo mật thêm)
-                        var checkVeExist = await _context.Ves.AnyAsync(v => v.MaLichTrinh == vm.MaLichTrinh && v.MaGhe == maGhe);
-                        if (checkVeExist)
-                        {
-                            throw new Exception($"Ghế mã số {maGhe} đã có người đặt trước đó.");
-                        }
+                        // Lấy thông tin ghế để xác định giá (VIP hoặc Thường)
+                        var ghe = await _context.Ghes.FindAsync(maGhe);
+                        var lichTrinh = await _context.LichTrinhs.FindAsync(vm.MaLichTrinh);
+
+                        // Tính toán giá vé thực tế dựa trên loại ghế
+                        decimal giaThucTe = (ghe?.LoaiGhe == "VIP")
+                                            ? (lichTrinh?.GiaVeCoBan * 1.2m ?? 0)
+                                            : (lichTrinh?.GiaVeCoBan ?? 0);
 
                         var newVe = new Ve
                         {
                             MaHoaDon = hoaDon.MaHoaDon,
                             MaLichTrinh = vm.MaLichTrinh,
                             MaGhe = maGhe,
-                            // Trạng thái vé: Nếu trả tiền rồi thì 'Đã sử dụng' (khóa), chưa thì 'Hợp lệ'
-                            TrangThai = (hoaDon.TrangThai == "Đã thanh toán") ? "Hợp lệ" : "Đang chờ"
+                            GiaVe = giaThucTe, // Lưu giá vé vào DB để Details không bị lỗi hiển thị
+                            TrangThai = hoaDon.TrangThai switch
+                            {
+                                "Đã thanh toán" => "Hợp lệ",
+                                "Chưa thanh toán" => "Đang chờ",
+                                "Đã hủy" => "Đã hủy",
+                                _ => hoaDon.TrangThai // Dùng biến hoaDon (viết thường)
+                            }
                         };
                         _context.Ves.Add(newVe);
                     }
@@ -118,7 +202,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
                 }
             }
-
+            // Nếu có lỗi, load lại dữ liệu cho các Dropdown
             await PopulateListsAsync(vm);
             return View(vm);
         }
@@ -143,6 +227,60 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [HttpPost]
+        public async Task<IActionResult> UpdatePayment(int id, string status, string method)
+        {
+            // 1. Load hóa đơn kèm danh sách vé
+            var hoaDon = await _context.HoaDons
+                .Include(h => h.Ves)
+                .FirstOrDefaultAsync(h => h.MaHoaDon == id);
+
+            if (hoaDon == null)
+                return Json(new { success = false, message = "Không tìm thấy hóa đơn" });
+
+            // 2. Cập nhật thông tin thanh toán cho Hóa đơn
+            hoaDon.TrangThai = status;
+            hoaDon.PhuongThucTT = method;
+
+            if (status == "Đã thanh toán")
+            {
+                // Cập nhật ngày thanh toán là thời điểm hiện tại
+                hoaDon.NgayThanhToan = DateTime.Now;
+
+                // 3. Cập nhật trạng thái tất cả các vé đi kèm sang "Hợp lệ"
+                if (hoaDon.Ves != null)
+                {
+                    foreach (var ve in hoaDon.Ves)
+                    {
+                        ve.TrangThai = "Hợp lệ";
+                    }
+                }
+            }
+            else if (status == "Đã hủy")
+            {
+                hoaDon.NgayThanhToan = null; // Nếu hủy thì xóa ngày thanh toán (nếu có)
+                if (hoaDon.Ves != null)
+                {
+                    foreach (var ve in hoaDon.Ves)
+                    {
+                        ve.TrangThai = "Đã hủy";
+                    }
+                }
+            }
+
+            try
+            {
+                _context.Update(hoaDon);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Đã cập nhật trạng thái thanh toán thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi cập nhật dữ liệu: " + ex.Message });
+            }
+        }
+
         // --- HÀM TRỢ GIÚP (HELPER) ---
 
         private async Task PopulateListsAsync(HoaDonCreateViewModel vm)
@@ -151,11 +289,15 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             vm.DanhSachKhuyenMai = new SelectList(await _context.KhuyenMais.Where(k => k.TrangThai).ToListAsync(), "MaKM", "TenChuongTrinh", vm.MaKM);
 
             var dsLT = await _context.LichTrinhs
+                .Include(lt => lt.TuyenDuong)
+                .OrderByDescending(lt => lt.NgayGioKhoiHanh)
                 .Select(lt => new
                 {
                     MaLT = lt.MaLichTrinh,
-                    Text = $"Chuyến {lt.MaLichTrinh} - {lt.NgayGioKhoiHanh:dd/MM/yyyy HH:mm}"
+                    // Hiển thị dạng: [Sài Gòn - Cần Giờ] - 15/04 08:30
+                    Text = $"[{lt.TuyenDuong.TenTuyen}] - {lt.NgayGioKhoiHanh:dd/MM HH:mm}"
                 }).ToListAsync();
+
             vm.DanhSachLichTrinh = new SelectList(dsLT, "MaLT", "Text", vm.MaLichTrinh);
         }
 
