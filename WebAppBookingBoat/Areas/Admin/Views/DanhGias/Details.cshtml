@@ -1,0 +1,187 @@
+﻿@model WebAppBookingBoat.Models.DanhGia
+
+@{
+    ViewData["Title"] = "Chi tiết phản hồi khách hàng";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-comment-dots text-primary mr-2"></i>Chi tiết đánh giá khách hàng
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow-lg mb-4 border-left-primary">
+                @* Card Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                        <i class="fas fa-hashtag mr-1"></i>Mã Đánh Giá: #@Model.MaDanhGia
+                    </h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-clock mr-1"></i> Ngày gửi: @Model.NgayDanhGia.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                </div>
+
+                <div class="card-body px-lg-5">
+                    <div class="row">
+                        @* Cột trái: Nội dung từ khách hàng *@
+                        <div class="col-md-6 border-right">
+                            <h6 class="font-weight-bold text-dark mb-4 text-uppercase small">
+                                <i class="fas fa-user-circle mr-2 text-primary"></i>Phần khách hàng cung cấp
+                            </h6>
+
+                            <div class="d-flex align-items-center mb-4 p-3 bg-light rounded border shadow-sm">
+                                <div class="mr-3">
+                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white font-weight-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                        @(Model.HoaDon?.KhachHang?.HoTen?.Substring(0, 1).ToUpper() ?? "K")
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="h5 font-weight-bold text-dark mb-0">@(Model.HoaDon?.KhachHang?.HoTen ?? "Khách hàng ẩn danh")</div>
+                                    <div class="text-info small">
+                                        <i class="fas fa-file-invoice mr-1"></i> Hóa đơn: <span class="font-weight-bold">#@Model.MaHoaDon</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4 text-center p-2 bg-white rounded border border-warning shadow-sm">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block mb-1">Mức độ hài lòng</label>
+                                <div class="text-warning h4 mb-0">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="@(i <= Model.SoSao ? "fas" : "far") fa-star"></i>
+                                    }
+                                    <span class="ml-2 text-dark font-weight-bold">(@Model.SoSao/5)</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block mb-2">Ý kiến phản hồi</label>
+                                <div class="p-3 bg-white rounded border italic text-dark position-relative quote-box" style="min-height: 80px;">
+                                    <i class="fas fa-quote-left text-light position-absolute" style="top: 5px; left: 10px; font-size: 1.5rem;"></i>
+                                    <span class="position-relative">"@Model.NoiDung"</span>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                            {
+                                <div class="mb-4">
+                                    <label class="small font-weight-bold text-muted text-uppercase d-block mb-2">Hình ảnh đính kèm</label>
+                                    <div class="text-center p-2 border rounded bg-white">
+                                        <img src="~/images/danh-gia/@Model.HinhAnh" class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: contain;" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        @* Cột phải: Trạng thái & Phản hồi Admin *@
+                        <div class="col-md-6 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-4 text-uppercase small">
+                                <i class="fas fa-user-shield mr-2 text-success"></i>Quản trị & Phản hồi
+                            </h6>
+
+                            <div class="mb-5">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block mb-2">Trạng thái công khai</label>
+                                @{
+                                    var statusBadge = Model.TrangThai switch
+                                    {
+                                        "Chờ duyệt" => "badge-warning text-dark",
+                                        "Đã hiển thị" => "badge-success",
+                                        "Đã ẩn" => "badge-danger",
+                                        _ => "badge-secondary"
+                                    };
+                                }
+                                <div class="h5">
+                                    <span class="badge @statusBadge px-4 py-2 shadow-sm rounded-pill text-uppercase" style="font-size: 0.85rem;">
+                                        <i class="fas @(Model.TrangThai == "Đã hiển thị" ? "fa-eye" : "fa-eye-slash") mr-2"></i> @Model.TrangThai
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block mb-2">Lời hồi đáp từ hệ thống</label>
+                                @if (!string.IsNullOrEmpty(Model.PhanHoiAdmin))
+                                {
+                                    <div class="p-3 rounded border-left-success bg-light shadow-sm position-relative">
+                                        <div class="text-dark mb-2" style="white-space: pre-wrap;">@Model.PhanHoiAdmin</div>
+                                        <div class="small text-muted border-top pt-2 mt-2 d-flex justify-content-between">
+                                            <span><i class="fas fa-user-edit mr-1"></i> Quản trị viên</span>
+                                            <span><i class="fas fa-calendar-check mr-1"></i> @(Model.NgayPhanHoi?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="p-4 rounded border-left-secondary bg-light text-muted text-center italic shadow-sm">
+                                        <i class="fas fa-comment-slash fa-2x mb-3 d-block opacity-50"></i>
+                                        Chưa có lời phản hồi nào cho đánh giá này.
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="alert alert-info border-0 shadow-sm small">
+                                <i class="fas fa-lightbulb mr-1 text-warning"></i>
+                                <strong>Mẹo:</strong> Việc phản hồi nhanh chóng và lịch sự sẽ giúp nâng cao uy tín thương hiệu trong mắt khách hàng.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Card Footer *@
+                <div class="card-footer bg-white d-flex justify-content-between py-4 px-lg-5">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                        <span class="text">Danh sách đánh giá</span>
+                    </a>
+
+                    <a asp-action="Edit" asp-route-id="@Model.MaDanhGia" class="btn btn-primary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas @(string.IsNullOrEmpty(Model.PhanHoiAdmin) ? "fa-reply" : "fa-edit")"></i>
+                        </span>
+                        <span class="text">@(string.IsNullOrEmpty(Model.PhanHoiAdmin) ? "Phản hồi ngay" : "Sửa phản hồi")</span>
+                    </a>
+                </div>
+            </div>
+
+            <p class="mb-5 small text-muted text-center">
+                <i class="fas fa-info-circle mr-1"></i> Dữ liệu này được ghi nhận trực tiếp từ trải nghiệm thực tế của khách hàng sau khi hoàn tất hành trình.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 4px solid #4e73df !important;
+    }
+
+    .border-left-success {
+        border-left: 4px solid #1cc88a !important;
+    }
+
+    .border-left-secondary {
+        border-left: 4px solid #858796 !important;
+    }
+
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+
+    .quote-box {
+        border-color: #e3e6f0 !important;
+    }
+
+    .opacity-50 {
+        opacity: 0.5;
+    }
+
+    .text-uppercase {
+        letter-spacing: 0.5px;
+    }
+</style>

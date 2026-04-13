@@ -1,87 +1,159 @@
-﻿@model WebAppBookingBoat.Models.HoaDon
+﻿
+
+@model WebAppBookingBoat.ViewModels.HoaDonViewModel
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Chi tiết Hóa đơn #" + Model.MaHoaDon;
 }
 
-<!DOCTYPE html>
+<div class="container-fluid" id="invoice-content">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 no-print">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-file-invoice text-primary mr-2"></i>Quản lý Hóa đơn
+        </h1>
+    </div>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
-</head>
-<body>
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow-lg mb-4 border-left-primary">
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">Mã hóa đơn: #@Model.MaHoaDon</h6>
+                    <span class="badge badge-light border text-muted px-3 py-2">
+                        <i class="fas fa-calendar-alt mr-1"></i> Ngày lập: @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                </div>
 
-<div>
-    <h4>HoaDon</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.KhachHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.KhachHang.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NhanVien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NhanVien.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.KhuyenMai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.KhuyenMai.MaKM)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayLap)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayLap)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoLuongVe)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoLuongVe)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TamTinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TamTinh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoTienGiam)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoTienGiam)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TongTien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TongTien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhuongThucTT)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhuongThucTT)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
+                <div class="card-body px-lg-5">
+                    @* Lịch trình *@
+                    <div class="alert alert-info border-0 shadow-sm mb-4">
+                        <h5 class="font-weight-bold"><i class="fas fa-ship mr-2"></i>Lịch trình chuyến đi</h5>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-4">
+                                <small class="text-uppercase font-weight-bold text-muted d-block">Tàu & Chuyến</small>
+                                <span class="h6 font-weight-bold">@Model.TenTau - @Model.TenChuyen</span>
+                            </div>
+                            <div class="col-md-4 border-left">
+                                <small class="text-uppercase font-weight-bold text-muted d-block">Tuyến đường</small>
+                                <span>@Model.TuyenDuong</span>
+                            </div>
+                            <div class="col-md-4 border-left">
+                                <small class="text-uppercase font-weight-bold text-muted d-block">Khởi hành</small>
+                                <span class="text-danger font-weight-bold">@Model.NgayKhoiHanh.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        @* Đối tác *@
+                        <div class="col-md-6 border-right">
+                            <h5 class="font-weight-bold text-dark mb-3 border-bottom pb-2">Thông tin khách hàng</h5>
+                            <div class="mb-2"><strong>Họ tên:</strong> @Model.TenKhachHang</div>
+                            <div class="mb-2"><strong>Điện thoại:</strong> @Model.SoDienThoaiKH</div>
+                            <div class="mb-2"><strong>Nhân viên lập:</strong> @Model.TenNhanVien</div>
+                            <div class="mt-3">
+                                <span class="p-2 bg-light rounded border"><i class="fas fa-wallet mr-2"></i>@Model.PhuongThucTT</span>
+                            </div>
+                        </div>
+
+                        @* Tài chính *@
+                        <div class="col-md-6 pl-md-4">
+                            <h5 class="font-weight-bold text-dark mb-3 border-bottom pb-2">Chi tiết thanh toán</h5>
+                            <div class="d-flex justify-content-between mb-1"><span>Tạm tính:</span> <span>@Model.TamTinh.ToString("N0") đ</span></div>
+                            <div class="d-flex justify-content-between mb-1 text-danger"><span>Giảm giá:</span> <span>-@Model.SoTienGiam.ToString("N0") đ</span></div>
+                            <div class="d-flex justify-content-between mt-2 p-2 bg-light font-weight-bold h5">
+                                <span>Tổng tiền:</span> <span class="text-success">@Model.TongTienFormat</span>
+                            </div>
+                            <div class="text-center mt-3">
+                                <span class="badge @(Model.TrangThai == "Đã thanh toán" ? "badge-success" : "badge-warning") px-4 py-2 rounded-pill">
+                                    @Model.TrangThai
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Bảng vé *@
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <h5 class="font-weight-bold text-dark mb-0">
+                                <i class="fas fa-ticket-alt mr-2 text-primary"></i>Danh sách vé
+                            </h5>
+                            <span class="badge badge-pill badge-primary ml-2 px-3">@Model.SoLuongVe vé</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover border-bottom">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th class="text-center py-3 border-0" style="width: 15%">Mã vé</th>
+                                        <th class="py-3 border-0">Vị trí Ghế</th>
+                                        <th class="text-center py-3 border-0">Hạng vé</th>
+                                        <th class="text-center py-3 border-0">Trạng thái</th>
+                                        <th class="text-right py-3 border-0" style="width: 20%">Giá vé</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ve in Model.DanhSachVe)
+                                    {
+                                        <tr>
+                                            <td class="text-center align-middle font-weight-bold text-muted">
+                                                #@ve.MaVe
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-light rounded p-2 mr-3 text-primary" style="width: 40px; text-align: center;">
+                                                        <i class="fas fa-chair"></i>
+                                                    </div>
+                                                    <span class="font-weight-bold">@ve.TenGhe</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                @if (ve.LoaiGhe == "VIP")
+                                                {
+                                                    <span class="badge badge-warning shadow-sm px-3 py-2" style="color: #856404; background-color: #ffeeba; border: none;">
+                                                        <i class="fas fa-crown mr-1"></i> @ve.LoaiGhe
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-secondary px-3 py-2" style="opacity: 0.8;">
+                                                        @ve.LoaiGhe
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <span class="small font-weight-bold">
+                                                    <i class="fas fa-circle mr-1" style="font-size: 8px; vertical-align: middle;"></i>
+                                                    @ve.TrangThai
+                                                </span>
+                                            </td>
+                                            <td class="text-right align-middle">
+                                                @if (ve.GiaVe == 0)
+                                                {
+                                                    <span class="text-danger font-italic small">Chưa tính giá</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="font-weight-bold text-dark">@ve.GiaVe.ToString("N0")</span>
+                                                    <small class="text-muted ml-1">đ</small>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between no-print">
+                    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Quay lại</a>
+                    <div>
+                        <button type="button" onclick="window.print()" class="btn btn-info"><i class="fas fa-print mr-1"></i> In hóa đơn</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaHoaDon">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
-</body>
-</html>
+

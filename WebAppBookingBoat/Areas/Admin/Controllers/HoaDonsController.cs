@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Repository;
+using WebAppBookingBoat.ViewModels;
 
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
@@ -14,164 +12,310 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class HoaDonsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public HoaDonsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public HoaDonsController(ApplicationDbContext context, UserManager<AppUser> userManager) { _context = context; _userManager = userManager; }
 
-        // GET: Admin/HoaDons
+        // 1. Hiển thị danh sách hóa đơn
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.HoaDons.Include(h => h.KhachHang).Include(h => h.KhuyenMai).Include(h => h.NhanVien);
-            return View(await applicationDbContext.ToListAsync());
+            var hoadons = await _context.HoaDons
+                .Include(h => h.KhachHang)
+                .Include(h => h.NhanVien)
+                .Include(h => h.KhuyenMai)
+                .OrderByDescending(h => h.NgayLap)
+                .ToListAsync();
+            return View(hoadons);
         }
 
-        // GET: Admin/HoaDons/Details/5
+        // 2. Chi tiết hóa đơn và các vé đi kèm
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
+            // Lấy dữ liệu Hóa đơn kèm theo các tầng dữ liệu liên quan: 
+            // Hóa đơn -> Vé -> Lịch trình -> Tuyến đường & Tàu
             var hoaDon = await _context.HoaDons
                 .Include(h => h.KhachHang)
-                .Include(h => h.KhuyenMai)
                 .Include(h => h.NhanVien)
+                .Include(h => h.KhuyenMai)
+                .Include(h => h.Ves).ThenInclude(v => v.Ghe)
+                .Include(h => h.Ves)
+                    .ThenInclude(v => v.LichTrinh)
+                        .ThenInclude(lt => lt!.TuyenDuong)
+                .Include(h => h.Ves)
+                    .ThenInclude(v => v.LichTrinh)
+                        .ThenInclude(lt => lt!.Tau)
                 .FirstOrDefaultAsync(m => m.MaHoaDon == id);
-            if (hoaDon == null)
+
+            if (hoaDon == null) return NotFound();
+
+            // Lấy thông tin lịch trình từ vé đầu tiên (Vì 1 hóa đơn thường thuộc về 1 chuyến đi)
+            var veDauTien = hoaDon.Ves.FirstOrDefault();
+            var lichTrinh = veDauTien?.LichTrinh;
+
+            // Ánh xạ sang ViewModel
+            var viewModel = new HoaDonViewModel
             {
-                return NotFound();
-            }
+                MaHoaDon = hoaDon.MaHoaDon,
+                TenKhachHang = hoaDon.KhachHang?.HoTen ?? "Khách vãng lai",
+                SoDienThoaiKH = hoaDon.KhachHang?.Sdt ?? "N/A",
+                TenNhanVien = hoaDon.NhanVien?.HoTen ?? "Hệ thống",
+                NgayLap = hoaDon.NgayLap,
 
-            return View(hoaDon);
+                // --- Cập nhật từ Model LichTrinh mới ---
+                // Tên chuyến tự tạo: Ví dụ "Chuyến đi lúc 08:30"
+                TenChuyen = lichTrinh != null ? $"Chuyến khởi hành {lichTrinh.NgayGioKhoiHanh:HH:mm}" : "N/A",
+                TuyenDuong = lichTrinh?.TuyenDuong?.TenTuyen ?? "N/A",
+                NgayKhoiHanh = lichTrinh?.NgayGioKhoiHanh ?? DateTime.MinValue,
+                TenTau = lichTrinh?.Tau?.TenTau ?? "N/A",
+
+                SoLuongVe = hoaDon.SoLuongVe,
+                TamTinh = hoaDon.TamTinh,
+                SoTienGiam = hoaDon.SoTienGiam,
+                TongTien = hoaDon.TongTien,
+                PhuongThucTT = hoaDon.PhuongThucTT,
+                TrangThai = hoaDon.TrangThai,
+                GhiChu = hoaDon.GhiChu,
+
+                DanhSachVe = hoaDon.Ves.Select(v => new VeChiTietViewModel
+                {
+                    MaVe = v.MaVe,
+                    TenGhe = v.Ghe?.TenGhe ?? "N/A",
+                    LoaiGhe = v.Ghe?.LoaiGhe ?? "Thường",
+                    GiaVe = v.GiaVe,
+                    TrangThai = v.TrangThai
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
-        // GET: Admin/HoaDons/Create
-        public IActionResult Create()
+        // 3. GET: Create
+        public async Task<IActionResult> Create()
         {
-            ViewData["MaKH"] = new SelectList(_context.KhachHangs, "MaKH", "Email");
-            ViewData["MaKM"] = new SelectList(_context.KhuyenMais, "MaKM", "MaKM");
-            ViewData["MaNV"] = new SelectList(_context.NhanViens, "MaNV", "Email");
-            return View();
+            var vm = new HoaDonCreateViewModel();
+            await PopulateListsAsync(vm);
+            return View(vm);
         }
 
-        // POST: Admin/HoaDons/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaHoaDon,MaKH,MaNV,MaKM,NgayLap,SoLuongVe,TamTinh,SoTienGiam,TongTien,PhuongThucTT,TrangThai")] HoaDon hoaDon)
+        public async Task<IActionResult> Create(HoaDonCreateViewModel vm)
         {
-            if (ModelState.IsValid)
+            // 1. Kiểm tra logic chọn ghế
+            if (vm.SelectedVeIds == null || !vm.SelectedVeIds.Any())
             {
-                _context.Add(hoaDon);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["MaKH"] = new SelectList(_context.KhachHangs, "MaKH", "Email", hoaDon.MaKH);
-            ViewData["MaKM"] = new SelectList(_context.KhuyenMais, "MaKM", "MaKM", hoaDon.MaKM);
-            ViewData["MaNV"] = new SelectList(_context.NhanViens, "MaNV", "Email", hoaDon.MaNV);
-            return View(hoaDon);
-        }
-
-        // GET: Admin/HoaDons/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
+                ModelState.AddModelError("", "Vui lòng chọn ít nhất một ghế trên sơ đồ.");
             }
 
-            var hoaDon = await _context.HoaDons.FindAsync(id);
-            if (hoaDon == null)
+            // 2. Kiểm tra logic khách hàng (Custom Validation)
+            if (vm.IsVangLai)
             {
-                return NotFound();
+                if (string.IsNullOrWhiteSpace(vm.TenKhachVangLai))
+                    ModelState.AddModelError("TenKhachVangLai", "Vui lòng nhập tên khách vãng lai.");
             }
-            ViewData["MaKH"] = new SelectList(_context.KhachHangs, "MaKH", "Email", hoaDon.MaKH);
-            ViewData["MaKM"] = new SelectList(_context.KhuyenMais, "MaKM", "MaKM", hoaDon.MaKM);
-            ViewData["MaNV"] = new SelectList(_context.NhanViens, "MaNV", "Email", hoaDon.MaNV);
-            return View(hoaDon);
-        }
-
-        // POST: Admin/HoaDons/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MaHoaDon,MaKH,MaNV,MaKM,NgayLap,SoLuongVe,TamTinh,SoTienGiam,TongTien,PhuongThucTT,TrangThai")] HoaDon hoaDon)
-        {
-            if (id != hoaDon.MaHoaDon)
+            else
             {
-                return NotFound();
+                if (vm.MaKH == null || vm.MaKH == 0)
+                    ModelState.AddModelError("MaKH", "Vui lòng chọn một khách hàng từ hệ thống.");
             }
 
             if (ModelState.IsValid)
             {
+                using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    _context.Update(hoaDon);
+                    int? maKH_Final = vm.MaKH;
+
+                    var userId = _userManager.GetUserId(User);
+                    var nhanVienThucTe = _context.NhanViens
+                        .FirstOrDefault(nv => nv.MaTK!.Trim().Equals(userId));
+
+
+                    if (nhanVienThucTe == null)
+                    {
+                        ModelState.AddModelError("", "Lỗi: Tài khoản này chưa được gán vào bất kỳ nhân viên nào trong danh sách Nhân Viên!");
+                        await PopulateListsAsync(vm);
+                        return View(vm);
+                    }
+
+                    // 3. Xử lý lưu khách hàng mới nếu là vãng lai
+                    if (vm.IsVangLai)
+                    {
+                        var khMoi = new KhachHang
+                        {
+                            HoTen = vm.TenKhachVangLai!,
+                            Sdt = vm.SdtKhachVangLai!,
+                            Email = vm.EmailKhachVangLai!,
+                        };
+                        _context.KhachHangs.Add(khMoi);
+                        await _context.SaveChangesAsync();
+                        maKH_Final = khMoi.MaKH;
+                    }
+
+                    // 4. Khởi tạo và lưu Hóa đơn
+                    var hoaDon = new HoaDon
+                    {
+                        MaKH = maKH_Final ?? 0,
+                        MaNV = nhanVienThucTe!.MaNV,
+                        MaKM = vm.MaKM,
+                        NgayLap = DateTime.Now,
+                        PhuongThucTT = vm.PhuongThucTT,
+                        TrangThai = vm.TrangThai,
+                        GhiChu = vm.GhiChu,
+                        TamTinh = vm.TamTinh,
+                        SoTienGiam = vm.SoTienGiam,
+                        TongTien = vm.TongTien,
+                        SoLuongVe = vm.SelectedVeIds!.Count,
+                        NgayThanhToan = vm.TrangThai == "Đã thanh toán" ? DateTime.Now : null
+                    };
+
+                    _context.HoaDons.Add(hoaDon);
                     await _context.SaveChangesAsync();
+
+                    // 5. Tạo các bản ghi Vé
+                    foreach (var maGhe in vm.SelectedVeIds)
+                    {
+                        // Lấy thông tin ghế để xác định giá (VIP hoặc Thường)
+                        var ghe = await _context.Ghes.FindAsync(maGhe);
+                        var lichTrinh = await _context.LichTrinhs.FindAsync(vm.MaLichTrinh);
+
+                        // Tính toán giá vé thực tế dựa trên loại ghế
+                        decimal giaThucTe = (ghe?.LoaiGhe == "VIP")
+                                            ? (lichTrinh?.GiaVeCoBan * 1.2m ?? 0)
+                                            : (lichTrinh?.GiaVeCoBan ?? 0);
+
+                        var newVe = new Ve
+                        {
+                            MaHoaDon = hoaDon.MaHoaDon,
+                            MaLichTrinh = vm.MaLichTrinh,
+                            MaGhe = maGhe,
+                            GiaVe = giaThucTe, // Lưu giá vé vào DB để Details không bị lỗi hiển thị
+                            TrangThai = hoaDon.TrangThai switch
+                            {
+                                "Đã thanh toán" => "Hợp lệ",
+                                "Chưa thanh toán" => "Đang chờ",
+                                "Đã hủy" => "Đã hủy",
+                                _ => hoaDon.TrangThai // Dùng biến hoaDon (viết thường)
+                            }
+                        };
+                        _context.Ves.Add(newVe);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    TempData["SuccessMessage"] = "Lập hóa đơn #" + hoaDon.MaHoaDon + " thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!HoaDonExists(hoaDon.MaHoaDon))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["MaKH"] = new SelectList(_context.KhachHangs, "MaKH", "Email", hoaDon.MaKH);
-            ViewData["MaKM"] = new SelectList(_context.KhuyenMais, "MaKM", "MaKM", hoaDon.MaKM);
-            ViewData["MaNV"] = new SelectList(_context.NhanViens, "MaNV", "Email", hoaDon.MaNV);
-            return View(hoaDon);
+            // Nếu có lỗi, load lại dữ liệu cho các Dropdown
+            await PopulateListsAsync(vm);
+            return View(vm);
         }
 
-        // GET: Admin/HoaDons/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var hoaDon = await _context.HoaDons
-                .Include(h => h.KhachHang)
-                .Include(h => h.KhuyenMai)
-                .Include(h => h.NhanVien)
-                .FirstOrDefaultAsync(m => m.MaHoaDon == id);
-            if (hoaDon == null)
-            {
-                return NotFound();
-            }
-
-            return View(hoaDon);
-        }
-
-        // POST: Admin/HoaDons/Delete/5
+        // 5. Xóa hóa đơn (Xóa hóa đơn thì phải giải phóng vé)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var hoaDon = await _context.HoaDons.FindAsync(id);
+            var hoaDon = await _context.HoaDons.Include(h => h.Ves).FirstOrDefaultAsync(h => h.MaHoaDon == id);
             if (hoaDon != null)
             {
+                // Giải phóng vé trước khi xóa hóa đơn
+                foreach (var ve in hoaDon.Ves)
+                {
+                    ve.MaHoaDon = null;
+                    ve.TrangThai = "Còn trống";
+                }
                 _context.HoaDons.Remove(hoaDon);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool HoaDonExists(int id)
+        [HttpPost]
+        public async Task<IActionResult> UpdatePayment(int id, string status, string method)
         {
-            return _context.HoaDons.Any(e => e.MaHoaDon == id);
+            var hoaDon = await _context.HoaDons.Include(h => h.Ves).FirstOrDefaultAsync(h => h.MaHoaDon == id);
+            if (hoaDon == null) return Json(new { success = false, message = "Không tìm thấy hóa đơn" });
+
+            hoaDon.TrangThai = status;
+            hoaDon.PhuongThucTT = method;
+
+            if (status == "Đã thanh toán")
+            {
+                hoaDon.NgayThanhToan = DateTime.Now;
+                foreach (var ve in hoaDon.Ves) ve.TrangThai = "Hợp lệ";
+            }
+            else if (status == "Đã hủy")
+            {
+                hoaDon.NgayThanhToan = null;
+                // Giải phóng ghế: Xóa các bản ghi vé để ghế hiển thị là 'trống' ở sơ đồ
+                _context.Ves.RemoveRange(hoaDon.Ves);
+            }
+
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = "Cập nhật thành công!" });
+        }
+
+        // --- HÀM TRỢ GIÚP (HELPER) ---
+
+        private async Task PopulateListsAsync(HoaDonCreateViewModel vm)
+        {
+            vm.DanhSachKhachHang = new SelectList(await _context.KhachHangs.ToListAsync(), "MaKH", "HoTen", vm.MaKH);
+            vm.DanhSachKhuyenMai = new SelectList(await _context.KhuyenMais.Where(k => k.TrangThai == "Đang diễn ra").ToListAsync(), "MaKM", "TenChuongTrinh", vm.MaKM);
+
+            var dsLT = await _context.LichTrinhs
+                .Include(lt => lt.TuyenDuong)
+                .OrderByDescending(lt => lt.NgayGioKhoiHanh)
+                .Select(lt => new
+                {
+                    MaLT = lt.MaLichTrinh,
+                    // Hiển thị dạng: [Sài Gòn - Cần Giờ] - 15/04 08:30
+                    Text = $"[{lt.TuyenDuong.TenTuyen}] - {lt.NgayGioKhoiHanh:dd/MM HH:mm}"
+                }).ToListAsync();
+
+            vm.DanhSachLichTrinh = new SelectList(dsLT, "MaLT", "Text", vm.MaLichTrinh);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetGhesByLichTrinh(int maLT)
+        {
+            var lichTrinh = await _context.LichTrinhs
+                .Include(lt => lt.Tau).ThenInclude(t => t.Ghes)
+                .FirstOrDefaultAsync(lt => lt.MaLichTrinh == maLT);
+
+            if (lichTrinh == null) return Json(new List<object>());
+
+            // Chỉ lấy những ghế đã có vé và vé đó KHÔNG phải là vé đã hủy
+            var gheDaCoVe = await _context.Ves
+                .Where(v => v.MaLichTrinh == maLT && v.TrangThai != "Đã hủy")
+                .Select(v => v.MaGhe)
+                .ToListAsync();
+
+            var soDoGhe = lichTrinh.Tau.Ghes.Select(ghe => new
+            {
+                maGhe = ghe.MaGhe,
+                tenGhe = ghe.TenGhe,
+                loaiGhe = ghe.LoaiGhe,
+                giaThucTe = ghe.LoaiGhe == "VIP" ? (lichTrinh.GiaVeCoBan * 1.2m) : lichTrinh.GiaVeCoBan,
+                isAvailable = !gheDaCoVe.Contains(ghe.MaGhe)
+            }).OrderBy(g => g.tenGhe).ToList();
+
+            return Json(soDoGhe);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetKhuyenMaiInfo(string maKM)
+        {
+            var km = await _context.KhuyenMais.FirstOrDefaultAsync(k => k.MaKM == maKM);
+            return Json(km == null ? null : new { phanTram = km.PhanTramGiam, toiDa = km.SoTienToiDaGiam });
         }
     }
 }

@@ -1,0 +1,150 @@
+﻿@model WebAppBookingBoat.Models.DanhGia
+
+@{
+    ViewData["Title"] = "Phản hồi đánh giá";
+    Layout = "_LayoutAdmin";
+}
+
+<head>
+    <style>
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .star-rating-display {
+            color: #f6c23e;
+            font-size: 1.1rem;
+        }
+
+        .readonly-plain {
+            background-color: #f8f9fc !important;
+            border: 1px solid #d1d3e2;
+            opacity: 1;
+        }
+
+        .img-review-preview {
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+    </style>
+</head>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-comments text-primary mr-2"></i>Quản lý Đánh giá & Phản hồi
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-11 col-lg-12">
+            <form asp-action="Edit" method="post" class="card shadow-lg mb-4 border-left-primary">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mx-4 mt-3 small"></div>
+                <input type="hidden" asp-for="MaDanhGia" />
+
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                        <i class="fas fa-fingerprint mr-1"></i> ID Đánh giá: #@Model.MaDanhGia
+                    </h6>
+                    <span class="badge badge-primary p-2 shadow-sm">
+                        <i class="fas fa-reply mr-1"></i> Phản hồi Admin
+                    </span>
+                </div>
+
+                <div class="card-body px-lg-5 py-4">
+                    <div class="row">
+                        <div class="col-md-5 border-right">
+                            <h6 class="font-weight-bold text-dark mb-4">
+                                <i class="fas fa-user-tag mr-2 text-primary"></i>Nội dung từ khách hàng
+                            </h6>
+
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold text-muted text-uppercase">Mã Hóa Đơn</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light"><i class="fas fa-file-invoice"></i></span>
+                                    </div>
+                                    <input class="form-control readonly-plain font-weight-bold" value="#@Model.MaHoaDon" readonly />
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold text-muted text-uppercase">Mức độ hài lòng</label>
+                                <div class="star-rating-display py-2 px-3 border rounded bg-light">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="@(i <= Model.SoSao ? "fas" : "far") fa-star"></i>
+                                    }
+                                    <span class="ml-2 text-dark small">(@Model.SoSao/5 sao)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold text-muted text-uppercase">Nội dung khách viết</label>
+                                <textarea class="form-control readonly-plain" rows="4" readonly>@Model.NoiDung</textarea>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                            {
+                                <div class="form-group">
+                                    <label class="small font-weight-bold text-muted text-uppercase">Hình ảnh đính kèm</label>
+                                    <div class="text-center p-2 border rounded bg-white">
+                                        <img src="@Model.HinhAnh" class="img-fluid img-review-preview" alt="Review Image" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="col-md-7 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-4">
+                                <i class="fas fa-tools mr-2 text-primary"></i>Thao tác quản trị
+                            </h6>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Trạng thái hiển thị</label>
+                                <select asp-for="TrangThai" class="form-control border-left-info shadow-sm">
+                                    <option value="Chờ duyệt">⏳ Chờ duyệt</option>
+                                    <option value="Đã hiển thị">✅ Đã hiển thị (Công khai)</option>
+                                    <option value="Đã ẩn">🚫 Đã ẩn (Vi phạm tiêu chuẩn)</option>
+                                </select>
+                                <span asp-validation-for="TrangThai" class="text-danger small"></span>
+                                <small class="form-text text-muted italic">Kiểm duyệt nội dung trước khi cho phép hiển thị lên web.</small>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="PhanHoiAdmin" class="small font-weight-bold text-muted text-uppercase">Nội dung phản hồi của Admin</label>
+                                <textarea asp-for="PhanHoiAdmin" class="form-control shadow-sm" rows="8"
+                                          placeholder="Chào bạn, cảm ơn bạn đã sử dụng dịch vụ..."></textarea>
+                                <span asp-validation-for="PhanHoiAdmin" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                        <span class="text">Quay lại danh sách</span>
+                    </a>
+
+                    <button type="submit" class="btn btn-primary btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50"><i class="fas fa-paper-plane"></i></span>
+                        <span class="text">Gửi phản hồi & Lưu</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

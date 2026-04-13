@@ -1,0 +1,172 @@
+﻿@model WebAppBookingBoat.Models.KhuyenMai
+
+@{
+    ViewData["Title"] = "Chi tiết chương trình Khuyến mãi";
+}
+
+<div class="container-fluid">
+    @* Tiêu đề trang *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-ticket-alt text-primary mr-2"></i>Thông tin chi tiết ưu đãi
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow-lg mb-4 border-left-primary">
+                @* Card Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">Mã KM: #@Model.MaKM</h6>
+                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                        <i class="fas fa-calendar-check mr-1"></i> Ngày tạo: @DateTime.Now.ToString("dd/MM/yyyy")
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        @* Cột trái: Thông tin & Mô tả *@
+                        <div class="col-md-7 border-right">
+                            <h5 class="font-weight-bold text-dark mb-4">
+                                <i class="fas fa-gift mr-2 text-primary"></i>@Model.TenChuongTrinh
+                            </h5>
+
+                            @* Banner Hình ảnh Khuyến mãi *@
+                            <div class="promotion-banner position-relative">
+                                <img src="@(!string.IsNullOrEmpty(Model.HinhAnh) ? "/images/khuyen-mai/" + Model.HinhAnh : "/images/no-image.png")"
+                                     class="card-img-top img-fluid shadow-sm"
+                                     style="height: 300px; object-fit: cover; border-radius: 0.35rem 0.35rem 0 0;"
+                                     alt="Promotion Banner">
+                                <div class="banner-overlay d-flex align-items-end p-4">
+                                    <span class="badge @(Model.TrangThai == "Đang diễn ra" ? "badge-success" : "badge-secondary") px-4 py-2 shadow rounded-pill text-uppercase">
+                                        @Model.TrangThai
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase d-block mb-2">Mô tả chi tiết</label>
+                                <div class="p-3 bg-light rounded text-dark border" style="min-height: 120px; line-height: 1.6;">
+                                    @if (!string.IsNullOrEmpty(Model.MoTa))
+                                    {
+                                        @Html.Raw(Model.MoTa.Replace("\n", "<br/>"))
+                                    }
+                                    else
+                                    {
+                                        <em class="text-muted">Không có mô tả cho chương trình này.</em>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="alert alert-primary border-0 shadow-sm small mt-4">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Hệ thống sẽ tự động tính toán mức giảm dựa trên cấu hình bên phải khi khách hàng nhập mã hoặc chọn ưu đãi này.
+                            </div>
+                        </div>
+
+                        @* Cột phải: Thông số mức giảm & Thời gian *@
+                        <div class="col-md-5 pl-md-4">
+                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="fas fa-cog mr-2 text-primary"></i>Thông số ưu đãi
+                            </h5>
+
+                            <div class="row mb-4 text-center">
+                                <div class="col-6">
+                                    <div class="p-3 bg-light rounded shadow-sm border-bottom-success h-100">
+                                        <label class="small font-weight-bold text-success text-uppercase d-block mb-1">% Giảm</label>
+                                        <div class="h3 font-weight-bold mb-0 text-success">@Model.PhanTramGiam%</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 bg-light rounded shadow-sm border-bottom-warning h-100">
+                                        <label class="small font-weight-bold text-warning text-uppercase d-block mb-1">Tối đa</label>
+                                        <div class="h4 font-weight-bold mb-0 text-dark">
+                                            @Model.SoTienToiDaGiam!.ToString("N0") <small>đ</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 bg-light p-3 mb-4">
+                                <div class="mb-3">
+                                    <label class="small font-weight-bold text-muted text-uppercase d-block">Hiệu lực từ ngày</label>
+                                    <div class="text-dark font-weight-bold h5">
+                                        <i class="far fa-calendar-alt text-primary mr-2"></i>@Model.NgayBatDau.ToString("dd/MM/yyyy")
+                                    </div>
+                                </div>
+
+                                <div class="mb-0">
+                                    <label class="small font-weight-bold text-muted text-uppercase d-block">Đến hết ngày</label>
+                                    <div class="text-dark font-weight-bold h5">
+                                        <i class="far fa-calendar-times text-danger mr-2"></i>@Model.NgayKetThuc.ToString("dd/MM/yyyy")
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (Model.NgayKetThuc < DateTime.Now && Model.TrangThai != "Đã kết thúc")
+                            {
+                                <div class="text-center">
+                                    <span class="text-danger small font-italic">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i> Chương trình đã quá hạn.
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @* Card Footer *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Quay lại danh sách</span>
+                    </a>
+
+                    <a asp-action="Edit" asp-route-id="@Model.MaKM" class="btn btn-primary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span class="text">Chỉnh sửa ưu đãi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 4px solid #4e73df !important;
+    }
+
+    .border-bottom-success {
+        border-bottom: 4px solid #1cc88a !important;
+    }
+
+    .border-bottom-warning {
+        border-bottom: 4px solid #f6c23e !important;
+    }
+
+    .promotion-banner {
+        overflow: hidden;
+    }
+
+    .banner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(transparent 70%, rgba(0,0,0,0.5));
+    }
+
+    .bg-light {
+        background-color: #f8f9fc !important;
+    }
+
+    .card-body h5 {
+        letter-spacing: 0.5px;
+    }
+</style>

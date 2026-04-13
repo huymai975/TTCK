@@ -117,6 +117,56 @@
 		width: 100%;
 		text-align: center;
 	}
+
+
+	/* Badge cho Loại ghế */
+	.badge-seat {
+		padding: 4px 10px;
+		border-radius: 6px;
+		font-size: 0.7rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	/* Ghế VIP: Màu vàng Gold cực sang */
+	.seat-vip {
+		background-color: #fff9db;
+		color: #f08c00;
+		border: 1px solid #ffe066;
+	}
+
+	/* Ghế Thường: Màu xanh dịu */
+	.seat-standard {
+		background-color: #f1f3f5;
+		color: #495057;
+		border: 1px solid #dee2e6;
+	}
+
+	/* Icon nhấp nháy nhẹ cho VIP nếu muốn nổi bật hẳn */
+	.seat-vip i {
+		color: #fab005;
+		margin-right: 4px;
+	}
+
+	/* Căn giữa tất cả các ô trong hàng theo chiều dọc */
+	#dataTable tbody td {
+		vertical-align: middle !important;
+		height: 75px; /* Cố định độ cao tối thiểu để các dòng đều nhau */
+		padding: 8px 12px;
+	}
+
+	/* Xử lý phần thông tin khách hàng không bị quá dài làm lệch dòng */
+	.info-container {
+		max-width: 250px; /* Điều chỉnh tùy theo màn hình của Huy */
+	}
+
+	/* Đảm bảo badge seat và badge status có độ cao tương đồng */
+	.badge-seat, .badge-status {
+		line-height: 1.5;
+	}
 </style>
 
 <div class="container-fluid">
@@ -194,46 +244,94 @@
 						@foreach (var item in Model)
 						{
 							<tr id="row-@item.MaVe">
-								<td class="text-center font-weight-bold text-gray-500 small">#@item.MaVe</td>
-								<td>
-									<span class="text-main">@item.TenKhachHang</span>
-									<small class="sub-text text-truncate">
-										<i class="fas fa-ship mr-1"></i>@item.TenTau | <span>@item.ThongTinChuyen</span>
-									</small>
+								<td class="text-center font-weight-bold text-gray-500 small align-middle">
+									#@item.MaVe
 								</td>
-								<td>
-									<div class="font-weight-bold text-dark small">@item.TenGhe</div>
-									<span class="badge badge-light border small" style="font-size: 0.65rem;">@item.LoaiGhe</span>
+
+								<td class="align-middle">
+									<div class="info-container">
+										<span class="text-main text-truncate d-block" title="@item.TenKhachHang">@item.TenKhachHang</span>
+										<small class="sub-text text-truncate d-block">
+											<i class="fas fa-ship mr-1 text-info"></i>@item.TenTau | <span>@item.ThongTinChuyen</span>
+										</small>
+									</div>
 								</td>
-								<td class="text-center font-weight-bold text-primary">
-									@item.GiaVe.ToString("N0")đ
+
+								<td class="align-middle">
+									<div class="d-flex flex-column justify-content-center">
+										<div class="font-weight-bold text-dark mb-1" style="font-size: 0.9rem; line-height: 1;">@item.TenGhe</div>
+										@{
+											var isVip = item.LoaiGhe?.ToLower().Contains("vip") ?? false;
+											var seatClass = isVip ? "seat-vip" : "seat-standard";
+											var seatIcon = isVip ? "fas fa-crown" : "fas fa-chair";
+										}
+										<div>
+											<span class="badge-seat @seatClass">
+												<i class="@seatIcon mr-1"></i> @item.LoaiGhe
+											</span>
+										</div>
+									</div>
 								</td>
-								<td class="text-center">
+
+								<td class="text-center align-middle">
+									<div class="d-flex flex-column justify-content-center">
+										<span class="font-weight-bold @(isVip ? "text-warning" : "text-primary")" style="font-size: 1rem;">
+											@item.GiaVe.ToString("N0")đ
+										</span>
+										@if (isVip)
+										{
+											<small class="text-muted" style="font-size: 10px; margin-top: -2px;">(Phí dịch vụ VIP)</small>
+										}
+									</div>
+								</td>
+
+								<td class="text-center align-middle">
 									@{
 										var sClass = item.TrangThai switch
 										{
 											"Hợp lệ" => "badge-success",
-											"Đã sử dụng" => "badge-info",
+											"Đang chờ" => "badge-info",
 											"Đã hủy" => "badge-danger",
 											_ => "badge-secondary"
 										};
 									}
-									<span class="badge badge-status shadow-sm @sClass">@item.TrangThai</span>
+									<span class="badge badge-status shadow-sm @sClass m-0">@item.TrangThai</span>
 								</td>
+
 								<td class="text-center align-middle">
-									<div class="d-flex justify-content-center">
+									<div class="d-flex justify-content-center align-items-center">
+										@* Nút xem chi tiết luôn luôn được phép *@
 										<a asp-action="Details" asp-route-id="@item.MaVe" class="btn-modern btn-view" title="Chi tiết">
 											<i class="fas fa-eye"></i>
 										</a>
 
-										<a asp-action="Edit" asp-route-id="@item.MaVe" class="btn-modern btn-edit" title="Sửa">
-											<i class="fas fa-edit"></i>
-										</a>
+										@{
+											// Điều kiện khóa: Hóa đơn đã thanh toán HOẶC Trạng thái vé là Hợp lệ HOẶC Trạng thái vé là Đã hủy
+											bool isLocked = item.TrangThaiHoaDon == "Đã thanh toán"
+											|| item.TrangThai == "Hợp lệ"
+											|| item.TrangThai == "Đã hủy";
 
-										<button type="button" class="btn-modern btn-delete" title="Xóa"
-												onclick="deleteVeAjax(@item.MaVe, '@item.TenKhachHang')">
-											<i class="fas fa-trash"></i>
-										</button>
+											// Chuỗi thông báo lý do khóa
+											string lockReason = "";
+											if (item.TrangThaiHoaDon == "Đã thanh toán") lockReason = "Hóa đơn đã thanh toán";
+											else if (item.TrangThai == "Hợp lệ") lockReason = "Vé hợp lệ không được sửa/xóa";
+											else if (item.TrangThai == "Đã hủy") lockReason = "Vé đã hủy không thể thao tác";
+										}
+
+										@if (isLocked)
+										{
+											<span class="d-inline-block" title="@lockReason" data-bs-toggle="tooltip">
+												<button class="btn-modern btn-delete" style="opacity: 0.4; cursor: not-allowed;" disabled>
+													<i class="fas fa-trash"></i>
+												</button>
+											</span>
+										}
+										else
+										{
+											<button class="btn-modern btn-delete" data-id="@item.MaVe">
+												<i class="fas fa-trash"></i> 
+											</button>
+										}
 									</div>
 								</td>
 							</tr>
@@ -253,29 +351,24 @@
 	<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 
 	<script>
-		var table;
+				var table;
 		$(document).ready(function() {
 			table = $('#dataTable').DataTable({
 				"language": {
 					"url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
 					"search": "Tìm kiếm:",
-                    "searchPlaceholder": "Tìm tên tuyến, điểm đi/đến...",
+					"searchPlaceholder": "Tìm tên khách, mã vé...",
 					"paginate": {
 						"previous": "<i class='fas fa-angle-left'></i>",
-						"next": "<i class='fas fa-angle-right'></i>",
-						"first": "<i class='fas fa-angle-double-left'></i>",
-						"last": "<i class='fas fa-angle-double-right'></i>"
+						"next": "<i class='fas fa-angle-right'></i>"
 					}
 				},
 				"pageLength": 10,
 				"order": [[0, "desc"]],
-				"columnDefs": [ { "orderable": false, "targets": [1, 5] } ],
-				 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+				"columnDefs": [ { "orderable": false, "targets": [5] } ],
+				"dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
 					   "<'row'<'col-sm-12'tr>>" +
-					   "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-				"drawCallback": function() {
-					$('.dataTables_paginate > .pagination').addClass('pagination-sm');
-				}
+					   "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
 			});
 
 			// Lọc theo Tuyến đi
@@ -286,7 +379,6 @@
 			// Lọc theo Trạng thái
 			$('#statusFilter').on('change', function() {
 				var val = $(this).val();
-				// Dùng Regex để lọc chính xác tuyệt đối cụm từ
 				table.column(4).search(val ? '^' + val + '$' : '', true, false).draw();
 			});
 
@@ -296,12 +388,66 @@
 				$('#routeFilter').val('');
 				table.columns().search('').draw();
 			});
+
+			// Khởi tạo tooltips
+			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+			tooltipTriggerList.map(function (tooltipTriggerEl) {
+				return new bootstrap.Tooltip(tooltipTriggerEl)
+			});
 		});
 
-		function deleteVeAjax(id, name) {
+				$(document).on('click', '.btn-delete', function (e) {
+			e.preventDefault();
+			var id = $(this).data('id');
+			var row = $(this).closest('tr'); // Để ẩn dòng sau khi xóa thành công (tùy chọn)
+
+			Swal.fire({
+				title: 'Xác nhận hủy vé?',
+				text: "Hệ thống sẽ hoàn lại ghế trống và tính lại tiền hóa đơn!",
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#3085d6',
+				confirmButtonText: 'Đúng, hủy ngay!',
+				cancelButtonText: 'Bỏ qua'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					// Gửi AJAX
+					$.ajax({
+						url: '/Admin/Ves/Delete/' + id,
+						type: 'POST',
+						data: {
+							__RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+						},
+						success: function (response) {
+							if (response.success) {
+								Swal.fire(
+									'Đã hủy!',
+									response.message,
+									'success'
+								).then(() => {
+									location.reload(); // Load lại để thấy tiền hóa đơn mới và trạng thái mới
+								});
+							} else {
+								Swal.fire('Thất bại!', response.message, 'error');
+							}
+						},
+						error: function () {
+							Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ.', 'error');
+						}
+					});
+				}
+			});
+		});
+
+		// Hàm xóa vé đã đồng bộ tên với thuộc tính onclick trong HTML
+		function confirmDelete(id) {
+			// Lấy tên khách hàng từ dòng tương ứng để hiển thị thông báo cho thân thiện
+			var customerName = $('#row-' + id).find('.text-main').text().trim();
+
 			Swal.fire({
 				title: 'Xác nhận xóa vé?',
-				text: "Bạn muốn xóa vé #" + id + " của khách " + name + "? Hệ thống sẽ hoàn trả 1 ghế trống.",
+				text: "Xóa vé #" + id + " của khách " + customerName + "? Hệ thống sẽ tự động cập nhật lại tổng tiền hóa đơn và ghế trống.",
 				icon: 'warning',
 				showCancelButton: true,
 				confirmButtonColor: '#e74a3b',
@@ -319,19 +465,20 @@
 						success: function (res) {
 							if (res.success) {
 								Swal.fire({
-									title: 'Đã xóa!',
+									title: 'Thành công!',
 									text: res.message,
 									icon: 'success',
-									timer: 1500,
+									timer: 2000,
 									showConfirmButton: false
 								});
+								// Xóa dòng khỏi DataTable mà không cần load lại trang
 								table.row($('#row-' + id)).remove().draw(false);
 							} else {
-								Swal.fire('Lỗi!', res.message, 'error');
+								Swal.fire('Cảnh báo!', res.message, 'warning');
 							}
 						},
 						error: function() {
-							Swal.fire('Lỗi!', 'Không thể kết nối máy chủ.', 'error');
+							Swal.fire('Lỗi!', 'Không thể kết nối máy chủ hoặc lỗi phân quyền.', 'error');
 						}
 					});
 				}

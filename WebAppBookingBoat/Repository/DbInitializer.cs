@@ -17,22 +17,38 @@ namespace WebAppBookingBoat.Repository
                 {
                     MaKM = "KM10",
                     TenChuongTrinh = "Giảm giá khai trương",
+                    HinhAnh = "khai-truong.jpg", // Tên file ảnh mẫu trong wwwroot/images/khuyen-mai/
+                    MoTa = "Chào mừng hệ thống WebAppBookingBoat đi vào hoạt động. Giảm ngay 10% cho tất cả các tuyến tàu cao tốc.",
                     PhanTramGiam = 10,
                     SoTienToiDaGiam = 50000,
                     NgayBatDau = new DateTime(2026, 1, 1),
                     NgayKetThuc = new DateTime(2026, 12, 31),
-                    TrangThai = true
+                    TrangThai = "Chưa diễn ra"
                 },
-                new KhuyenMai
-                {
-                    MaKM = "SUMMER26",
-                    TenChuongTrinh = "Ưu đãi mùa hè",
-                    PhanTramGiam = 15,
-                    SoTienToiDaGiam = 100000,
-                    NgayBatDau = new DateTime(2026, 6, 1),
-                    NgayKetThuc = new DateTime(2026, 8, 31),
-                    TrangThai = true
-                }
+    new KhuyenMai
+    {
+        MaKM = "SUMMER26",
+        TenChuongTrinh = "Ưu đãi mùa hè rực rỡ",
+        HinhAnh = "summer-sale.jpg",
+        MoTa = "Tận hưởng kỳ nghỉ hè tại Phú Quốc và Vũng Tàu với ưu đãi cực khủng lên đến 15% khi đặt vé trước 7 ngày.",
+        PhanTramGiam = 15,
+        SoTienToiDaGiam = 100000,
+        NgayBatDau = new DateTime(2026, 6, 1),
+        NgayKetThuc = new DateTime(2026, 8, 31),
+        TrangThai = "Chưa diễn ra"
+    },
+    new KhuyenMai
+    {
+        MaKM = "TET2026",
+        TenChuongTrinh = "Vui Tết sum vầy",
+        HinhAnh = "tet-holiday.jpg",
+        MoTa = "Chương trình khuyến mãi đặc biệt dành cho khách hàng về quê ăn Tết hoặc du xuân cùng gia đình.",
+        PhanTramGiam = 20,
+        SoTienToiDaGiam = 200000,
+        NgayBatDau = new DateTime(2026, 1, 15),
+        NgayKetThuc = new DateTime(2026, 2, 15),
+        TrangThai = "Chưa diễn ra"
+    }
             );
 
 
@@ -311,6 +327,47 @@ namespace WebAppBookingBoat.Repository
                     BangTacDong = "Hệ thống",
                     NoiDungChiTiet = "Seed dữ liệu mẫu thành công",
                     ThoiGian = DateTime.Now
+                }
+            );
+
+            // --- 12. SEED ĐÁNH GIÁ (Quan hệ 1-1 với Hóa đơn) ---
+            modelBuilder.Entity<DanhGia>().HasData(
+                new DanhGia
+                {
+                    MaDanhGia = 1,
+                    MaHoaDon = 1, // Khớp với HoaDon 1 đã seed ở trên
+                    SoSao = 5,
+                    NoiDung = "Chuyến đi tuyệt vời, tàu chạy rất êm và đúng giờ. Nhân viên hỗ trợ nhiệt tình!",
+                    HinhAnh = "review-tau-01.jpg", // Ảnh khách chụp
+                    NgayDanhGia = new DateTime(2026, 4, 10, 8, 30, 0),
+                    TrangThai = "Đã hiển thị",
+                    // Phản hồi từ Admin
+                    PhanHoiAdmin = "Cảm ơn bạn đã ủng hộ WebAppBookingBoat! Rất mong được phục vụ bạn trong những chuyến đi tới.",
+                    NgayPhanHoi = new DateTime(2026, 4, 10, 14, 0, 0)
+                },
+                new DanhGia
+                {
+                    MaDanhGia = 2,
+                    MaHoaDon = 2, // Khớp với HoaDon 2
+                    SoSao = 4,
+                    NoiDung = "Chất lượng ghế VIP rất tốt, tuy nhiên đồ ăn nhẹ trên tàu hơi ít lựa chọn.",
+                    HinhAnh = "review-ghe-vip.jpg",
+                    NgayDanhGia = new DateTime(2026, 4, 11, 15, 20, 0),
+                    TrangThai = "Đã hiển thị",
+                    PhanHoiAdmin = "Chào bạn, Admin ghi nhận góp ý và sẽ làm việc với bếp tàu để cải thiện thực đơn ạ!",
+                    NgayPhanHoi = new DateTime(2026, 4, 12, 9, 15, 0)
+                },
+                new DanhGia
+                {
+                    MaDanhGia = 3,
+                    MaHoaDon = 3, // Khớp với HoaDon 3
+                    SoSao = 5,
+                    NoiDung = "Đặt vé cực nhanh, thanh toán tiện lợi. Sẽ quay lại!",
+                    HinhAnh = null, // Khách không gửi ảnh
+                    NgayDanhGia = DateTime.Now.AddHours(-2),
+                    TrangThai = "Chờ duyệt", // Đang đợi Admin kiểm duyệt
+                    PhanHoiAdmin = null,
+                    NgayPhanHoi = null
                 }
             );
         }

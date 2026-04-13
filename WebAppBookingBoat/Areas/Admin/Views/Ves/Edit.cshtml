@@ -82,12 +82,17 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text bg-light border-right-0"><i class="fas fa-tag text-info"></i></span>
                                     </div>
+                                    @* Thêm readonly để tránh sửa tay, giữ font-weight-bold *@
                                     <input type="text" id="GiaVeDisplay"
                                            class="form-control shadow-sm border-left-0 font-weight-bold text-primary"
-                                           value="@(Model.GiaVe > 0 ? ((long)Model.GiaVe).ToString() : "0")" />
+                                           value="@(Model.GiaVe > 0 ? ((long)Model.GiaVe).ToString() : "0")" readonly />
 
                                     <input type="hidden" asp-for="GiaVe" id="GiaVeReal" />
                                 </div>
+                                @* Thêm thẻ span giải thích ở đây giống trang Create *@
+                                <span id="GiaVeExplain" class="small text-info mt-1 d-block italic">
+                                    <i class="fas fa-info-circle mr-1"></i>Đang tính toán giá dựa trên lịch trình...
+                                </span>
                                 <span asp-validation-for="GiaVe" class="text-danger small mt-1"></span>
                             </div>
 
@@ -107,7 +112,7 @@
                 <div class="card-footer bg-light d-flex justify-content-between py-3">
                     <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
                         <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
-                        <span class="text">Quay lại</span>
+                        <span class="text">Hủy thay đổi</span>
                     </a>
                     <button type="submit" class="btn btn-info btn-icon-split shadow-sm font-weight-bold">
                         <span class="icon text-white-50"><i class="fas fa-save"></i></span>
@@ -123,6 +128,93 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function () {
+            var giaGocHienTai = 0;
+            const displayInput = $('#GiaVeDisplay');
+            const realInput = $('#GiaVeReal');
+            const $explain = $('#GiaVeExplain');
+
+            function formatCurrency(n) {
+                if (!n || n == 0) return "0";
+                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
+            // --- HÀM TÍNH TOÁN GIÁ VÀ GIẢI THÍCH ---
+            function tinhToanGiaVe() {
+                var selectedGheText = $("#MaGhe option:selected").text();
+
+                if (giaGocHienTai <= 0) {
+                    $explain.html('<i class="fas fa-info-circle mr-1"></i>Vui lòng chọn lịch trình hợp lệ.');
+                    return;
+                }
+
+                let giaCuoi = giaGocHienTai;
+                let note = `Giá gốc: ${formatCurrency(giaGocHienTai)}đ`;
+
+                // Kiểm tra nếu text của option có chứa chữ VIP
+                if (selectedGheText.includes("VIP")) {
+                    giaCuoi = giaGocHienTai * 1.2;
+                    note += ` + <span class="badge badge-warning">Phụ phí VIP 20%</span> = <strong>${formatCurrency(giaCuoi)}đ</strong>`;
+                } else if ($("#MaGhe").val() != "") {
+                    note += ` (Ghế tiêu chuẩn)`;
+                }
+
+                realInput.val(giaCuoi);
+                displayInput.val(formatCurrency(giaCuoi));
+                $explain.html('<i class="fas fa-check-circle text-success mr-1"></i>' + note);
+            }
+
+            // --- XỬ LÝ LOAD GHẾ VÀ GIÁ GỐC ---
+            function loadDataByLichTrinh(isFirstLoad = false) {
+                var maLT = $('#MaLichTrinh').val();
+                var maVe = $('#MaVe').val();
+                var $gheSelect = $('#MaGhe');
+                var currentGheId = '@Model.MaGhe';
+
+                if (maLT) {
+                    // 1. Lấy giá gốc từ Tuyến đường
+                    $.get('@Url.Action("GetGiaCoBanByLichTrinh", "Ves")', { maLichTrinh: maLT }, function (res) {
+                        giaGocHienTai = res.giaGoc;
+                        tinhToanGiaVe();
+                    });
+
+                    // 2. Load danh sách ghế trống (Trừ vé hiện tại)
+                    $.ajax({
+                        url: '@Url.Action("GetGhesByLichTrinh", "Ves")',
+                        type: 'GET',
+                        data: { maLichTrinh: maLT, maVeHienTai: maVe },
+                        success: function (data) {
+                            $gheSelect.empty().append('<option value="">-- Chọn ghế còn trống --</option>');
+                            $.each(data, function (i, item) {
+                                var option = $('<option>', { value: item.value, text: item.text });
+                                if (isFirstLoad && item.value == currentGheId) {
+                                    option.attr('selected', 'selected');
+                                }
+                                $gheSelect.append(option);
+                            });
+                            // Sau khi load ghế xong thì tính toán lại giá lần nữa để hiển thị đúng note VIP/Thường
+                            if (isFirstLoad) tinhToanGiaVe();
+                        }
+                    });
+                }
+            }
+
+            // Lắng nghe thay đổi
+            $('#MaLichTrinh').on('change', function() { loadDataByLichTrinh(false); });
+            $('#MaGhe').on('change', tinhToanGiaVe);
+
+            // Chạy lần đầu khi load trang
+            loadDataByLichTrinh(true);
+
+            // Trước khi submit
+            $('#editTicketForm').on('submit', function () {
+                let finalRaw = displayInput.val().replace(/,/g, '');
+                realInput.val(finalRaw);
+            });
+        });
+    </script>
 
     <script>
         $(document).ready(function () {

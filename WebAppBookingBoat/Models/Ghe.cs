@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WebAppBookingBoat.Models;
 
 namespace WebAppBookingBoat.Models
 {
@@ -34,5 +31,7 @@ namespace WebAppBookingBoat.Models
 
         // Trong sơ đồ tinh gọn của bạn, Vé sẽ không nối trực tiếp với Ghế 
         // nhưng nếu cần quản lý trạng thái ghế theo lịch trình, ta sẽ xử lý ở tầng Logic.
+
+        public virtual ICollection<Ve> Ves { get; set; } = new List<Ve>();
     }
 }

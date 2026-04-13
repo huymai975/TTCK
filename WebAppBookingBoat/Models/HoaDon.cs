@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebAppBookingBoat.Models
@@ -17,10 +15,10 @@ namespace WebAppBookingBoat.Models
         public int MaKH { get; set; }
 
         [ForeignKey("MaKH")]
-        public virtual KhachHang KhachHang { get; set; } = default!;
+        public virtual KhachHang? KhachHang { get; set; }
 
         [Display(Name = "Mã nhân viên")]
-        public int? MaNV { get; set; } = null; // Nullable nếu khách tự mua online
+        public int? MaNV { get; set; } // Nullable nếu khách tự mua online
 
         [ForeignKey("MaNV")]
         public virtual NhanVien? NhanVien { get; set; }
@@ -33,7 +31,10 @@ namespace WebAppBookingBoat.Models
         public virtual KhuyenMai? KhuyenMai { get; set; }
 
         [Display(Name = "Ngày lập")]
-        public DateTime NgayLap { get; set; } = DateTime.Now;
+        public DateTime NgayLap { get; set; }
+
+        [Display(Name = "Ngày thanh toán")]
+        public DateTime? NgayThanhToan { get; set; }
 
         [Required]
         [Range(1, 100, ErrorMessage = "Số lượng vé phải từ 1 đến 100")]
@@ -64,6 +65,10 @@ namespace WebAppBookingBoat.Models
         [StringLength(50)]
         [Display(Name = "Trạng thái")]
         public string TrangThai { get; set; } = "Chưa thanh toán"; // Ví dụ: Đã thanh toán, Chưa thanh toán, Đã hủy
+
+        [StringLength(500)]
+        [Display(Name = "Ghi chú")]
+        public string? GhiChu { get; set; } = "";// Nullable vì không phải hóa đơn nào cũng cần ghi chú
 
         // --- Navigation Property ---
         public virtual ICollection<Ve> Ves { get; set; } = new List<Ve>();

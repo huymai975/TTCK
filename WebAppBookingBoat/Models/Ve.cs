@@ -12,17 +12,17 @@ namespace WebAppBookingBoat.Models
 
         [Required]
         [Display(Name = "Mã hóa đơn")]
-        public int MaHoaDon { get; set; }
+        public int? MaHoaDon { get; set; }
 
         [ForeignKey("MaHoaDon")]
-        public virtual HoaDon? HoaDon { get; set; } = default!;
+        public virtual HoaDon? HoaDon { get; set; }
 
         [Required]
         [Display(Name = "Mã lịch trình")]
         public int MaLichTrinh { get; set; }
 
         [ForeignKey("MaLichTrinh")]
-        public virtual LichTrinh? LichTrinh { get; set; } = default!;
+        public virtual LichTrinh? LichTrinh { get; set; }
 
         [Required(ErrorMessage = "Giá vé không được để trống")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá vé không được âm")]
@@ -33,7 +33,7 @@ namespace WebAppBookingBoat.Models
         [Required]
         [StringLength(50)]
         [Display(Name = "Trạng thái")]
-        public string TrangThai { get; set; } = "Hợp lệ"; // Ví dụ: Hợp lệ, Đã sử dụng, Đã hủy
+        public string TrangThai { get; set; } = "Chưa thanh toán"; // Ví dụ: Chưa thanh toán, Hợp lệ, Đã sử dụng, Đã hủy
 
 
         // --- LIÊN KẾT VỚI GHẾ ---
@@ -42,7 +42,7 @@ namespace WebAppBookingBoat.Models
         public int MaGhe { get; set; }
 
         [ForeignKey("MaGhe")]
-        public virtual Ghe? Ghe { get; set; } = default!;
+        public virtual Ghe? Ghe { get; set; }
 
         // --- Navigation Property ---
 

@@ -31,6 +31,10 @@ namespace WebAppBookingBoat.ViewModels
         [Display(Name = "Trạng thái")]
         public string? TrangThai { get; set; }
 
+
+        public string? TrangThaiHoaDon { get; set; } // Thêm dòng này
+
+
         // Hỗ trợ hiển thị màu sắc Badge trên View
         public string ClassTrangThai => TrangThai switch
         {
