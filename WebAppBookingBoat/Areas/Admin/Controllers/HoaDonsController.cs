@@ -33,18 +33,28 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id == null) return NotFound();
 
-            // Lấy dữ liệu từ DB (Include đầy đủ các bảng liên quan)
+            // Lấy dữ liệu Hóa đơn kèm theo các tầng dữ liệu liên quan: 
+            // Hóa đơn -> Vé -> Lịch trình -> Tuyến đường & Tàu
             var hoaDon = await _context.HoaDons
                 .Include(h => h.KhachHang)
                 .Include(h => h.NhanVien)
                 .Include(h => h.KhuyenMai)
                 .Include(h => h.Ves).ThenInclude(v => v.Ghe)
-                .Include(h => h.Ves).ThenInclude(v => v.LichTrinh).ThenInclude(lt => lt!.TuyenDuong)
+                .Include(h => h.Ves)
+                    .ThenInclude(v => v.LichTrinh)
+                        .ThenInclude(lt => lt!.TuyenDuong)
+                .Include(h => h.Ves)
+                    .ThenInclude(v => v.LichTrinh)
+                        .ThenInclude(lt => lt!.Tau)
                 .FirstOrDefaultAsync(m => m.MaHoaDon == id);
 
             if (hoaDon == null) return NotFound();
 
-            // Ánh xạ dữ liệu sang ViewModel
+            // Lấy thông tin lịch trình từ vé đầu tiên (Vì 1 hóa đơn thường thuộc về 1 chuyến đi)
+            var veDauTien = hoaDon.Ves.FirstOrDefault();
+            var lichTrinh = veDauTien?.LichTrinh;
+
+            // Ánh xạ sang ViewModel
             var viewModel = new HoaDonViewModel
             {
                 MaHoaDon = hoaDon.MaHoaDon,
@@ -52,6 +62,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 SoDienThoaiKH = hoaDon.KhachHang?.Sdt ?? "N/A",
                 TenNhanVien = hoaDon.NhanVien?.HoTen ?? "Hệ thống",
                 NgayLap = hoaDon.NgayLap,
+
+                // --- Cập nhật từ Model LichTrinh mới ---
+                // Tên chuyến tự tạo: Ví dụ "Chuyến đi lúc 08:30"
+                TenChuyen = lichTrinh != null ? $"Chuyến khởi hành {lichTrinh.NgayGioKhoiHanh:HH:mm}" : "N/A",
+                TuyenDuong = lichTrinh?.TuyenDuong?.TenTuyen ?? "N/A",
+                NgayKhoiHanh = lichTrinh?.NgayGioKhoiHanh ?? DateTime.MinValue,
+                TenTau = lichTrinh?.Tau?.TenTau ?? "N/A",
+
                 SoLuongVe = hoaDon.SoLuongVe,
                 TamTinh = hoaDon.TamTinh,
                 SoTienGiam = hoaDon.SoTienGiam,
@@ -59,20 +77,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 PhuongThucTT = hoaDon.PhuongThucTT,
                 TrangThai = hoaDon.TrangThai,
                 GhiChu = hoaDon.GhiChu,
-                // Ánh xạ danh sách vé con
+
                 DanhSachVe = hoaDon.Ves.Select(v => new VeChiTietViewModel
                 {
                     MaVe = v.MaVe,
                     TenGhe = v.Ghe?.TenGhe ?? "N/A",
                     LoaiGhe = v.Ghe?.LoaiGhe ?? "Thường",
-                    GiaVe = v.GiaVe > 0 ? v.GiaVe : (v.Ghe?.LoaiGhe == "VIP" ? (v.LichTrinh?.GiaVeCoBan * 1.2m ?? 0) : (v.LichTrinh?.GiaVeCoBan ?? 0)),
-                    TrangThai = hoaDon.TrangThai switch
-                    {
-                        "Đã thanh toán" => "Hợp lệ",
-                        "Chưa thanh toán" => "Đang chờ",
-                        "Đã hủy" => "Đã hủy",
-                        _ => v.TrangThai // Mặc định nếu có trạng thái khác
-                    }
+                    GiaVe = v.GiaVe,
+                    TrangThai = v.TrangThai
                 }).ToList()
             };
 
@@ -193,7 +205,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
-
+                    TempData["SuccessMessage"] = "Lập hóa đơn #" + hoaDon.MaHoaDon + " thành công!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
@@ -228,57 +240,28 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [HttpPost]
         public async Task<IActionResult> UpdatePayment(int id, string status, string method)
         {
-            // 1. Load hóa đơn kèm danh sách vé
-            var hoaDon = await _context.HoaDons
-                .Include(h => h.Ves)
-                .FirstOrDefaultAsync(h => h.MaHoaDon == id);
+            var hoaDon = await _context.HoaDons.Include(h => h.Ves).FirstOrDefaultAsync(h => h.MaHoaDon == id);
+            if (hoaDon == null) return Json(new { success = false, message = "Không tìm thấy hóa đơn" });
 
-            if (hoaDon == null)
-                return Json(new { success = false, message = "Không tìm thấy hóa đơn" });
-
-            // 2. Cập nhật thông tin thanh toán cho Hóa đơn
             hoaDon.TrangThai = status;
             hoaDon.PhuongThucTT = method;
 
             if (status == "Đã thanh toán")
             {
-                // Cập nhật ngày thanh toán là thời điểm hiện tại
                 hoaDon.NgayThanhToan = DateTime.Now;
-
-                // 3. Cập nhật trạng thái tất cả các vé đi kèm sang "Hợp lệ"
-                if (hoaDon.Ves != null)
-                {
-                    foreach (var ve in hoaDon.Ves)
-                    {
-                        ve.TrangThai = "Hợp lệ";
-                    }
-                }
+                foreach (var ve in hoaDon.Ves) ve.TrangThai = "Hợp lệ";
             }
             else if (status == "Đã hủy")
             {
-                hoaDon.NgayThanhToan = null; // Nếu hủy thì xóa ngày thanh toán (nếu có)
-                if (hoaDon.Ves != null)
-                {
-                    foreach (var ve in hoaDon.Ves)
-                    {
-                        ve.TrangThai = "Đã hủy";
-                    }
-                }
+                hoaDon.NgayThanhToan = null;
+                // Giải phóng ghế: Xóa các bản ghi vé để ghế hiển thị là 'trống' ở sơ đồ
+                _context.Ves.RemoveRange(hoaDon.Ves);
             }
 
-            try
-            {
-                _context.Update(hoaDon);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Đã cập nhật trạng thái thanh toán thành công!" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Lỗi khi cập nhật dữ liệu: " + ex.Message });
-            }
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = "Cập nhật thành công!" });
         }
 
         // --- HÀM TRỢ GIÚP (HELPER) ---
@@ -305,28 +288,23 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<JsonResult> GetGhesByLichTrinh(int maLT)
         {
             var lichTrinh = await _context.LichTrinhs
-                .Include(lt => lt.Tau)
-                .ThenInclude(t => t.Ghes)
+                .Include(lt => lt.Tau).ThenInclude(t => t.Ghes)
                 .FirstOrDefaultAsync(lt => lt.MaLichTrinh == maLT);
 
             if (lichTrinh == null) return Json(new List<object>());
 
-            // Lấy danh sách MaGhe đã được tạo vé cho lịch trình này
+            // Chỉ lấy những ghế đã có vé và vé đó KHÔNG phải là vé đã hủy
             var gheDaCoVe = await _context.Ves
-                .Where(v => v.MaLichTrinh == maLT)
+                .Where(v => v.MaLichTrinh == maLT && v.TrangThai != "Đã hủy")
                 .Select(v => v.MaGhe)
                 .ToListAsync();
-
-            var giaCoBan = lichTrinh.GiaVeCoBan;
 
             var soDoGhe = lichTrinh.Tau.Ghes.Select(ghe => new
             {
                 maGhe = ghe.MaGhe,
                 tenGhe = ghe.TenGhe,
-                loaiGhe = ghe.LoaiGhe, // VIP hoặc Thường
-                                       // Nếu là VIP thì tính giá khác, Thường tính giá khác
-                giaThucTe = ghe.LoaiGhe == "VIP" ? (giaCoBan * 1.2m) : giaCoBan,
-                // CHỈ CÓ ĐIỀU KIỆN NÀY: Nếu chưa có bản ghi Vé thì là trống
+                loaiGhe = ghe.LoaiGhe,
+                giaThucTe = ghe.LoaiGhe == "VIP" ? (lichTrinh.GiaVeCoBan * 1.2m) : lichTrinh.GiaVeCoBan,
                 isAvailable = !gheDaCoVe.Contains(ghe.MaGhe)
             }).OrderBy(g => g.tenGhe).ToList();
 

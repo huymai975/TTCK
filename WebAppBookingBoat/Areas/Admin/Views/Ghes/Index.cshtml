@@ -245,44 +245,37 @@
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 	<script>
-
-		// NOTIFICATION DELETE
-					function deleteGheAjax(id, name, tau) {
+		// 1. HÀM XÓA GHẾ (AJAX)
+		function deleteGheAjax(id, tenGhe, tenTau) {
 			Swal.fire({
-				title: 'Xác nhận xóa ghế?',
-				text: `Bạn có chắc muốn xóa ghế "${name}" tàu "${tau}"?`,
+				title: 'Xác nhận xóa?',
+				html: `Bạn có chắc chắn muốn xóa ghế <b>${tenGhe}</b> của tàu <b>${tenTau}</b>?<br><small class="text-danger">Hệ thống sẽ kiểm tra lịch trình và hóa đơn trước khi xóa.</small>`,
 				icon: 'warning',
 				showCancelButton: true,
-				confirmButtonColor: '#e74a3b',
-				cancelButtonColor: '#858796',
-				confirmButtonText: 'Đồng ý',
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#3085d6',
+				confirmButtonText: 'Đồng ý xóa',
 				cancelButtonText: 'Hủy'
 			}).then((result) => {
 				if (result.isConfirmed) {
+					Swal.showLoading();
 					$.ajax({
-						// URL trỏ đến Action vừa tạo ở trên
-						url: '@Url.Action("DeleteConfirmedAjax", "Ghes")',
+						url: '/Admin/Ghes/DeleteConfirmedAjax/' + id, // Đảm bảo URL chính xác
 						type: 'POST',
 						data: {
-							id: id,
-							// Token chống giả mạo của ASP.NET Core
 							__RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
 						},
 						success: function (response) {
 							if (response.success) {
 								Swal.fire({
-									title: 'Thành công!',
-									text: response.message,
 									icon: 'success',
+									title: 'Thành công',
+									text: response.message,
 									timer: 1500,
 									showConfirmButton: false
-								}).then(() => {
-									// Tải lại trang hoặc xóa dòng trong bảng
-									location.reload();
-								});
+								}).then(() => location.reload());
 							} else {
-								// Hiển thị lỗi từ hàm logic (ví dụ: ghế đã có vé)
-								Swal.fire('Không thể xóa!', response.message, 'error');
+								Swal.fire('Thất bại!', response.message, 'error');
 							}
 						},
 						error: function () {
@@ -291,10 +284,10 @@
 					});
 				}
 			});
-		}
+		} // <-- THIẾU DẤU NÀY TRONG CODE CŨ CỦA BẠN
 
 		$(document).ready(function() {
-			// 1. CẤU HÌNH DATATABLE
+			// 2. CẤU HÌNH DATATABLE
 			var table = $('#dataTable').DataTable({
 				"language": {
 					"url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
@@ -316,16 +309,14 @@
 				}
 			});
 
-			// 2. BỘ LỌC LOẠI GHẾ
+			// 3. BỘ LỌC LOẠI GHẾ
 			$('#typeFilter').on('change', function() {
 				var val = $(this).val();
 				table.column(3).search(val ? '^' + val + '$' : '', true, false).draw();
 			});
 
-			// 3. LOGIC MODAL SINH GHẾ (AJAX CHECK)
-			let mLimit = 0;
-			let mCurrent = 0;
-			let mName = "";
+			// 4. LOGIC MODAL SINH GHẾ
+			let mLimit = 0, mCurrent = 0, mName = "";
 
 			$('#ModalMaTau').change(function () {
 				const maTau = $(this).val();
@@ -334,48 +325,40 @@
 					return;
 				}
 
-						$.get(`/Admin/Ghes/GetBoatInfo/${maTau}`, function (data) {
-			if (data) {
-				// Lưu ý: Chữ cái đầu viết THƯỜNG (tenTau, tongSoGhe, currentCount)
-				mName = data.tenTau;
-				mLimit = data.tongSoGhe;
-				mCurrent = data.currentCount;
+				$.get(`/Admin/Ghes/GetBoatInfo/${maTau}`, function (data) {
+					if (data) {
+						mName = data.tenTau;
+						mLimit = data.tongSoGhe;
+						mCurrent = data.currentCount;
 
-				$('#modalSeatStatus').removeClass('d-none');
-				const remaining = mLimit - mCurrent;
-				const statusBadge = $('#modalStatusText');
+						$('#modalSeatStatus').removeClass('d-none');
+						const remaining = mLimit - mCurrent;
+						const statusBadge = $('#modalStatusText');
 
-				statusBadge.html(`<i class="fas fa-ship mr-1"></i> Tàu <b>${mName}</b>: Còn trống <b>${remaining}</b> / ${mLimit} chỗ.`);
+						statusBadge.html(`<i class="fas fa-ship mr-1"></i> Tàu <b>${mName}</b>: Còn trống <b>${remaining}</b> / ${mLimit} chỗ.`);
 
-				if (remaining <= 0) {
-					statusBadge.removeClass('text-dark').addClass('text-danger border-danger font-weight-bold');
-					$('#btnConfirmGenerate').prop('disabled', true).text('Tàu đã đầy ghế');
-				} else {
-					statusBadge.removeClass('text-danger border-danger').addClass('text-dark');
-					$('#btnConfirmGenerate').prop('disabled', false).html('<i class="fas fa-check mr-1"></i> Bắt đầu sinh ghế');
-				}
-			}
-		});
+						if (remaining <= 0) {
+							statusBadge.removeClass('text-dark').addClass('text-danger border-danger font-weight-bold');
+							$('#btnConfirmGenerate').prop('disabled', true).text('Tàu đã đầy ghế');
+						} else {
+							statusBadge.removeClass('text-danger border-danger').addClass('text-dark');
+							$('#btnConfirmGenerate').prop('disabled', false).html('<i class="fas fa-check mr-1"></i> Bắt đầu sinh ghế');
+						}
+					}
+				});
 			});
 
-			// Chặn form nếu nhập quá số lượng còn lại
 			$('#autoGenerateForm').submit(function (e) {
 				const soLuongNhap = parseInt($('#ModalSoLuong').val());
 				const conLai = mLimit - mCurrent;
 
 				if (soLuongNhap > conLai) {
 					e.preventDefault();
-					Swal.fire({
-						icon: 'warning',
-						title: 'Vượt quá sức chứa!',
-						text: `Tàu ${mName} chỉ còn ${conLai} chỗ trống, không thể thêm ${soLuongNhap} ghế.`,
-						confirmButtonColor: '#1cc88a'
-					});
+					Swal.fire('Vượt quá sức chứa!', `Tàu ${mName} chỉ còn ${conLai} chỗ trống.`, 'warning');
 					return false;
 				}
 			});
 
-			// Cập nhật prefix hiển thị cho vui mắt
 			$('#ModalLoaiGhe').change(function() {
 				const type = $(this).val();
 				$('#previewPrefix').text(type === "VIP" ? "V-01, V-02..." : "T-01, T-02...");

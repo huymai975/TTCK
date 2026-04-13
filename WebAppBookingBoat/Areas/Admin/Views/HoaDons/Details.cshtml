@@ -1,162 +1,155 @@
-﻿@model WebAppBookingBoat.ViewModels.HoaDonViewModel
+﻿
+
+@model WebAppBookingBoat.ViewModels.HoaDonViewModel
 
 @{
     ViewData["Title"] = "Chi tiết Hóa đơn #" + Model.MaHoaDon;
 }
 
 <div class="container-fluid" id="invoice-content">
-    @* Tiêu đề trang - Không còn nút quay lại thừa *@
     <div class="d-sm-flex align-items-center justify-content-between mb-4 no-print">
         <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
-            <i class="fas fa-file-invoice text-primary mr-2"></i>Chi tiết Hóa đơn
+            <i class="fas fa-file-invoice text-primary mr-2"></i>Quản lý Hóa đơn
         </h1>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-xl-10 col-lg-12">
             <div class="card shadow-lg mb-4 border-left-primary">
-
                 <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">
-                        Mã hóa đơn: #@Model.MaHoaDon
-                    </h6>
-                    <span class="badge badge-light border text-muted shadow-sm px-3 py-2">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">Mã hóa đơn: #@Model.MaHoaDon</h6>
+                    <span class="badge badge-light border text-muted px-3 py-2">
                         <i class="fas fa-calendar-alt mr-1"></i> Ngày lập: @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")
                     </span>
                 </div>
 
                 <div class="card-body px-lg-5">
+                    @* Lịch trình *@
+                    <div class="alert alert-info border-0 shadow-sm mb-4">
+                        <h5 class="font-weight-bold"><i class="fas fa-ship mr-2"></i>Lịch trình chuyến đi</h5>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-4">
+                                <small class="text-uppercase font-weight-bold text-muted d-block">Tàu & Chuyến</small>
+                                <span class="h6 font-weight-bold">@Model.TenTau - @Model.TenChuyen</span>
+                            </div>
+                            <div class="col-md-4 border-left">
+                                <small class="text-uppercase font-weight-bold text-muted d-block">Tuyến đường</small>
+                                <span>@Model.TuyenDuong</span>
+                            </div>
+                            <div class="col-md-4 border-left">
+                                <small class="text-uppercase font-weight-bold text-muted d-block">Khởi hành</small>
+                                <span class="text-danger font-weight-bold">@Model.NgayKhoiHanh.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
-                        @* Cột 1: Thông tin liên quan *@
+                        @* Đối tác *@
                         <div class="col-md-6 border-right">
-                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
-                                <i class="fas fa-user-circle mr-2 text-primary"></i>Thông tin thực hiện
-                            </h5>
-
-                            <div class="mb-4">
-                                <label class="small font-weight-bold text-muted text-uppercase d-block">Khách hàng</label>
-                                <div class="h6 font-weight-bold text-dark">@Model.TenKhachHang</div>
-                                <div class="text-muted small"><i class="fas fa-phone mr-1"></i> @Model.SoDienThoaiKH</div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="small font-weight-bold text-muted text-uppercase d-block">Nhân viên lập hóa đơn</label>
-                                <div class="h6 font-weight-bold text-dark">@Model.TenNhanVien</div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="small font-weight-bold text-muted text-uppercase d-block">Hình thức thanh toán</label>
-                                <div class="p-2 bg-light rounded border d-inline-block px-3">
-                                    <i class="fas fa-credit-card text-info mr-2"></i> @Model.PhuongThucTT
-                                </div>
+                            <h5 class="font-weight-bold text-dark mb-3 border-bottom pb-2">Thông tin khách hàng</h5>
+                            <div class="mb-2"><strong>Họ tên:</strong> @Model.TenKhachHang</div>
+                            <div class="mb-2"><strong>Điện thoại:</strong> @Model.SoDienThoaiKH</div>
+                            <div class="mb-2"><strong>Nhân viên lập:</strong> @Model.TenNhanVien</div>
+                            <div class="mt-3">
+                                <span class="p-2 bg-light rounded border"><i class="fas fa-wallet mr-2"></i>@Model.PhuongThucTT</span>
                             </div>
                         </div>
 
-                        @* Cột 2: Tài chính *@
+                        @* Tài chính *@
                         <div class="col-md-6 pl-md-4">
-                            <h5 class="font-weight-bold text-dark mb-4 border-bottom pb-2">
-                                <i class="fas fa-receipt mr-2 text-success"></i>Chi tiết tài chính
-                            </h5>
-
-                            <div class="row mb-2">
-                                <div class="col-7 text-muted">Số lượng:</div>
-                                <div class="col-5 text-right font-weight-bold">@Model.SoLuongVe vé</div>
+                            <h5 class="font-weight-bold text-dark mb-3 border-bottom pb-2">Chi tiết thanh toán</h5>
+                            <div class="d-flex justify-content-between mb-1"><span>Tạm tính:</span> <span>@Model.TamTinh.ToString("N0") đ</span></div>
+                            <div class="d-flex justify-content-between mb-1 text-danger"><span>Giảm giá:</span> <span>-@Model.SoTienGiam.ToString("N0") đ</span></div>
+                            <div class="d-flex justify-content-between mt-2 p-2 bg-light font-weight-bold h5">
+                                <span>Tổng tiền:</span> <span class="text-success">@Model.TongTienFormat</span>
                             </div>
-
-                            <div class="row mb-2">
-                                <div class="col-7 text-muted">Tạm tính:</div>
-                                <div class="col-5 text-right font-weight-bold">@Model.TamTinh.ToString("N0") đ</div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-7 text-muted">Giảm giá:</div>
-                                <div class="col-5 text-right text-danger font-weight-bold">- @Model.SoTienGiam.ToString("N0") đ</div>
-                            </div>
-
-                            <div class="p-3 bg-light rounded mb-4">
-                                <div class="row align-items-center">
-                                    <div class="col-6"><span class="font-weight-bold small">TỔNG TIỀN</span></div>
-                                    <div class="col-6 text-right">
-                                        <span class="h4 font-weight-bold text-success mb-0">@Model.TongTienFormat</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="text-center">
-                                @{
-                                    var statusClass = Model.TrangThai == "Đã thanh toán" ? "badge-success" : "badge-warning";
-                                }
-                                <span class="badge @statusClass px-4 py-2 shadow-sm rounded-pill h5">
+                            <div class="text-center mt-3">
+                                <span class="badge @(Model.TrangThai == "Đã thanh toán" ? "badge-success" : "badge-warning") px-4 py-2 rounded-pill">
                                     @Model.TrangThai
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    @* Bảng danh sách vé - Fix lỗi hiển thị giá vé *@
+                    @* Bảng vé *@
                     <div class="mt-4">
-                        <h5 class="font-weight-bold text-dark mb-3"><i class="fas fa-ticket-alt mr-2 text-info"></i>Danh sách vé chi tiết</h5>
-                        <table class="table table-bordered table-hover">
-                            <thead class="bg-light text-center small">
-                                <tr>
-                                    <th>Mã vé</th>
-                                    <th>Tên Ghế</th>
-                                    <th>Loại Ghế</th>
-                                    <th>Giá vé</th>
-                                    <th>Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var ve in Model.DanhSachVe)
-                                {
+                        <div class="d-flex align-items-center mb-3">
+                            <h5 class="font-weight-bold text-dark mb-0">
+                                <i class="fas fa-ticket-alt mr-2 text-primary"></i>Danh sách vé
+                            </h5>
+                            <span class="badge badge-pill badge-primary ml-2 px-3">@Model.SoLuongVe vé</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover border-bottom">
+                                <thead class="thead-light">
                                     <tr>
-                                        <td class="text-center">#@ve.MaVe</td>
-                                        <td class="text-center font-weight-bold">@ve.TenGhe</td>
-                                        <td class="text-center">
-                                            <span class="badge @(ve.LoaiGhe == "VIP" ? "badge-warning" : "badge-secondary")">@ve.LoaiGhe</span>
-                                        </td>
-                                        <td class="text-right text-primary font-weight-bold">
-                                            @ve.GiaVe.ToString("N0") đ
-                                        </td>
-                                        <td class="text-center align-middle">
-                                            @{
-                                                // Xác định màu sắc Badge dựa trên logic bạn yêu cầu
-                                                var veStatusClass = "badge-secondary"; // Mặc định
-                                                if (ve.TrangThai == "Hợp lệ") veStatusClass = "badge-success";
-                                                else if (ve.TrangThai == "Đang chờ") veStatusClass = "badge-warning text-dark";
-                                                else if (ve.TrangThai == "Đã hủy") veStatusClass = "badge-danger";
-                                            }
-                                            <span class="badge @veStatusClass px-3 py-1 shadow-sm">
-                                                @ve.TrangThai
-                                            </span>
-                                        </td>
+                                        <th class="text-center py-3 border-0" style="width: 15%">Mã vé</th>
+                                        <th class="py-3 border-0">Vị trí Ghế</th>
+                                        <th class="text-center py-3 border-0">Hạng vé</th>
+                                        <th class="text-center py-3 border-0">Trạng thái</th>
+                                        <th class="text-right py-3 border-0" style="width: 20%">Giá vé</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ve in Model.DanhSachVe)
+                                    {
+                                        <tr>
+                                            <td class="text-center align-middle font-weight-bold text-muted">
+                                                #@ve.MaVe
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-light rounded p-2 mr-3 text-primary" style="width: 40px; text-align: center;">
+                                                        <i class="fas fa-chair"></i>
+                                                    </div>
+                                                    <span class="font-weight-bold">@ve.TenGhe</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                @if (ve.LoaiGhe == "VIP")
+                                                {
+                                                    <span class="badge badge-warning shadow-sm px-3 py-2" style="color: #856404; background-color: #ffeeba; border: none;">
+                                                        <i class="fas fa-crown mr-1"></i> @ve.LoaiGhe
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-secondary px-3 py-2" style="opacity: 0.8;">
+                                                        @ve.LoaiGhe
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <span class="small font-weight-bold">
+                                                    <i class="fas fa-circle mr-1" style="font-size: 8px; vertical-align: middle;"></i>
+                                                    @ve.TrangThai
+                                                </span>
+                                            </td>
+                                            <td class="text-right align-middle">
+                                                @if (ve.GiaVe == 0)
+                                                {
+                                                    <span class="text-danger font-italic small">Chưa tính giá</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="font-weight-bold text-dark">@ve.GiaVe.ToString("N0")</span>
+                                                    <small class="text-muted ml-1">đ</small>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                @* Card Footer: Nút in và nút quay lại danh sách *@
-                <div class="card-footer bg-light d-flex justify-content-between py-3 no-print">
-                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
-                        <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
-                        <span class="text">Quay lại danh sách</span>
-                    </a>
-
-                    <div class="btn-group">
-                        @if (Model.TrangThai == "Chưa thanh toán")
-                        {
-                            <button type="button" id="btnConfirmPayment" data-id="@Model.MaHoaDon" class="btn btn-success btn-icon-split shadow-sm font-weight-bold mr-2">
-                                <span class="icon text-white-50"><i class="fas fa-check-double"></i></span>
-                                <span class="text">Xác nhận thanh toán</span>
-                            </button>
-                        }
-
-                        <button type="button" onclick="window.print()" class="btn btn-info btn-icon-split shadow-sm font-weight-bold">
-                            <span class="icon text-white-50"><i class="fas fa-print"></i></span>
-                            <span class="text">In hóa đơn</span>
-                        </button>
+                <div class="card-footer bg-light d-flex justify-content-between no-print">
+                    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left mr-1"></i> Quay lại</a>
+                    <div>
+                        <button type="button" onclick="window.print()" class="btn btn-info"><i class="fas fa-print mr-1"></i> In hóa đơn</button>
                     </div>
                 </div>
             </div>
@@ -164,54 +157,3 @@
     </div>
 </div>
 
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        $(document).ready(function () {
-            $('#btnConfirmPayment').click(function () {
-                var hoaDonId = $(this).data('id');
-                Swal.fire({
-                    title: 'Xác nhận thanh toán?',
-                    text: "Cập nhật trạng thái cho hóa đơn #" + hoaDonId,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Xác nhận',
-                    cancelButtonText: 'Hủy'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                            $.post('@Url.Action("UpdatePayment")', {
-            id: hoaDonId,
-            status: "Đã thanh toán",
-            method: "Tiền mặt" // Hoặc lấy từ giá trị người dùng chọn
-        }, function (res) {
-            if (res.success) {
-                Swal.fire('Thành công!', res.message, 'success').then(() => {
-                    location.reload(); // Reload để hiển thị ngày thanh toán và trạng thái vé mới
-                });
-            } else {
-                Swal.fire('Lỗi!', res.message, 'error');
-            }
-        });
-                    }
-                });
-            });
-        });
-    </script>
-}
-
-<style>
-    .border-left-primary {
-        border-left: 4px solid #4e73df !important;
-    }
-
-    @@media print {
-        .no-print {
-            display: none !important;
-        }
-
-        .card {
-            border: none !important;
-            box-shadow: none !important;
-        }
-    }
-</style>

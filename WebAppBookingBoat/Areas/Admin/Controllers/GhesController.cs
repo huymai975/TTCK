@@ -34,17 +34,51 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(ghes);
         }
 
+        private async Task<(bool isBusy, string message)> CheckBoatIsBusy(int maTau)
+        {
+            // Tìm các lịch trình của tàu này mà chưa kết thúc (Sắp khởi hành hoặc Đang vận hành)
+            var lichTrinhDangChay = await _context.LichTrinhs
+                .AnyAsync(l => l.MaTau == maTau &&
+                               l.TrangThai != "Hoàn thành" &&
+                               l.TrangThai != "Đã hủy");
+
+            if (lichTrinhDangChay)
+            {
+                return (true, "Tàu này hiện đang có lịch trình sắp khởi hành hoặc đang vận hành. Không thể thay đổi cấu hình ghế!");
+            }
+
+            return (false, "");
+        }
+
         // 1. Hàm logic kiểm tra điều kiện xóa
         private async Task<(bool canDelete, string message)> CheckCanDeleteGhe(int id)
         {
-            var ghe = await _context.Ghes.FindAsync(id);
+            var ghe = await _context.Ghes
+                .Include(g => g.Ves)
+                    .ThenInclude(v => v.HoaDon) // Load kèm thông tin hóa đơn
+                .FirstOrDefaultAsync(g => g.MaGhe == id);
+
             if (ghe == null) return (false, "Ghế không tồn tại.");
 
-            // Kiểm tra vé đã đặt
-            bool daCoVe = await _context.Ves.AnyAsync(v => v.MaGhe == id);
-            if (daCoVe)
+            // 1. Kiểm tra xem ghế đã từng có giao dịch nào chưa
+            // Bao gồm cả vé đang chờ thanh toán hoặc đã thanh toán thành công
+            var veViPham = await _context.Ves
+                .Include(v => v.HoaDon)
+                .Where(v => v.MaGhe == id && v.HoaDon!.TrangThai != "Đã hủy")
+                .FirstOrDefaultAsync();
+
+            if (veViPham != null)
             {
-                return (false, $"Ghế {ghe.TenGhe} đã được bán vé, không thể xóa!");
+                return (false, $"Ghế {ghe.TenGhe} đang nằm trong Hóa đơn #{veViPham.MaHoaDon} ({veViPham.HoaDon!.TrangThai}). Không thể xóa dữ liệu đang giao dịch!");
+            }
+
+            // 2. Nếu ghế nằm trong hóa đơn "Đã hủy", về lý thuyết có thể xóa ghế 
+            // nhưng sẽ làm mất lịch sử "Hủy" của khách. 
+            // An toàn nhất: Nếu đã có bất kỳ dòng nào trong bảng Ves liên quan đến ghế này -> KHÔNG XÓA.
+            bool daTungCoLichSu = await _context.Ves.AnyAsync(v => v.MaGhe == id);
+            if (daTungCoLichSu)
+            {
+                return (false, $"Ghế {ghe.TenGhe} đã có lịch sử vé (kể cả vé đã hủy). Để đảm bảo tính chính xác của báo cáo, bạn không nên xóa ghế này.");
             }
 
             return (true, "");
@@ -125,20 +159,21 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmedAjax(int id)
         {
-            // Gọi hàm logic kiểm tra
-            var (canDelete, message) = await CheckCanDeleteGhe(id);
+            var ghe = await _context.Ghes.FindAsync(id);
+            if (ghe == null) return Json(new { success = false, message = "Ghế không tồn tại." });
 
-            if (!canDelete)
-            {
-                return Json(new { success = false, message = message });
-            }
+            // 1. Kiểm tra tàu có đang bận không
+            var (isBusy, busyMessage) = await CheckBoatIsBusy(ghe.MaTau);
+            if (isBusy) return Json(new { success = false, message = busyMessage });
+
+            // 2. Kiểm tra logic xóa ghế cũ (đã có lịch sử vé chưa)
+            var (canDelete, deleteMessage) = await CheckCanDeleteGhe(id);
+            if (!canDelete) return Json(new { success = false, message = deleteMessage });
 
             try
             {
-                var ghe = await _context.Ghes.FindAsync(id);
-                _context.Ghes.Remove(ghe!);
+                _context.Ghes.Remove(ghe);
                 await _context.SaveChangesAsync();
-
                 return Json(new { success = true, message = "Đã xóa ghế thành công." });
             }
             catch (Exception)
@@ -184,16 +219,34 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaGhe,MaTau,TenGhe,LoaiGhe")] Ghe ghe)
         {
-            // Loại bỏ kiểm tra validate cho thuộc tính Tau (vì form chỉ gửi MaTau)
             ModelState.Remove("Tau");
             if (id != ghe.MaGhe) return NotFound();
+
             if (ModelState.IsValid)
             {
-                _context.Update(ghe);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
-                return RedirectToAction(nameof(Index), new { maTau = ghe.MaTau });
+                // Kiểm tra tàu có đang bận không
+                var (isBusy, busyMessage) = await CheckBoatIsBusy(ghe.MaTau);
+                if (isBusy)
+                {
+                    // Nếu không dùng AJAX ở Edit, dùng TempData để hiện Alert sau khi redirect
+                    TempData["Error"] = busyMessage;
+                    return RedirectToAction(nameof(Index), new { maTau = ghe.MaTau });
+                }
+
+                try
+                {
+                    _context.Update(ghe);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
+                    return RedirectToAction(nameof(Index), new { maTau = ghe.MaTau });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Ghes.Any(e => e.MaGhe == ghe.MaGhe)) return NotFound();
+                    else throw;
+                }
             }
+            ViewData["MaTau"] = new SelectList(_context.Taus, "MaTau", "TenTau", ghe.MaTau);
             return View(ghe);
         }
     }

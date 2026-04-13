@@ -153,7 +153,7 @@
                                         <a asp-action="Details" asp-route-id="@item.MaTuyen" class="btn-modern btn-view"><i class="fas fa-eye"></i></a>
                                         <a asp-action="Edit" asp-route-id="@item.MaTuyen" class="btn-modern btn-edit"><i class="fas fa-edit"></i></a>
                                         <button type="button" class="btn-modern btn-delete"
-                                                onclick="deleteKhachHangAjax(@item.MaTuyen, '@item.TenTuyen')">
+                                                onclick="deleteTuyenDuongAjax(@item.MaTuyen, '@item.TenTuyen')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -173,22 +173,19 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        var table;
         $(document).ready(function() {
-            table = $('#dataTableRoutes').DataTable({
+            $('#dataTableRoutes').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
                     "search": "Tìm kiếm:",
                     "searchPlaceholder": "Tìm tên tuyến, điểm đi/đến...",
                     "paginate": {
-                    // Thêm icon vào nút phân trang
-                    "previous": "<i class='fas fa-angle-left'></i>",
-                    "next": "<i class='fas fa-angle-right'></i>",
-                    "first": "<i class='fas fa-angle-double-left'></i>",
-                    "last": "<i class='fas fa-angle-double-right'></i>"
-                }
+                        "previous": "<i class='fas fa-angle-left'></i>",
+                        "next": "<i class='fas fa-angle-right'></i>"
+                    }
                 },
                 "pageLength": 10,
                 "order": [[0, "desc"]],
@@ -202,7 +199,7 @@
             });
         });
 
-                function deleteKhachHangAjax(id, name) {
+                function deleteTuyenDuongAjax(id, name) {
             Swal.fire({
                 title: 'Xác nhận xóa?',
                 text: `Bạn có chắc muốn xóa tuyến "${name}"?`,
@@ -215,12 +212,11 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        // Đảm bảo tên Action và Controller chính xác
-                        url: '@Url.Action("DeleteAjax", "KhachHangs")',
+                        // Đảm bảo gọi đúng Controller TuyenDuongs thay vì KhachHangs
+                        url: '@Url.Action("DeleteConfirmedAjax", "TuyenDuongs")',
                         type: 'POST',
                         data: {
                             id: id,
-                            // Lấy token để vượt qua kiểm tra [ValidateAntiForgeryToken]
                             __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                         },
                         success: function (response) {
@@ -235,12 +231,12 @@
                                     location.reload();
                                 });
                             } else {
-                                // Hiện thông báo lỗi nếu vi phạm ràng buộc (ví dụ: đã có hóa đơn)
+                                // Thông báo lỗi nếu tuyến đường đang có lịch trình/vé gắn liền
                                 Swal.fire('Không thể xóa!', response.message, 'error');
                             }
                         },
                         error: function () {
-                            Swal.fire('Lỗi!', 'Có lỗi xảy ra trong quá trình xử lý.', 'error');
+                            Swal.fire('Lỗi!', 'Có lỗi xảy ra trong quá trình kết nối máy chủ.', 'error');
                         }
                     });
                 }

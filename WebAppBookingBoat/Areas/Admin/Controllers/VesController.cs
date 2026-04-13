@@ -296,54 +296,55 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         }
 
 
-        // --- AJAX DELETE ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var ve = await _context.Ves.FindAsync(id);
-            if (ve == null) return Json(new { success = false, message = "Không tìm thấy vé." });
+            // Tìm vé kèm theo Hóa đơn để check trạng thái nhanh
+            var ve = await _context.Ves
+                .Include(v => v.HoaDon)
+                .FirstOrDefaultAsync(v => v.MaVe == id);
 
-            // 1. KIỂM TRA TRẠNG THÁI HÓA ĐƠN
-            var hoaDon = await _context.HoaDons.FindAsync(ve.MaHoaDon);
-            if (hoaDon?.TrangThai == "Đã thanh toán")
+            if (ve == null)
+                return Json(new { success = false, message = "Không tìm thấy thông tin vé này." });
+
+            // 1. Kiểm tra trạng thái hóa đơn
+            if (ve.HoaDon?.TrangThai == "Đã thanh toán")
             {
-                return Json(new { success = false, message = "Hóa đơn đã thanh toán, không cho phép xóa vé!" });
+                return Json(new { success = false, message = "Hóa đơn này đã thanh toán xong. Không được phép hủy vé!" });
             }
 
+            if (ve.TrangThai == "Đã hủy")
+            {
+                return Json(new { success = false, message = "Vé này đã ở trạng thái hủy từ trước." });
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                int maHoaDonTam = ve.MaHoaDon ?? 0;
+                string trangThaiCu = ve.TrangThai;
 
-                // 2. TRẢ LẠI GHẾ TRỐNG (Nếu vé đang xóa không phải là vé đã hủy)
-                if (ve.TrangThai != "Đã hủy")
+                // 2. Thực hiện "Xóa mềm": Đổi trạng thái
+                ve.TrangThai = "Đã hủy";
+                _context.Update(ve);
+
+                // 3. Cập nhật số ghế trống (Tận dụng hàm cũ của bạn)
+                await UpdateSoGheTrong(ve, isEdit: true, trangThaiCu: trangThaiCu);
+                await _context.SaveChangesAsync();
+
+                // 4. Cập nhật lại tiền & số lượng vé trên hóa đơn
+                if (ve.MaHoaDon.HasValue)
                 {
-                    var lichTrinh = await _context.LichTrinhs
-                        .Include(lt => lt.Tau)
-                        .FirstOrDefaultAsync(lt => lt.MaLichTrinh == ve.MaLichTrinh);
-
-                    if (lichTrinh != null && lichTrinh.Tau != null)
-                    {
-                        // Chỉ cộng lại ghế nếu chưa đầy (an toàn dữ liệu)
-                        if (lichTrinh.SoGheTrong < lichTrinh.Tau.TongSoGhe)
-                        {
-                            lichTrinh.SoGheTrong++;
-                        }
-                    }
+                    await UpdateHoaDonTongTien(ve.MaHoaDon.Value);
+                    await _context.SaveChangesAsync();
                 }
 
-                // 3. XÓA VÉ
-                _context.Ves.Remove(ve);
-                await _context.SaveChangesAsync();
-
-                // 4. CẬP NHẬT LẠI TỔNG TIỀN & SỐ LƯỢNG VÉ CỦA HÓA ĐƠN
-                await UpdateHoaDonTongTien(maHoaDonTam);
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Đã xóa vé và cập nhật lại hóa đơn thành công." });
+                await transaction.CommitAsync();
+                return Json(new { success = true, message = "Đã hủy vé, giải phóng ghế và cập nhật lại hóa đơn thành công." });
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }

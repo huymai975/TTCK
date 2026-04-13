@@ -12,6 +12,12 @@
         public string? TenNhanVien { get; set; }
         public DateTime NgayLap { get; set; }
 
+        // --- Thông tin lịch trình ---
+        public string? TenChuyen { get; set; }
+        public string? TuyenDuong { get; set; }
+        public DateTime NgayKhoiHanh { get; set; }
+        public string? TenTau { get; set; }
+
         // --- Tài chính & Định dạng ---
         public int SoLuongVe { get; set; }
         public decimal TamTinh { get; set; }
