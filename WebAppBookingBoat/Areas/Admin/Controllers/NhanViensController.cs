@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Repository;
 
 namespace WebAppBookingBoat.Areas.Admin.Controllers
@@ -9,10 +11,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class NhanViensController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public NhanViensController(ApplicationDbContext context)
+        public NhanViensController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // ==========================================
@@ -62,7 +66,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(await query.OrderByDescending(n => n.MaNV).ToListAsync());
         }
 
-        // --- BỔ SUNG ACTION DETAILS ---
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -98,6 +101,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 {
                     _context.Add(nhanVien);
                     await _context.SaveChangesAsync();
+
+                    await GhiLogHeThong("Thêm nhân viên", "NhanViens", $"Thêm mới nhân viên: {nhanVien.HoTen} (ID: {nhanVien.MaNV})");
+
                     TempData["SuccessMessage"] = "Thêm nhân viên mới thành công!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -126,10 +132,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             ModelState.Remove("AppUser");
             ModelState.Remove("HoaDons");
 
-            if (string.IsNullOrWhiteSpace(nhanVien.MaTK))
-            {
-                nhanVien.MaTK = null; // Đảm bảo truyền null thực sự nếu không có tài khoản
-            }
+            if (string.IsNullOrWhiteSpace(nhanVien.MaTK)) nhanVien.MaTK = null;
 
             if (ModelState.IsValid)
             {
@@ -138,11 +141,10 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 {
                     try
                     {
-                        // 2. TRÁNH LỖI THEO DÕI (TRACKING):
-                        // Nếu DBContext đang theo dõi một instance khác của NhanVien, 
-                        // hãy dùng cách này để update an toàn hơn
                         _context.Update(nhanVien);
                         await _context.SaveChangesAsync();
+
+                        await GhiLogHeThong("Cập nhật nhân viên", "NhanViens", $"Cập nhật thông tin nhân viên: {nhanVien.HoTen} (ID: {id})");
 
                         TempData["SuccessMessage"] = "Cập nhật thành công!";
                         return RedirectToAction(nameof(Index));
@@ -156,12 +158,10 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 ModelState.AddModelError("", error);
             }
 
-            // Nếu đến đây là có lỗi, load lại dữ liệu cho Dropdown
             LoadUserData(id, nhanVien.MaTK);
             return View(nhanVien);
         }
 
-        // --- CẬP NHẬT DELETE AJAX ĐỒNG NHẤT ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -171,24 +171,62 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             bool hasInvoices = await _context.HoaDons.AnyAsync(h => h.MaNV == id);
 
-            if (hasInvoices)
+            try
             {
-                // Nếu đã có hóa đơn -> Khóa mềm (Soft Delete)
-                nv.TrangThai = false;
-                if (nv.AppUser != null)
+                if (hasInvoices)
                 {
-                    nv.AppUser.TrangThai = false;
-                    _context.Update(nv.AppUser);
-                }
-                _context.Update(nv);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Nhân viên đã có hóa đơn. Hệ thống đã khóa tài khoản và cập nhật trạng thái nghỉ việc." });
-            }
+                    // Khóa mềm (Soft Delete)
+                    nv.TrangThai = false;
+                    string note = "Khóa tài khoản và cập nhật trạng thái nghỉ việc (do đã có hóa đơn)";
 
-            // Nếu chưa có hóa đơn -> Xóa vĩnh viễn (Hard Delete)
-            _context.NhanViens.Remove(nv);
-            await _context.SaveChangesAsync();
-            return Json(new { success = true, message = "Đã xóa nhân viên vĩnh viễn khỏi hệ thống." });
+                    if (nv.AppUser != null)
+                    {
+                        nv.AppUser.TrangThai = false;
+                        _context.Update(nv.AppUser);
+                        note += " kèm khóa tài khoản User.";
+                    }
+
+                    _context.Update(nv);
+                    await _context.SaveChangesAsync();
+
+                    await GhiLogHeThong("Khóa nhân viên", "NhanViens", $"Nhân viên: {nv.HoTen} (ID: {id}). Lý do: {note}", "Warning");
+
+                    return Json(new { success = true, message = "Nhân viên đã có hóa đơn. Hệ thống đã khóa tài khoản và cập nhật trạng thái nghỉ việc." });
+                }
+
+                // Xóa vĩnh viễn (Hard Delete)
+                string tenNV = nv.HoTen;
+                _context.NhanViens.Remove(nv);
+                await _context.SaveChangesAsync();
+
+                await GhiLogHeThong("Xóa nhân viên", "NhanViens", $"Đã xóa vĩnh viễn nhân viên: {tenNV} (ID: {id})", "Warning");
+
+                return Json(new { success = true, message = "Đã xóa nhân viên vĩnh viễn khỏi hệ thống." });
+            }
+            catch (Exception ex)
+            {
+                await GhiLogHeThong("Lỗi khi xóa/khóa nhân viên", "NhanViens", $"ID: {id}. Lỗi: {ex.Message}", "Error");
+                return Json(new { success = false, message = "Có lỗi xảy ra trong quá trình xử lý." });
+            }
         }
+
+        #region Helpers
+        [NonAction]
+        private async Task GhiLogHeThong(string hanhDong, string bang, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = bang,
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+        #endregion
     }
 }

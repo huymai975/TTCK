@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
@@ -11,10 +12,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class VesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public VesController(ApplicationDbContext context)
+        public VesController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         #region LOGIC TẬP TRUNG (Business Rules)
@@ -51,23 +54,17 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             }
         }
 
-        // Thêm hàm này vào khu vực #region LOGIC TẬP TRUNG
         private async Task TinhGiaVe(Ve ve)
         {
-            // 1. Lấy thông tin Lịch trình kèm theo Tuyến đường để có giá gốc
             var lichTrinh = await _context.LichTrinhs
                 .Include(lt => lt.TuyenDuong)
                 .FirstOrDefaultAsync(lt => lt.MaLichTrinh == ve.MaLichTrinh);
 
-            // 2. Lấy thông tin Ghế để kiểm tra loại ghế
             var ghe = await _context.Ghes.FindAsync(ve.MaGhe);
 
             if (lichTrinh != null && lichTrinh.TuyenDuong != null && ghe != null)
             {
-                // Lấy giá gốc từ cấu hình của Tuyến đường
                 decimal giaGoc = lichTrinh.GiaVeCoBan;
-
-                // 3. Logic tính toán: Nếu là ghế VIP thì tăng 20%
                 if (ghe.LoaiGhe != null && ghe.LoaiGhe.Contains("VIP", StringComparison.OrdinalIgnoreCase))
                 {
                     ve.GiaVe = giaGoc * 1.2m;
@@ -81,42 +78,36 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
         private async Task UpdateSoGheTrong(Ve ve, bool isEdit, string trangThaiCu = null!, int? maLichTrinhCu = null)
         {
-            // 1. XỬ LÝ CHO LỊCH TRÌNH MỚI (Lịch trình đang chọn trên vé)
             var lichTrinhMoi = await _context.LichTrinhs.Include(lt => lt.Tau)
                 .FirstOrDefaultAsync(lt => lt.MaLichTrinh == ve.MaLichTrinh);
 
-            if (!isEdit) // TRƯỜNG HỢP CREATE
+            if (!isEdit)
             {
                 if (ve.TrangThai != "Đã hủy" && lichTrinhMoi != null)
                 {
                     if (lichTrinhMoi.SoGheTrong > 0) lichTrinhMoi.SoGheTrong--;
                 }
             }
-            else // TRƯỜNG HỢP EDIT
+            else
             {
-                // A. Nếu Đổi Lịch Trình (Chuyển vé từ chuyến này sang chuyến khác)
                 if (maLichTrinhCu.HasValue && maLichTrinhCu != ve.MaLichTrinh)
                 {
-                    // Trả lại 1 ghế cho lịch trình cũ (nếu vé cũ không phải là vé hủy)
                     if (trangThaiCu != "Đã hủy")
                     {
                         var ltCu = await _context.LichTrinhs.Include(lt => lt.Tau)
                             .FirstOrDefaultAsync(lt => lt.MaLichTrinh == maLichTrinhCu);
-                        if (ltCu != null && ltCu.SoGheTrong < ltCu.Tau.TongSoGhe) ltCu.SoGheTrong++;
+                        if (ltCu != null && ltCu.SoGheTrong < ltCu.Tau!.TongSoGhe) ltCu.SoGheTrong++;
                     }
-
-                    // Trừ 1 ghế ở lịch trình mới (nếu vé mới không phải là vé hủy)
                     if (ve.TrangThai != "Đã hủy" && lichTrinhMoi != null)
                     {
                         if (lichTrinhMoi.SoGheTrong > 0) lichTrinhMoi.SoGheTrong--;
                     }
                 }
-                // B. Nếu cùng Lịch trình nhưng chỉ đổi Trạng thái (Hợp lệ <-> Hủy)
                 else if (trangThaiCu != ve.TrangThai && lichTrinhMoi != null)
                 {
                     if (ve.TrangThai == "Đã hủy" && trangThaiCu != "Đã hủy")
                     {
-                        if (lichTrinhMoi.SoGheTrong < lichTrinhMoi.Tau.TongSoGhe) lichTrinhMoi.SoGheTrong++;
+                        if (lichTrinhMoi.SoGheTrong < lichTrinhMoi.Tau!.TongSoGhe) lichTrinhMoi.SoGheTrong++;
                     }
                     else if (ve.TrangThai != "Đã hủy" && trangThaiCu == "Đã hủy")
                     {
@@ -146,7 +137,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     MaHoaDon = v.MaHoaDon ?? 0,
                     GiaVe = v.GiaVe,
                     TrangThai = v.TrangThai,
-                    // LẤY TRẠNG THÁI HÓA ĐƠN Ở ĐÂY
                     TrangThaiHoaDon = v.HoaDon != null ? v.HoaDon.TrangThai : ""
                 })
                 .OrderByDescending(v => v.MaVe)
@@ -168,7 +158,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ve == null) return NotFound();
 
-            // Mapping sang ViewModel
             var viewModel = new VeViewModel
             {
                 MaVe = ve.MaVe,
@@ -198,7 +187,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             ModelState.Remove("HoaDon"); ModelState.Remove("Ghe"); ModelState.Remove("LichTrinh");
 
-            // --- KIỂM TRA TRẠNG THÁI HÓA ĐƠN ---
             var hoaDon = await _context.HoaDons.FindAsync(ve.MaHoaDon);
             if (hoaDon != null && hoaDon.TrangThai == "Đã thanh toán")
             {
@@ -212,46 +200,48 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                await UpdateSoGheTrong(ve, isEdit: false, trangThaiCu: null!);
+                try
+                {
+                    await UpdateSoGheTrong(ve, isEdit: false, trangThaiCu: null!);
+                    _context.Add(ve);
+                    await _context.SaveChangesAsync();
 
-                _context.Add(ve);
-                await _context.SaveChangesAsync();
+                    await UpdateHoaDonTongTien(ve.MaHoaDon ?? 0);
+                    await _context.SaveChangesAsync();
 
-                // --- CẬP NHẬT LẠI HÓA ĐƠN ---
-                await UpdateHoaDonTongTien(ve.MaHoaDon ?? 0);
-                await _context.SaveChangesAsync();
+                    await GhiLogHeThong("Thêm vé", "Vé", $"Tạo vé mới MaVe: {ve.MaVe} cho HĐ{ve.MaHoaDon}. Giá: {ve.GiaVe:N0}đ");
 
-                TempData["SuccessMessage"] = "Tạo vé thành công!";
-                return RedirectToAction(nameof(Index));
+                    TempData["SuccessMessage"] = "Tạo vé thành công!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    await GhiLogHeThong("Lỗi Thêm vé", "Vé", $"Lỗi: {ex.Message}", "Error");
+                    ModelState.AddModelError("", "Lỗi hệ thống khi tạo vé.");
+                }
             }
             LoadDropdownData(ve);
             return View(ve);
         }
 
-        // GET: Admin/Ves/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-
             var ve = await _context.Ves.FindAsync(id);
             if (ve == null) return NotFound();
-
             LoadDropdownData(ve);
             return View(ve);
         }
 
-        // POST: Admin/Ves/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Ve ve)
         {
             if (id != ve.MaVe) return NotFound();
 
-            // 1. Lấy thông tin vé cũ (Sử dụng AsNoTracking để tránh xung đột khi Update)
             var veCu = await _context.Ves.AsNoTracking().FirstOrDefaultAsync(v => v.MaVe == id);
             if (veCu == null) return NotFound();
 
-            // 2. KIỂM TRA HÓA ĐƠN: Nếu đã thanh toán thì KHÔNG cho sửa bất cứ gì của vé
             var hoaDon = await _context.HoaDons.FindAsync(ve.MaHoaDon);
             if (hoaDon?.TrangThai == "Đã thanh toán")
             {
@@ -259,11 +249,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ModelState.Remove("HoaDon");
-            ModelState.Remove("Ghe");
-            ModelState.Remove("LichTrinh");
+            ModelState.Remove("HoaDon"); ModelState.Remove("Ghe"); ModelState.Remove("LichTrinh");
 
-            // 3. Tính lại giá vé (phòng trường hợp đổi ghế thường -> VIP)
             await TinhGiaVe(ve);
             await ValidateVeBusiness(ve, isEdit: true, trangThaiCu: veCu.TrangThai);
 
@@ -271,80 +258,66 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 try
                 {
-                    // 4. Cập nhật số ghế trống trên tàu
                     await UpdateSoGheTrong(ve, isEdit: true, trangThaiCu: veCu.TrangThai, maLichTrinhCu: veCu.MaLichTrinh);
-
                     _context.Update(ve);
                     await _context.SaveChangesAsync();
 
-                    // 5. CẬP NHẬT LẠI TỔNG TIỀN VÀ SỐ LƯỢNG VÉ TRONG HÓA ĐƠN
                     await UpdateHoaDonTongTien(ve.MaHoaDon ?? 0);
                     await _context.SaveChangesAsync();
 
-                    TempData["SuccessMessage"] = "Cập nhật vé và hóa đơn thành công!";
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Ves.Any(e => e.MaVe == ve.MaVe)) return NotFound();
-                    else throw;
-                }
-                return RedirectToAction(nameof(Index));
-            }
+                    await GhiLogHeThong("Cập nhật vé", "Vé", $"Chỉnh sửa vé ID {id}. Trạng thái: {veCu.TrangThai} -> {ve.TrangThai}");
 
+                    TempData["SuccessMessage"] = "Cập nhật vé thành công!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    await GhiLogHeThong("Lỗi Cập nhật vé", "Vé", $"ID: {id}. Lỗi: {ex.Message}", "Error");
+                    ModelState.AddModelError("", "Lỗi khi cập nhật dữ liệu.");
+                }
+            }
             LoadDropdownData(ve);
             return View(ve);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            // Tìm vé kèm theo Hóa đơn để check trạng thái nhanh
-            var ve = await _context.Ves
-                .Include(v => v.HoaDon)
-                .FirstOrDefaultAsync(v => v.MaVe == id);
+            var ve = await _context.Ves.Include(v => v.HoaDon).FirstOrDefaultAsync(v => v.MaVe == id);
+            if (ve == null) return Json(new { success = false, message = "Không tìm thấy vé." });
 
-            if (ve == null)
-                return Json(new { success = false, message = "Không tìm thấy thông tin vé này." });
-
-            // 1. Kiểm tra trạng thái hóa đơn
             if (ve.HoaDon?.TrangThai == "Đã thanh toán")
-            {
-                return Json(new { success = false, message = "Hóa đơn này đã thanh toán xong. Không được phép hủy vé!" });
-            }
+                return Json(new { success = false, message = "Hóa đơn đã thanh toán. Không thể hủy vé!" });
 
             if (ve.TrangThai == "Đã hủy")
-            {
-                return Json(new { success = false, message = "Vé này đã ở trạng thái hủy từ trước." });
-            }
+                return Json(new { success = false, message = "Vé này đã hủy từ trước." });
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 string trangThaiCu = ve.TrangThai;
-
-                // 2. Thực hiện "Xóa mềm": Đổi trạng thái
                 ve.TrangThai = "Đã hủy";
                 _context.Update(ve);
 
-                // 3. Cập nhật số ghế trống (Tận dụng hàm cũ của bạn)
                 await UpdateSoGheTrong(ve, isEdit: true, trangThaiCu: trangThaiCu);
                 await _context.SaveChangesAsync();
 
-                // 4. Cập nhật lại tiền & số lượng vé trên hóa đơn
                 if (ve.MaHoaDon.HasValue)
                 {
                     await UpdateHoaDonTongTien(ve.MaHoaDon.Value);
                     await _context.SaveChangesAsync();
                 }
 
+                await GhiLogHeThong("Hủy vé", "Vé", $"Hủy vé ID {id} thuộc HĐ{ve.MaHoaDon}", "Warning");
+
                 await transaction.CommitAsync();
-                return Json(new { success = true, message = "Đã hủy vé, giải phóng ghế và cập nhật lại hóa đơn thành công." });
+                return Json(new { success = true, message = "Đã hủy vé và cập nhật hóa đơn." });
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                await GhiLogHeThong("Lỗi Hủy vé", "Vé", $"ID: {id}. Lỗi: {ex.Message}", "Error");
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
@@ -352,24 +325,17 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [HttpGet]
         public async Task<JsonResult> GetGhesByLichTrinh(int maLichTrinh)
         {
-            // 1. Tìm lịch trình để biết tàu nào đang chạy chuyến này
             var lichTrinh = await _context.LichTrinhs.FindAsync(maLichTrinh);
             if (lichTrinh == null) return Json(new List<object>());
 
-            // 2. Lấy danh sách ID các ghế đã được đặt cho lịch trình này (trừ các vé đã hủy)
             var gheDaDatIds = await _context.Ves
                 .Where(v => v.MaLichTrinh == maLichTrinh && v.TrangThai != "Đã hủy")
                 .Select(v => v.MaGhe)
                 .ToListAsync();
 
-            // 3. Lấy danh sách tất cả ghế của tàu đó mà KHÔNG nằm trong danh sách đã đặt
             var ghesTrong = await _context.Ghes
                 .Where(g => g.MaTau == lichTrinh.MaTau && !gheDaDatIds.Contains(g.MaGhe))
-                .Select(g => new
-                {
-                    value = g.MaGhe,
-                    text = $"{g.TenGhe} ({g.LoaiGhe})"
-                })
+                .Select(g => new { value = g.MaGhe, text = $"{g.TenGhe} ({g.LoaiGhe})" })
                 .ToListAsync();
 
             return Json(ghesTrong);
@@ -378,10 +344,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [HttpGet]
         public async Task<JsonResult> GetGiaCoBanByLichTrinh(int maLichTrinh)
         {
-            var lt = await _context.LichTrinhs
-                .Include(l => l.TuyenDuong)
+            var lt = await _context.LichTrinhs.Include(l => l.TuyenDuong)
                 .FirstOrDefaultAsync(l => l.MaLichTrinh == maLichTrinh);
-
             return Json(new { giaGoc = lt?.GiaVeCoBan ?? 0 });
         }
 
@@ -389,11 +353,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         private void LoadDropdownData(Ve? ve = null)
         {
             var lichTrinhs = _context.LichTrinhs.Include(l => l.Tau).Include(l => l.TuyenDuong)
-                .Select(l => new
-                {
-                    l.MaLichTrinh,
-                    Display = $"{l.Tau!.TenTau} - {l.TuyenDuong!.TenTuyen} ({l.NgayGioKhoiHanh:dd/MM HH:mm})"
-                }).ToList();
+                .Select(l => new { l.MaLichTrinh, Display = $"{l.Tau!.TenTau} - {l.TuyenDuong!.TenTuyen} ({l.NgayGioKhoiHanh:dd/MM HH:mm})" }).ToList();
             ViewData["MaLichTrinh"] = new SelectList(lichTrinhs, "MaLichTrinh", "Display", ve?.MaLichTrinh);
 
             var hoaDons = _context.HoaDons.Include(h => h.KhachHang)
@@ -417,27 +377,30 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             var hoaDon = await _context.HoaDons.FindAsync(maHoaDon);
             if (hoaDon != null)
             {
-                // Lấy danh sách vé thực tế (không tính vé hủy)
-                var tatCaVe = await _context.Ves
-                    .Where(v => v.MaHoaDon == maHoaDon && v.TrangThai != "Đã hủy")
-                    .ToListAsync();
-
-                // Cập nhật số lượng vé
+                var tatCaVe = await _context.Ves.Where(v => v.MaHoaDon == maHoaDon && v.TrangThai != "Đã hủy").ToListAsync();
                 hoaDon.SoLuongVe = tatCaVe.Count;
-
-                // Tính Tạm tính (Sum của decimal luôn ra decimal)
                 hoaDon.TamTinh = tatCaVe.Sum(v => v.GiaVe);
-
-                // Tính Tổng tiền: Vì SoTienGiam của Huy không nullable nên dùng trực tiếp
-                hoaDon.TongTien = hoaDon.TamTinh - hoaDon.SoTienGiam;
-
-                // Đảm bảo không bị âm (Ví dụ giảm giá quá đà)
-                if (hoaDon.TongTien < 0m) hoaDon.TongTien = 0m;
-
+                hoaDon.TongTien = Math.Max(0m, hoaDon.TamTinh - hoaDon.SoTienGiam);
                 _context.Update(hoaDon);
             }
         }
 
+        [NonAction]
+        private async Task GhiLogHeThong(string hanhDong, string bang, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = bang,
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+        }
         #endregion
     }
 }

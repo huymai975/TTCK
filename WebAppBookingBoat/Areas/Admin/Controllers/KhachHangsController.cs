@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
@@ -10,78 +11,61 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class KhachHangsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public KhachHangsController(ApplicationDbContext context)
+        public KhachHangsController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        // --- 1. HÀM LOGIC CHO THÊM & SỬA ---
+        #region PRIVATE LOGIC & HELPERS
+
+        // Hàm ghi log tập trung
+        private async Task GhiLogHeThong(string hanhDong, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = "KhachHangs",
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
         private async Task<string?> CheckUpsertLogic(KhachHang kh, int? id = null)
         {
-            // Kiểm tra trùng Email
             if (await _context.KhachHangs.AnyAsync(k => k.Email == kh.Email && k.MaKH != id))
                 return "Email này đã tồn tại trong hệ thống!";
 
-            // Kiểm tra trùng Số điện thoại
             if (await _context.KhachHangs.AnyAsync(k => k.Sdt == kh.Sdt && k.MaKH != id))
                 return "Số điện thoại này đã được sử dụng!";
 
-            // Kiểm tra trùng Tài khoản (MaTK)
             if (kh.MaTK != null && await _context.KhachHangs.AnyAsync(k => k.MaTK == kh.MaTK && k.MaKH != id))
                 return "Tài khoản này đã được gán cho khách hàng khác!";
 
-            return null; // OK
+            return null;
         }
 
-        // --- 2. HÀM LOGIC CHO XÓA ---
-        private async Task<(bool canDelete, bool isHardDelete, string message)> CheckDeleteLogic(int id)
+        private async Task<(bool canExecute, bool isHardDelete, string message)> CheckDeleteLogic(int id)
         {
-            var kh = await _context.KhachHangs.Include(k => k.AppUser).FirstOrDefaultAsync(m => m.MaKH == id);
+            var kh = await _context.KhachHangs.FindAsync(id);
             if (kh == null) return (false, false, "Khách hàng không tồn tại.");
 
             bool daCoHoaDon = await _context.HoaDons.AnyAsync(h => h.MaKH == id);
-
             if (daCoHoaDon)
             {
-                // Trả về false cho canDelete nhưng đánh dấu đây là trường hợp chuyển sang khóa tài khoản
                 return (true, false, "Khách hàng đã có lịch sử hóa đơn. Hệ thống sẽ khóa tài khoản thay vì xóa.");
             }
 
             return (true, true, "");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteAjax(int id)
-        {
-            var (canExecute, isHardDelete, message) = await CheckDeleteLogic(id);
-            if (!canExecute) return Json(new { success = false, message = message });
-
-            var kh = await _context.KhachHangs.Include(k => k.AppUser).FirstOrDefaultAsync(m => m.MaKH == id);
-            if (kh == null) return Json(new { success = false, message = "Không tìm thấy khách hàng." });
-
-            if (isHardDelete)
-            {
-                _context.KhachHangs.Remove(kh);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Đã xóa khách hàng vĩnh viễn." });
-            }
-            else
-            {
-                // Khóa tài khoản nếu có hóa đơn
-                if (kh.AppUser != null)
-                {
-                    kh.AppUser.TrangThai = false;
-                    _context.Update(kh.AppUser);
-                    await _context.SaveChangesAsync();
-                    return Json(new { success = true, message = "Đã khóa tài khoản khách hàng để giữ lịch sử hóa đơn." });
-                }
-                return Json(new { success = false, message = "Không thể khóa vì khách hàng không có tài khoản liên kết." });
-            }
-        }
-
-        // --- 3. HÀM LOAD DROPDOWN TẬP TRUNG ---
         private void LoadUserData(int? currentMaKH = null, string? selectedMaTK = null)
         {
             var assignedUserIds = _context.KhachHangs
@@ -94,7 +78,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             ViewBag.MaTK = new SelectList(availableUsers, "Id", "UserName", selectedMaTK);
         }
 
-        // ================= ACTION METHODS =================
+        #endregion
+
+        #region ACTION METHODS
 
         public async Task<IActionResult> Index(string searchString)
         {
@@ -134,6 +120,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 {
                     _context.Add(khachHang);
                     await _context.SaveChangesAsync();
+
+                    await GhiLogHeThong("Thêm khách hàng", $"Tạo mới KH: {khachHang.HoTen} (ID: {khachHang.MaKH}). Email: {khachHang.Email}");
+
                     TempData["SuccessMessage"] = "Thêm khách hàng thành công!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -159,6 +148,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             if (id != khachHang.MaKH) return NotFound();
             if (string.IsNullOrWhiteSpace(khachHang.MaTK)) khachHang.MaTK = null;
 
+            var oldData = await _context.KhachHangs.AsNoTracking().FirstOrDefaultAsync(k => k.MaKH == id);
+            if (oldData == null) return NotFound();
+
             if (ModelState.IsValid)
             {
                 var error = await CheckUpsertLogic(khachHang, id);
@@ -168,6 +160,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     {
                         _context.Update(khachHang);
                         await _context.SaveChangesAsync();
+
+                        // Log chi tiết nếu thay đổi thông tin quan trọng
+                        string detail = $"Cập nhật KH ID: {id}.";
+                        if (oldData.Email != khachHang.Email) detail += $" Đổi Email: {oldData.Email} -> {khachHang.Email}.";
+                        if (oldData.MaTK != khachHang.MaTK) detail += $" Thay đổi liên kết tài khoản.";
+
+                        await GhiLogHeThong("Cập nhật khách hàng", detail);
+
                         TempData["SuccessMessage"] = "Cập nhật hồ sơ thành công!";
                         return RedirectToAction(nameof(Index));
                     }
@@ -178,5 +178,42 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             LoadUserData(id, khachHang.MaTK);
             return View(khachHang);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAjax(int id)
+        {
+            var (canExecute, isHardDelete, message) = await CheckDeleteLogic(id);
+            if (!canExecute) return Json(new { success = false, message = message });
+
+            var kh = await _context.KhachHangs.Include(k => k.AppUser).FirstOrDefaultAsync(m => m.MaKH == id);
+            if (kh == null) return Json(new { success = false, message = "Không tìm thấy khách hàng." });
+
+            if (isHardDelete)
+            {
+                _context.KhachHangs.Remove(kh);
+                await _context.SaveChangesAsync();
+
+                await GhiLogHeThong("Xóa khách hàng", $"Xóa vĩnh viễn KH: {kh.HoTen} (ID: {id})", "Warning");
+
+                return Json(new { success = true, message = "Đã xóa khách hàng vĩnh viễn." });
+            }
+            else
+            {
+                if (kh.AppUser != null)
+                {
+                    kh.AppUser.TrangThai = false;
+                    _context.Update(kh.AppUser);
+                    await _context.SaveChangesAsync();
+
+                    await GhiLogHeThong("Khóa tài khoản khách hàng", $"Khóa tài khoản của KH: {kh.HoTen} do đã có hóa đơn.", "Warning");
+
+                    return Json(new { success = true, message = "Đã khóa tài khoản khách hàng để giữ lịch sử hóa đơn." });
+                }
+                return Json(new { success = false, message = "Không thể khóa vì khách hàng không có tài khoản liên kết." });
+            }
+        }
+
+        #endregion
     }
 }

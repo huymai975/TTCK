@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Repository;
@@ -11,11 +12,13 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly UserManager<AppUser> _userManager;
 
-        public TuyenDuongsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public TuyenDuongsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<AppUser> userManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _userManager = userManager;
         }
 
         // GET: Admin/TuyenDuongs
@@ -37,36 +40,48 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                string uniqueFileName = "default-route.jpg";
-
-                if (vm.ImageFile != null)
+                try
                 {
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tuyen-duong");
-                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                    string uniqueFileName = "default-route.jpg";
 
-                    uniqueFileName = Guid.NewGuid().ToString() + "_" + vm.ImageFile.FileName;
-                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    if (vm.ImageFile != null)
                     {
-                        await vm.ImageFile.CopyToAsync(fileStream);
+                        string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tuyen-duong");
+                        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                        uniqueFileName = Guid.NewGuid().ToString() + "_" + vm.ImageFile.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await vm.ImageFile.CopyToAsync(fileStream);
+                        }
                     }
+
+                    var tuyenDuong = new TuyenDuong
+                    {
+                        TenTuyen = vm.TenTuyen,
+                        DiemDi = vm.DiemDi,
+                        DiemDen = vm.DiemDen,
+                        KhoangCach = vm.KhoangCach,
+                        ThoiGianDuKien = vm.ThoiGianDuKien,
+                        HinhAnh = uniqueFileName
+                    };
+
+                    _context.Add(tuyenDuong);
+                    await _context.SaveChangesAsync();
+
+                    // Ghi log sau khi thêm thành công
+                    await GhiLogHeThong("Thêm tuyến đường", "TuyenDuongs", $"Tạo tuyến mới: {tuyenDuong.TenTuyen} (ID: {tuyenDuong.MaTuyen})");
+
+                    TempData["SuccessMessage"] = "Thêm mới tuyến đường thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                var tuyenDuong = new TuyenDuong
+                catch (Exception ex)
                 {
-                    TenTuyen = vm.TenTuyen,
-                    DiemDi = vm.DiemDi,
-                    DiemDen = vm.DiemDen,
-                    KhoangCach = vm.KhoangCach,
-                    ThoiGianDuKien = vm.ThoiGianDuKien,
-                    HinhAnh = uniqueFileName
-                };
-
-                _context.Add(tuyenDuong);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Thêm mới tuyến đường thành công!";
-                return RedirectToAction(nameof(Index));
+                    await GhiLogHeThong("Lỗi Thêm tuyến đường", "TuyenDuongs", $"Lỗi: {ex.Message}", "Error");
+                    ModelState.AddModelError("", "Đã xảy ra lỗi khi tạo tuyến đường.");
+                }
             }
             return View(vm);
         }
@@ -74,23 +89,15 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         // GET: Admin/TuyenDuongs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            // Tìm tuyến đường theo ID
             var tuyenDuong = await _context.TuyenDuongs
                 .FirstOrDefaultAsync(m => m.MaTuyen == id);
 
-            if (tuyenDuong == null)
-            {
-                return NotFound();
-            }
+            if (tuyenDuong == null) return NotFound();
 
             return View(tuyenDuong);
         }
-
 
         // GET: Admin/TuyenDuongs/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -100,7 +107,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             var tuyenDuong = await _context.TuyenDuongs.FindAsync(id);
             if (tuyenDuong == null) return NotFound();
 
-            // Chuyển đổi từ Model sang ViewModel để hiển thị lên Form
             var vm = new TuyenDuongViewModel
             {
                 MaTuyen = tuyenDuong.MaTuyen,
@@ -114,7 +120,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             return View(vm);
         }
-
 
         // POST: Admin/TuyenDuongs/Edit/5
         [HttpPost]
@@ -130,6 +135,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     var tuyenDuong = await _context.TuyenDuongs.FindAsync(id);
                     if (tuyenDuong == null) return NotFound();
 
+                    string oldName = tuyenDuong.TenTuyen; // Lưu lại để ghi log
+
                     tuyenDuong.TenTuyen = vm.TenTuyen;
                     tuyenDuong.DiemDi = vm.DiemDi;
                     tuyenDuong.DiemDen = vm.DiemDen;
@@ -142,7 +149,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         string uniqueFileName = Guid.NewGuid().ToString() + "_" + vm.ImageFile.FileName;
                         string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                        // Xóa ảnh cũ nếu không phải ảnh default
                         if (!string.IsNullOrEmpty(tuyenDuong.HinhAnh) && tuyenDuong.HinhAnh != "default-route.jpg")
                         {
                             string oldPath = Path.Combine(uploadsFolder, tuyenDuong.HinhAnh);
@@ -158,14 +164,22 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                     _context.Update(tuyenDuong);
                     await _context.SaveChangesAsync();
+
+                    await GhiLogHeThong("Cập nhật tuyến đường", "TuyenDuongs", $"Cập nhật ID {id}. Tên cũ: {oldName} -> Tên mới: {tuyenDuong.TenTuyen}");
+
                     TempData["SuccessMessage"] = "Cập nhật tuyến đường thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!TuyenDuongExists(vm.MaTuyen)) return NotFound();
                     else throw;
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    await GhiLogHeThong("Lỗi Cập nhật tuyến đường", "TuyenDuongs", $"ID: {id}. Lỗi: {ex.Message}", "Error");
+                    ModelState.AddModelError("", "Lỗi khi cập nhật dữ liệu.");
+                }
             }
             return View(vm);
         }
@@ -192,13 +206,18 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             try
             {
+                string tenTuyen = tuyen.TenTuyen;
                 _context.TuyenDuongs.Remove(tuyen);
                 await _context.SaveChangesAsync();
+
+                await GhiLogHeThong("Xóa tuyến đường", "TuyenDuongs", $"Đã xóa tuyến: {tenTuyen} (ID: {id})", "Warning");
+
                 return Json(new { success = true, message = "Xóa tuyến đường thành công!" });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "Không thể xóa vì tuyến đường này đang được sử dụng trong các dữ liệu khác (như Lịch trình)." });
+                await GhiLogHeThong("Lỗi Xóa tuyến đường", "TuyenDuongs", $"ID: {id}. Lỗi: {ex.Message}", "Error");
+                return Json(new { success = false, message = "Không thể xóa vì tuyến đường này đang được sử dụng trong các dữ liệu khác." });
             }
         }
 
@@ -206,5 +225,24 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             return _context.TuyenDuongs.Any(e => e.MaTuyen == id);
         }
+
+        #region Helpers
+        [NonAction]
+        private async Task GhiLogHeThong(string hanhDong, string bang, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = bang,
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+        #endregion
     }
 }
