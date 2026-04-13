@@ -1,0 +1,312 @@
+﻿@model WebAppBookingBoat.Areas.Admin.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Bảng điều khiển";
+}
+
+<style>
+    .card-stat {
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+        .card-stat:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+    .icon-shape {
+        width: 48px;
+        height: 48px;
+        background-color: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-group .btn {
+        border-radius: 20px;
+        padding: 5px 20px;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s;
+    }
+
+    .btn-filter-active {
+        background-color: #4e73df !important;
+        color: white !important;
+        box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3);
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-tachometer-alt text-primary mr-2"></i>Hệ thống Dashboard
+        </h1>
+
+        <div class="d-flex align-items-center bg-white p-2 rounded-pill shadow-sm border">
+            <div class="filter-group mr-3 border-right pr-3">
+                <a href="@Url.Action("Index", new { filter = "today" })"
+                   class="btn btn-sm @(Model.CurrentFilter == "today" ? "btn-filter-active" : "btn-light")">Hôm nay</a>
+                <a href="@Url.Action("Index", new { filter = "week" })"
+                   class="btn btn-sm @(Model.CurrentFilter == "week" ? "btn-filter-active" : "btn-light")">7 ngày</a>
+                <a href="@Url.Action("Index", new { filter = "month" })"
+                   class="btn btn-sm @(Model.CurrentFilter == "month" ? "btn-filter-active" : "btn-light")">Tháng này</a>
+            </div>
+
+            <div class="text-muted small font-weight-bold px-3 py-1 mr-2 border-right">
+                <i class="fas fa-calendar-alt text-primary mr-1"></i> @DateTime.Now.ToString("dd/MM/yyyy")
+            </div>
+
+            <a href="@Url.Action("ExportPdf", "Dashboards")" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm">
+                <i class="fas fa-file-pdf mr-1"></i> Xuất PDF
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card card-stat bg-primary text-white shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-white-50 small font-weight-bold text-uppercase mb-1">Tổng doanh thu</div>
+                            <div class="h4 mb-0 font-weight-bold">@Model.TongDoanhThu.ToString("N0") đ</div>
+                        </div>
+                        <div class="icon-shape"><i class="fas fa-dollar-sign fa-lg"></i></div>
+                    </div>
+                    <div class="mt-3 small">
+                        <span class="text-white-50">Tháng này: </span>
+                        <strong>@Model.DoanhThuThangNay.ToString("N0") đ</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card card-stat bg-success text-white shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-white-50 small font-weight-bold text-uppercase mb-1">Khách hàng</div>
+                            <div class="h4 mb-0 font-weight-bold">@Model.SoKhachHang.ToString("N0")</div>
+                        </div>
+                        <div class="icon-shape"><i class="fas fa-users fa-lg"></i></div>
+                    </div>
+                    <div class="mt-3 small text-white-50">
+                        Có @Model.SoTauDangChay tàu đang chạy
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card card-stat bg-info text-white shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-white-50 small font-weight-bold text-uppercase mb-1">Tỷ lệ lấp đầy</div>
+                            <div class="h4 mb-0 font-weight-bold">@Model.TyLeLapDay%</div>
+                        </div>
+                        <div class="icon-shape"><i class="fas fa-ship fa-lg"></i></div>
+                    </div>
+                    <div class="mt-3 small text-white-50">
+                        @Model.HoaDonMoiTrongNgay hóa đơn hôm nay
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card card-stat bg-warning text-white shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-white-50 small font-weight-bold text-uppercase mb-1">Chờ thanh toán</div>
+                            <div class="h4 mb-0 font-weight-bold">@Model.HoaDonChoXuLy</div>
+                        </div>
+                        <div class="icon-shape"><i class="fas fa-clock fa-lg"></i></div>
+                    </div>
+                    <div class="mt-3 small">
+                        <a href="@Url.Action("Index", "HoaDons")" class="text-white font-weight-bold" style="text-decoration:none">
+                            Xem chi tiết <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4 border-0">
+                <div class="card-header py-3 bg-white border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                        <i class="fas fa-chart-area mr-1 text-info"></i> Doanh thu 7 ngày gần nhất
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 320px;">
+                        <canvas id="myAreaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4 border-0">
+                <div class="card-header py-3 bg-white border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                        <i class="fas fa-history mr-1 text-info"></i> Nhật ký hệ thống
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" style="max-height: 360px; overflow-y: auto;">
+                        @if (Model.LogGanDay != null && Model.LogGanDay.Any())
+                        {
+                            @foreach (var log in Model.LogGanDay.Take(50))
+                            {
+                                <div class="list-group-item border-0 border-bottom px-4 py-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="small font-weight-bold text-primary">@log.HanhDong</div>
+                                        <span class="badge badge-light text-muted" style="font-size: 9px;">@log.ThoiGian.ToString("HH:mm dd/MM")</span>
+                                    </div>
+                                    <div class="small text-muted text-truncate-2 mt-1">@log.NoiDungChiTiet</div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="p-4 text-center text-muted small">Chưa có nhật ký hoạt động.</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4 border-0">
+        <div class="card-header py-3 bg-white border-bottom d-flex align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                <i class="fas fa-list mr-1 text-info"></i> Giao dịch vừa phát sinh
+            </h6>
+            <a href="@Url.Action("Index", "HoaDons")" class="btn btn-sm btn-light text-primary font-weight-bold px-3">Tất cả</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small font-weight-bold">
+                        <tr>
+                            <th class="border-0 pl-4">Mã đơn</th>
+                            <th class="border-0">Khách hàng</th>
+                            <th class="border-0 text-center">Ngày đặt</th>
+                            <th class="border-0 text-right pr-4">Số tiền</th>
+                            <th class="border-0 text-center">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        @if (Model.HoaDonMoiNhat != null && Model.HoaDonMoiNhat.Any())
+                        {
+                            @foreach (var hd in Model.HoaDonMoiNhat.Take(5))
+                            {
+                                <tr>
+                                    <td class="pl-4 font-weight-bold text-dark">#@hd.MaHoaDon</td>
+                                    <td>
+                                        <div class="font-weight-bold">@(hd.KhachHang?.HoTen ?? "N/A")</div>
+                                        <div class="text-muted" style="font-size: 10px;">@hd.KhachHang?.Sdt</div>
+                                    </td>
+                                    <td class="text-center text-muted">@hd.NgayLap.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="font-weight-bold text-danger text-right pr-4">@hd.TongTien.ToString("N0") đ</td>
+                                    <td class="text-center">
+                                        @{
+                                            var badgeClass = hd.TrangThai == "Đã thanh toán" ? "badge-success" :
+                                            hd.TrangThai == "Chưa thanh toán" ? "badge-warning text-dark" : "badge-danger";
+                                        }
+                                        <span class="badge @badgeClass status-badge">@hd.TrangThai</span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center p-4 text-muted">Không có giao dịch nào gần đây.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels7Days = @Html.Raw(Json.Serialize(Model.Labels7Ngay));
+        const data7Days = @Html.Raw(Json.Serialize(Model.DoanhThu7Ngay));
+
+        var ctx = document.getElementById("myAreaChart").getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels7Days,
+                datasets: [{
+                    label: "Doanh thu",
+                    lineTension: 0.4,
+                    backgroundColor: "rgba(78, 115, 223, 0.05)",
+                    borderColor: "rgba(78, 115, 223, 1)",
+                    pointRadius: 4,
+                    pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                    pointBorderColor: "rgba(255, 255, 255, 0.8)",
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                    pointHitRadius: 50,
+                    pointBorderWidth: 2,
+                    data: data7Days,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Doanh thu: ' + context.parsed.y.toLocaleString('vi-VN') + ' đ';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: v => v.toLocaleString('vi-VN') + ' đ'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

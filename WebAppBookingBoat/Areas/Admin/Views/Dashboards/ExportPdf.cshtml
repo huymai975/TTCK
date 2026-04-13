@@ -1,0 +1,96 @@
+﻿@model WebAppBookingBoat.Areas.Admin.ViewModels.DashboardViewModel
+@{
+    Layout = null; // Xuất PDF không dùng Layout chung của Admin
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        .header-title {
+            color: #4e73df;
+            border-bottom: 2px solid #4e73df;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            border: 1px solid #e3e6f0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .table thead {
+            background-color: #f8f9fc;
+        }
+
+        .text-primary {
+            color: #4e73df !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="text-center">
+            <h2 class="header-title">BÁO CÁO HOẠT ĐỘNG HỆ THỐNG</h2>
+            <p>Ngày xuất báo cáo: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-4">
+                <div class="stat-box">
+                    <small class="text-uppercase font-weight-bold">Tổng doanh thu</small>
+                    <h4 class="text-primary">@Model.TongDoanhThu.ToString("N0") đ</h4>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-box">
+                    <small class="text-uppercase font-weight-bold">Tổng đơn hàng</small>
+                    <h4>@Model.HoaDonMoiNhat.Count</h4>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-box">
+                    <small class="text-uppercase font-weight-bold">Tỷ lệ lấp đầy</small>
+                    <h4 class="text-info">@Model.TyLeLapDay%</h4>
+                </div>
+            </div>
+        </div>
+
+        <h5>Danh sách giao dịch gần nhất</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var hd in Model.HoaDonMoiNhat)
+                {
+                    <tr>
+                        <td>#@hd.MaHoaDon</td>
+                        <td>@hd.KhachHang?.HoTen</td>
+                        <td>@hd.NgayLap.ToString("dd/MM/yyyy")</td>
+                        <td class="text-right">@hd.TongTien.ToString("N0") đ</td>
+                        <td>@hd.TrangThai</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="mt-5 text-right">
+            <p class="font-italic" style="font-size: 12px;">Người xuất báo cáo: Hệ thống quản trị Water Boat Booking</p>
+        </div>
+    </div>
+</body>
+</html>

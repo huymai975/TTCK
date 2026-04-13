@@ -159,6 +159,7 @@ wwwroot\lib\jquery\dist\jquery.js
 wwwroot\lib\jquery\dist\jquery.min.js
 wwwroot\lib\jquery\dist\jquery.min.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\Rotativa\wkhtmltopdf.exe
 wwwroot\scss\bootstrap\bootstrap-grid.scss
 wwwroot\scss\bootstrap\bootstrap-reboot.scss
 wwwroot\scss\bootstrap\bootstrap.scss

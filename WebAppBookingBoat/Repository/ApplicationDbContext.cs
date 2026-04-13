@@ -28,7 +28,6 @@ namespace WebAppBookingBoat.Repository
             base.OnModelCreating(modelBuilder);
 
             // --- 1. RÀNG BUỘC UNIQUE ---
-            //modelBuilder.Entity<TaiKhoan>().HasIndex(tk => tk.TenDangNhap).IsUnique();
             modelBuilder.Entity<NhanVien>().HasIndex(nv => nv.Email).IsUnique();
             modelBuilder.Entity<NhanVien>().HasIndex(nv => nv.Sdt).IsUnique();
             modelBuilder.Entity<NhanVien>().HasIndex(nv => nv.MaTK).IsUnique();
@@ -56,6 +55,22 @@ namespace WebAppBookingBoat.Repository
                 t.HasCheckConstraint("CK_NV_Sdt_Format", "LEN([Sdt]) >= 10 AND [Sdt] NOT LIKE '%[^0-9]%'");
                 t.HasCheckConstraint("CK_NV_Email_Format", "[Email] LIKE '%_@_%._%'");
             });
+
+            // --- CẤU HÌNH QUAN HỆ 1-1 CHI TIẾT ---
+
+            // 1 tài khoản AppUser <-> 1 hồ sơ NhanVien
+            modelBuilder.Entity<NhanVien>()
+                .HasOne(nv => nv.AppUser)
+                .WithOne()
+                .HasForeignKey<NhanVien>(nv => nv.MaTK)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 1 tài khoản AppUser <-> 1 hồ sơ KhachHang
+            modelBuilder.Entity<KhachHang>()
+                .HasOne(kh => kh.AppUser)
+                .WithOne()
+                .HasForeignKey<KhachHang>(kh => kh.MaTK)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Lịch trình
             modelBuilder.Entity<LichTrinh>(e =>
