@@ -39,7 +39,7 @@ namespace WebAppBookingBoat.Repository
             modelBuilder.Entity<Ghe>().HasIndex(g => new { g.MaTau, g.TenGhe }).IsUnique();
             modelBuilder.Entity<TuyenDuong>().HasIndex(td => new { td.DiemDi, td.DiemDen }).IsUnique();
             modelBuilder.Entity<LichTrinh>().HasIndex(lt => new { lt.MaTau, lt.NgayGioKhoiHanh }).IsUnique();
-            modelBuilder.Entity<DanhGia>().HasIndex(d => d.MaVe).IsUnique();
+            modelBuilder.Entity<DanhGia>().HasIndex(d => d.MaHoaDon).IsUnique();
 
             // --- 2. CHECK CONSTRAINTS ---
 
@@ -65,18 +65,21 @@ namespace WebAppBookingBoat.Repository
                 e.ToTable(t => t.HasCheckConstraint("CK_LT_GiaVe", "[GiaVeCoBan] >= 0"));
             });
 
-            // Khuyến mãi
-            modelBuilder.Entity<KhuyenMai>(e =>
+            //Khuyến mãi(Đảm bảo ngày kết thúc sau ngày bắt đầu và các giá trị không âm)
+            modelBuilder.Entity<KhuyenMai>().ToTable(t =>
             {
-                e.ToTable(t => t.HasCheckConstraint("CK_KM_PhanTram", "[PhanTramGiam] >= 0 AND [PhanTramGiam] <= 100"));
-                e.ToTable(t => t.HasCheckConstraint("CK_KM_ThoiGian", "[NgayKetThuc] > [NgayBatDau]"));
+                t.HasCheckConstraint("CK_KM_PhanTram", "[PhanTramGiam] >= 0 AND [PhanTramGiam] <= 100");
+                t.HasCheckConstraint("CK_KM_ThoiGian", "[NgayKetThuc] > [NgayBatDau]");
+                t.HasCheckConstraint("CK_KM_SoTienToiDa", "[SoTienToiDaGiam] >= 0");
             });
 
-            // Đánh giá (Thêm N cho tiếng Việt)
+            // Đánh giá (Cập nhật ràng buộc cho trường mới)
             modelBuilder.Entity<DanhGia>().ToTable(t =>
             {
                 t.HasCheckConstraint("CK_DG_SoSao", "[SoSao] BETWEEN 1 AND 5");
                 t.HasCheckConstraint("CK_DG_TrangThai", "[TrangThai] IN (N'Chờ duyệt', N'Đã hiển thị', N'Đã ẩn')");
+                // Kiểm tra logic: Nếu đã có phản hồi admin thì ngày phản hồi không được để trống (Tùy chọn)
+                t.HasCheckConstraint("CK_DG_NgayPhanHoi", "[NgayPhanHoi] IS NULL OR [NgayPhanHoi] >= [NgayDanhGia]");
             });
 
             // Ghế (Thêm N cho tiếng Việt)

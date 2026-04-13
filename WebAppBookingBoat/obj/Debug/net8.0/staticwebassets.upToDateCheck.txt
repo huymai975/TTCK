@@ -39,9 +39,14 @@ wwwroot\fonts\icomoon\fonts\icomoon.woff
 wwwroot\fonts\icomoon\Read Me.txt
 wwwroot\fonts\icomoon\selection.json
 wwwroot\fonts\icomoon\style.css
+wwwroot\images\danh-gia\review-ghe-vip.jpg
+wwwroot\images\danh-gia\review-tau-01.jpg.png
 wwwroot\images\hero_1.jpg
 wwwroot\images\hero_2.jpg
+wwwroot\images\khuyen-mai\0b00c585-fb35-4462-9b5d-8e1aee28b429.jpg
+wwwroot\images\khuyen-mai\322b0521-7bf6-40e5-aeea-b28fcfb0c5fd.jpg
 wwwroot\images\logo.png
+wwwroot\images\no-image.png
 wwwroot\images\person_1.jpg
 wwwroot\images\person_2.jpg
 wwwroot\images\person_3.jpg
@@ -49,6 +54,9 @@ wwwroot\images\person_3_sq.jpg
 wwwroot\images\person_4.jpg
 wwwroot\images\person_4_sq.jpg
 wwwroot\images\person_5.jpg
+wwwroot\images\promotions\0b00c585-fb35-4462-9b5d-8e1aee28b429.jpg
+wwwroot\images\promotions\322b0521-7bf6-40e5-aeea-b28fcfb0c5fd.jpg
+wwwroot\images\promotions\d1c5dd6f-089b-49b1-a7e3-3d0dc435b568.jpg
 wwwroot\images\tau\0ed53f9a-2e39-46ab-897c-856e7cde576d.jpg
 wwwroot\images\tau\2073e0cb-cf50-45b1-aa5e-9d40af4b7477.jpg
 wwwroot\images\tau\68002807-83b2-43e5-a103-34f769fee016.jpg

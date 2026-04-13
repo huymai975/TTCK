@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
@@ -23,25 +19,24 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         // GET: Admin/DanhGias
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.DanhGias.Include(d => d.Ve);
+            // Lấy kèm thông tin Hóa đơn và Khách hàng để hiển thị ở danh sách
+            var applicationDbContext = _context.DanhGias
+                .Include(d => d.HoaDon)
+                    .ThenInclude(h => h.KhachHang);
             return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Admin/DanhGias/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var danhGia = await _context.DanhGias
-                .Include(d => d.Ve)
+                .Include(d => d.HoaDon)
+                    .ThenInclude(h => h.KhachHang)
                 .FirstOrDefaultAsync(m => m.MaDanhGia == id);
-            if (danhGia == null)
-            {
-                return NotFound();
-            }
+
+            if (danhGia == null) return NotFound();
 
             return View(danhGia);
         }
@@ -49,16 +44,19 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         // GET: Admin/DanhGias/Create
         public IActionResult Create()
         {
-            ViewData["MaVe"] = new SelectList(_context.Ves, "MaVe", "TrangThai");
+            // Hiển thị mã hóa đơn kèm tên khách hàng để Admin dễ chọn
+            var dsHoaDon = _context.HoaDons.Include(h => h.KhachHang).Select(h => new
+            {
+                MaHD = h.MaHoaDon,
+                TenKH = h.MaHoaDon + " - " + (h.KhachHang != null ? h.KhachHang.HoTen : "N/A")
+            });
+            ViewData["MaHoaDon"] = new SelectList(dsHoaDon, "MaHD", "TenKH");
             return View();
         }
 
-        // POST: Admin/DanhGias/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaDanhGia,MaVe,SoSao,NoiDung,NgayDanhGia,TrangThai")] DanhGia danhGia)
+        public async Task<IActionResult> Create([Bind("MaDanhGia,MaHoaDon,SoSao,NoiDung,HinhAnh,NgayDanhGia,TrangThai")] DanhGia danhGia)
         {
             if (ModelState.IsValid)
             {
@@ -66,78 +64,73 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MaVe"] = new SelectList(_context.Ves, "MaVe", "TrangThai", danhGia.MaVe);
+            ViewData["MaHoaDon"] = new SelectList(_context.HoaDons, "MaHoaDon", "MaHoaDon", danhGia.MaHoaDon);
             return View(danhGia);
         }
 
         // GET: Admin/DanhGias/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var danhGia = await _context.DanhGias.FindAsync(id);
-            if (danhGia == null)
-            {
-                return NotFound();
-            }
-            ViewData["MaVe"] = new SelectList(_context.Ves, "MaVe", "TrangThai", danhGia.MaVe);
+            var danhGia = await _context.DanhGias
+                .Include(d => d.HoaDon)
+                .FirstOrDefaultAsync(m => m.MaDanhGia == id);
+
+            if (danhGia == null) return NotFound();
+
+            // Truyền thông tin hóa đơn ra để hiển thị (Read-only)
+            ViewData["MaHoaDon"] = new SelectList(_context.HoaDons, "MaHoaDon", "MaHoaDon", danhGia.MaHoaDon);
             return View(danhGia);
         }
 
-        // POST: Admin/DanhGias/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MaDanhGia,MaVe,SoSao,NoiDung,NgayDanhGia,TrangThai")] DanhGia danhGia)
+        public async Task<IActionResult> Edit(int id, DanhGia model)
         {
-            if (id != danhGia.MaDanhGia)
-            {
-                return NotFound();
-            }
+            if (id != model.MaDanhGia) return NotFound();
+
+            // Truy vấn dữ liệu gốc từ DB
+            var danhGiaInDb = await _context.DanhGias.FindAsync(id);
+            if (danhGiaInDb == null) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(danhGia);
+                    // Chỉ cập nhật những trường Admin được phép sửa
+                    danhGiaInDb.TrangThai = model.TrangThai;
+                    danhGiaInDb.PhanHoiAdmin = model.PhanHoiAdmin;
+
+                    // Tự động cập nhật ngày phản hồi
+                    if (!string.IsNullOrEmpty(model.PhanHoiAdmin))
+                    {
+                        danhGiaInDb.NgayPhanHoi = DateTime.Now;
+                    }
+
+                    _context.Update(danhGiaInDb);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DanhGiaExists(danhGia.MaDanhGia))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!DanhGiaExists(model.MaDanhGia)) return NotFound();
+                    else throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["MaVe"] = new SelectList(_context.Ves, "MaVe", "TrangThai", danhGia.MaVe);
-            return View(danhGia);
+            return View(model);
         }
 
         // GET: Admin/DanhGias/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var danhGia = await _context.DanhGias
-                .Include(d => d.Ve)
+                .Include(d => d.HoaDon)
                 .FirstOrDefaultAsync(m => m.MaDanhGia == id);
-            if (danhGia == null)
-            {
-                return NotFound();
-            }
+
+            if (danhGia == null) return NotFound();
 
             return View(danhGia);
         }
@@ -151,9 +144,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             if (danhGia != null)
             {
                 _context.DanhGias.Remove(danhGia);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

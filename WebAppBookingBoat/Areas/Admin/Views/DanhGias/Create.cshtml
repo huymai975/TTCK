@@ -1,61 +1,170 @@
 ﻿@model WebAppBookingBoat.Models.DanhGia
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Gửi phản hồi mới";
 }
 
-<!DOCTYPE html>
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-pen-fancy text-primary mr-2"></i>Tạo mới đánh giá
+        </h1>
+    </div>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Create</title>
-</head>
-<body>
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header py-3 bg-white border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                        <i class="fas fa-star-half-alt mr-1"></i> Nội dung phản hồi theo hóa đơn
+                    </h6>
+                </div>
 
-<h4>DanhGia</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="MaVe" class="control-label"></label>
-                <select asp-for="MaVe" class ="form-control" asp-items="ViewBag.MaVe"></select>
+                <div class="card-body px-lg-5 py-4">
+                    <form asp-action="Create" method="post" id="createFeedbackForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                @* Chọn hóa đơn *@
+                                <div class="form-group mb-4">
+                                    <label asp-for="MaHoaDon" class="small font-weight-bold text-muted text-uppercase">Liên kết hóa đơn thanh toán</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light border-right-0">
+                                                <i class="fas fa-file-invoice-dollar text-primary"></i>
+                                            </span>
+                                        </div>
+                                        @* Giả định bạn truyền danh sách hóa đơn qua ViewBag.MaHoaDon *@
+                                        <select asp-for="MaHoaDon" class="form-control shadow-sm border-left-0" asp-items="ViewBag.MaHoaDon">
+                                            <option value="">-- Chọn mã hóa đơn --</option>
+                                        </select>
+                                    </div>
+                                    <span asp-validation-for="MaHoaDon" class="text-danger small mt-1"></span>
+                                </div>
+
+                                @* Chọn số sao trực quan *@
+                                <div class="form-group mb-4 text-center">
+                                    <label class="small font-weight-bold text-muted text-uppercase d-block">Mức độ hài lòng</label>
+                                    <div class="rating-stars h3 text-gray-300">
+                                        <i class="far fa-star star-item" data-value="1" style="cursor:pointer"></i>
+                                        <i class="far fa-star star-item" data-value="2" style="cursor:pointer"></i>
+                                        <i class="far fa-star star-item" data-value="3" style="cursor:pointer"></i>
+                                        <i class="far fa-star star-item" data-value="4" style="cursor:pointer"></i>
+                                        <i class="far fa-star star-item" data-value="5" style="cursor:pointer"></i>
+                                    </div>
+                                    <input type="hidden" asp-for="SoSao" id="inputSoSao" value="5" />
+                                    <span asp-validation-for="SoSao" class="text-danger small mt-1"></span>
+                                </div>
+
+                                @* Nội dung đánh giá *@
+                                <div class="form-group mb-4">
+                                    <label asp-for="NoiDung" class="small font-weight-bold text-muted text-uppercase">Nội dung nhận xét</label>
+                                    <textarea asp-for="NoiDung" class="form-control shadow-sm border-left-info" rows="4" placeholder="Ý kiến phản hồi của khách hàng về dịch vụ..."></textarea>
+                                    <span asp-validation-for="NoiDung" class="text-danger small mt-1"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-4">
+                                            <label asp-for="NgayDanhGia" class="small font-weight-bold text-muted text-uppercase">Ngày ghi nhận</label>
+                                            <input asp-for="NgayDanhGia" type="datetime-local" class="form-control shadow-sm border-left-warning" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                                            <span asp-validation-for="NgayDanhGia" class="text-danger small mt-1"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-4">
+                                            <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Trạng thái kiểm duyệt</label>
+                                            <select asp-for="TrangThai" class="form-control shadow-sm border-left-success">
+                                                <option value="Chờ duyệt">Chờ duyệt</option>
+                                                <option value="Đã hiển thị">Đã hiển thị</option>
+                                                <option value="Đã ẩn">Đã ẩn</option>
+                                            </select>
+                                            <span asp-validation-for="TrangThai" class="text-danger small mt-1"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                                <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                                <span class="text font-weight-bold">Quay lại</span>
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-light btn-icon-split mr-2">
+                                    <span class="text">Nhập lại</span>
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-icon-split shadow-sm">
+                                    <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                                    <span class="text font-weight-bold">Ghi nhận đánh giá</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="SoSao" class="control-label"></label>
-                <input asp-for="SoSao" class="form-control" />
-                <span asp-validation-for="SoSao" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NoiDung" class="control-label"></label>
-                <input asp-for="NoiDung" class="form-control" />
-                <span asp-validation-for="NoiDung" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayDanhGia" class="control-label"></label>
-                <input asp-for="NgayDanhGia" class="form-control" />
-                <span asp-validation-for="NgayDanhGia" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TrangThai" class="control-label"></label>
-                <input asp-for="TrangThai" class="form-control" />
-                <span asp-validation-for="TrangThai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <style>
+        .rating-stars .fas.fa-star {
+            color: #f6c23e;
+        }
+
+        .rating-stars .star-item:hover {
+            transform: scale(1.2);
+            transition: 0.2s;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e !important;
+        }
+
+        .border-left-success {
+            border-left: 4px solid #1cc88a !important;
+        }
+
+        .input-group-text {
+            border-radius: 8px 0 0 8px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            const stars = $('.star-item');
+            const inputSoSao = $('#inputSoSao');
+
+            function updateStars(value) {
+                stars.each(function(index) {
+                    if (index < value) {
+                        $(this).removeClass('far text-gray-300').addClass('fas text-warning');
+                    } else {
+                        $(this).removeClass('fas text-warning').addClass('far text-gray-300');
+                    }
+                });
+            }
+
+            updateStars(inputSoSao.val());
+
+            stars.on('click', function() {
+                const val = $(this).data('value');
+                inputSoSao.val(val);
+                updateStars(val);
+            });
+        });
+    </script>
 }
-</body>
-</html>

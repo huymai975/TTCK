@@ -269,7 +269,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         private async Task PopulateListsAsync(HoaDonCreateViewModel vm)
         {
             vm.DanhSachKhachHang = new SelectList(await _context.KhachHangs.ToListAsync(), "MaKH", "HoTen", vm.MaKH);
-            vm.DanhSachKhuyenMai = new SelectList(await _context.KhuyenMais.Where(k => k.TrangThai).ToListAsync(), "MaKM", "TenChuongTrinh", vm.MaKM);
+            vm.DanhSachKhuyenMai = new SelectList(await _context.KhuyenMais.Where(k => k.TrangThai == "Đang diễn ra").ToListAsync(), "MaKM", "TenChuongTrinh", vm.MaKM);
 
             var dsLT = await _context.LichTrinhs
                 .Include(lt => lt.TuyenDuong)
