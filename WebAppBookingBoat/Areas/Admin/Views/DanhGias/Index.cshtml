@@ -5,7 +5,7 @@
 }
 
 <style>
-    /* 1. KHUNG BẢNG & TỈ LỆ CỘT */
+    /* Giữ nguyên các Style bạn đã định nghĩa */
     #dataTable {
         table-layout: fixed;
         width: 100% !important;
@@ -14,11 +14,11 @@
     }
 
     .col-id {
-        width: 60px;
+        width: 40px;
     }
 
     .col-info {
-        width: 180px;
+        width: 140px;
     }
 
     .col-star {
@@ -34,18 +34,17 @@
     }
 
     .col-date {
-        width: 120px;
+        width: 100px;
     }
 
     .col-status {
-        width: 130px;
+        width: 150px;
     }
 
     .col-action {
         width: 130px;
     }
 
-    /* 2. STYLE NỘI DUNG */
     .text-content-truncate {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -69,7 +68,12 @@
             transform: scale(1.1);
         }
 
-    /* 3. NÚT THAO TÁC (SOFT UI) */
+    .img-error {
+        filter: grayscale(100%);
+        opacity: 0.7;
+        cursor: not-allowed !important;
+    }
+
     .btn-modern {
         width: 32px;
         height: 32px;
@@ -103,28 +107,20 @@
         color: #c62828;
     }
 
-    .btn-view:hover {
-        background-color: #039be5;
-        color: #fff;
-    }
-
-    .btn-edit:hover {
-        background-color: #f57f17;
-        color: #fff;
-    }
-
-    .btn-delete:hover {
-        background-color: #c62828;
-        color: #fff;
-    }
-
-    /* 4. BADGE TRẠNG THÁI */
     .badge-status {
         padding: 6px 12px;
         border-radius: 8px;
         font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
+    }
+
+    .disabled-btn {
+        opacity: 0.4;
+        cursor: not-allowed !important;
+        background-color: #f8d7da !important;
+        color: #6c757d !important;
+        pointer-events: none;
     }
 </style>
 
@@ -136,14 +132,14 @@
     </div>
 
     <div class="card shadow-sm mb-4 border-0">
-        <div class="card-header py-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+        <div class="card-header py-3 bg-white border-bottom">
             <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
                 <i class="fas fa-comment-dots mr-1"></i> Phản hồi từ hành khách
             </h6>
         </div>
 
         <div class="card-body p-0">
-            @* Bộ lọc *@
+            @* Bộ lọc giống trang Khuyến mãi *@
             <div class="px-3 pt-3">
                 <div class="card shadow-sm border-0" style="background-color: #f8f9fc;">
                     <div class="card-body py-2">
@@ -159,7 +155,7 @@
                                     <option value="Đã ẩn">Đã ẩn</option>
                                 </select>
                             </div>
-                            <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
+                            <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </div>
@@ -188,7 +184,7 @@
                                 <td class="text-center font-weight-bold text-gray-500 small">#@item.MaDanhGia</td>
                                 <td>
                                     <div class="font-weight-bold text-primary small">HĐ: #@item.MaHoaDon</div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                    <div class="text-muted small">
                                         <i class="fas fa-user-circle mr-1"></i>@(item.HoaDon?.KhachHang?.HoTen ?? "Khách ẩn danh")
                                     </div>
                                 </td>
@@ -199,7 +195,6 @@
                                             <i class="@(i <= item.SoSao ? "fas" : "far") fa-star"></i>
                                         }
                                     </div>
-                                    <span class="badge badge-light border text-dark mt-1" style="font-size: 0.65rem;">@item.SoSao/5</span>
                                 </td>
                                 <td>
                                     <p class="text-content-truncate mb-0" title="@item.NoiDung">@item.NoiDung</p>
@@ -211,34 +206,36 @@
                                 <td class="text-center">
                                     @if (!string.IsNullOrEmpty(item.HinhAnh))
                                     {
-                                        var imagePath = item.HinhAnh.StartsWith("/") ? item.HinhAnh : "/images/danh-gia/" + item.HinhAnh;
-                                        <a href="@imagePath" target="_blank">
-                                            <img src="~/images/danh-gia/@item.HinhAnh" class="img-review-thumb shadow-sm border"
-                                                 onerror="this.onerror=null;this.src='/images/no-image.png';" />
+                                        <a href="/images/danh-gia/@item.HinhAnh" target="_blank" class="review-link">
+                                            <img src="/images/danh-gia/@item.HinhAnh" class="img-review-thumb shadow-sm border" onerror="handleImageError(this);" />
                                         </a>
                                     }
                                     else
                                     {
-                                        <span class="text-muted small font-italic">Không ảnh</span>
+                                        <span class="text-muted small font-italic"><i class="fas fa-image-slash"></i></span>
                                     }
                                 </td>
                                 <td>
-                                    <div class="small font-weight-bold text-gray-700">@item.NgayDanhGia.ToString("dd/MM/yyyy")</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;">@item.NgayDanhGia.ToString("HH:mm")</div>
+                                    <div class="small font-weight-bold">@item.NgayDanhGia.ToString("dd/MM/yyyy")</div>
                                 </td>
                                 <td class="text-center">
                                     @{
-                                        var sClass = item.TrangThai == "Chờ duyệt" ? "badge-warning text-dark" :
-                                        (item.TrangThai == "Đã hiển thị" ? "badge-success" : "badge-danger");
+                                        var sClass = item.TrangThai == "Chờ duyệt" ? "badge-warning text-dark" : (item.TrangThai == "Đã hiển thị" ? "badge-success" : "badge-danger");
                                     }
                                     <span class="badge badge-status shadow-sm @sClass">@item.TrangThai</span>
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center">
-                                        <a asp-action="Details" asp-route-id="@item.MaDanhGia" class="btn-modern btn-view" title="Chi tiết"><i class="fas fa-eye"></i></a>
-                                        <a asp-action="Edit" asp-route-id="@item.MaDanhGia" class="btn-modern btn-edit" title="Phản hồi"><i class="fas fa-reply"></i></a>
-                                        <button type="button" class="btn-modern btn-delete" onclick="deleteDanhGiaAjax(@item.MaDanhGia)" title="Xóa"><i class="fas fa-trash"></i></button>
-                                    </div>
+                                    <a asp-action="Details" asp-route-id="@item.MaDanhGia" class="btn-modern btn-view"><i class="fas fa-eye"></i></a>
+                                    @if (item.TrangThai == "Đã ẩn")
+                                    {
+                                        <button class="btn-modern btn-edit disabled-btn"><i class="fas fa-reply"></i></button>
+                                        <button class="btn-modern btn-delete disabled-btn"><i class="fas fa-trash"></i></button>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.MaDanhGia" class="btn-modern btn-edit"><i class="fas fa-reply"></i></a>
+                                        <button type="button" class="btn-modern btn-delete" onclick="deleteDanhGiaAjax('@item.MaDanhGia')"><i class="fas fa-trash"></i></button>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -249,57 +246,85 @@
     </div>
 </div>
 
+@Html.AntiForgeryToken()
+
 @section Scripts {
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <script src="https://cdn.datatables.net/1.13.6/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @* THỨ TỰ QUAN TRỌNG: Hàm bổ trợ -> Thư viện -> Logic Khởi tạo *@
 
     <script>
-        $(document).ready(function() {
-            if ($.fn.DataTable) {
-                var table = $('#dataTable').DataTable({
-                    "language": {
-                        "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
-                    },
-                    "pageLength": 10,
-                    "order": [[0, "desc"]],
-                    "columnDefs": [
-                        { "orderable": false, "targets": [4, 7] } // Tắt sort cột Ảnh và Thao tác
-                    ],
-                    "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                           "<'row'<'col-sm-12'tr>>" +
-                           "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
-                });
-
-                // Lọc trạng thái (Cột index 6)
-                $('#statusFilter').on('change', function() {
-                    var val = $(this).val();
-                    table.column(6).search(val ? '^' + val + '$' : '', true, false).draw();
-                });
-
-                $('#btnResetFilter').on('click', function() {
-                    $('#statusFilter').val('');
-                    table.search('').column(6).search('').draw();
-                });
+        // 1. Hàm xử lý lỗi ảnh (Phải khai báo trước)
+        function handleImageError(img) {
+            img.onerror = null; // Chống lặp vô hạn
+            img.src = '/images/default.jpg';
+            img.classList.add('img-error');
+            var link = img.closest('.review-link');
+            if (link) {
+                link.style.pointerEvents = 'none';
+                link.removeAttribute('href');
             }
-        });
+        }
 
+        // 2. Hàm xóa Ajax
         function deleteDanhGiaAjax(id) {
             Swal.fire({
-                title: 'Xóa đánh giá này?',
+                title: 'Xóa đánh giá?',
+                text: "Chuyển trạng thái sang 'Đã ẩn'!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74a3b',
-                confirmButtonText: 'Xóa',
+                confirmButtonText: 'Đồng ý',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.post('@Url.Action("Delete", "DanhGias")', { id: id }, function() {
-                        Swal.fire('Thành công', '', 'success').then(() => location.reload());
-                    }).fail(() => Swal.fire('Lỗi', '', 'error'));
+                    $.ajax({
+                        url: '@Url.Action("Delete", "DanhGias")',
+                        type: 'POST',
+                        data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                        success: function (res) {
+                            if (res.success) {
+                                Swal.fire('Thành công', res.message, 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Lỗi', res.message, 'error');
+                            }
+                        }
+                    });
                 }
             });
         }
+    </script>
+
+    @* 3. Nhúng thư viện (Đúng thứ tự để tránh lỗi 'defaults') *@
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @* 4. Khởi tạo DataTable *@
+    <script>
+        $(document).ready(function() {
+            var table = $('#dataTable').DataTable({
+                "language": { "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
+                "pageLength": 10,
+                "paginate": {
+                        "previous": "<i class='fas fa-angle-left'></i>",
+                        "next": "<i class='fas fa-angle-right'></i>"
+                    }
+                "order": [[0, "desc"]],
+                "columnDefs": [{ "orderable": false, "targets": [2, 4, 7] }],
+                "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                       "<'row'<'col-sm-12'tr>>" +
+                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+            });
+
+            $('#statusFilter').on('change', function() {
+                var val = $(this).val();
+                table.column(6).search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+
+            $('#btnResetFilter').on('click', function() {
+                $('#statusFilter').val('');
+                table.search('').column(6).search('').draw();
+            });
+        });
     </script>
 }

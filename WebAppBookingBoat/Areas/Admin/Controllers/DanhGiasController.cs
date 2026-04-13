@@ -121,7 +121,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(model);
         }
 
-        // GET: Admin/DanhGias/Delete/5
+        //GET: Admin/DanhGias/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -141,12 +141,20 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var danhGia = await _context.DanhGias.FindAsync(id);
+
             if (danhGia != null)
             {
-                _context.DanhGias.Remove(danhGia);
+                // Thay vì xóa khỏi database, ta cập nhật trạng thái
+                danhGia.TrangThai = "Đã ẩn";
+
+                _context.Update(danhGia);
                 await _context.SaveChangesAsync();
+
+                // Nếu bạn gọi qua Ajax, nên trả về Ok() thay vì Redirect
+                return Json(new { success = true, message = "Đã ẩn đánh giá thành công." });
             }
-            return RedirectToAction(nameof(Index));
+
+            return Json(new { success = false, message = "Không tìm thấy dữ liệu." });
         }
 
         private bool DanhGiaExists(int id)

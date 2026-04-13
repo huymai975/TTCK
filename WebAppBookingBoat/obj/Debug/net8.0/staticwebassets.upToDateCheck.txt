@@ -41,12 +41,12 @@ wwwroot\fonts\icomoon\selection.json
 wwwroot\fonts\icomoon\style.css
 wwwroot\images\danh-gia\review-ghe-vip.jpg
 wwwroot\images\danh-gia\review-tau-01.jpg.png
+wwwroot\images\default.jpg
 wwwroot\images\hero_1.jpg
 wwwroot\images\hero_2.jpg
 wwwroot\images\khuyen-mai\0b00c585-fb35-4462-9b5d-8e1aee28b429.jpg
 wwwroot\images\khuyen-mai\322b0521-7bf6-40e5-aeea-b28fcfb0c5fd.jpg
 wwwroot\images\logo.png
-wwwroot\images\no-image.png
 wwwroot\images\person_1.jpg
 wwwroot\images\person_2.jpg
 wwwroot\images\person_3.jpg

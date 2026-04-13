@@ -186,20 +186,17 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             try
             {
-                // Thay vì xóa, ta cập nhật trạng thái
-                khuyenMai.TrangThai = "Đã kết thúc";
-
-                // Bạn có thể thêm một flag DaXoa = true nếu DB có cột này, 
-                // hoặc đơn giản là dùng trạng thái như bạn yêu cầu.
+                // Chuyển sang trạng thái "Đã hủy" thay vì xóa bản ghi
+                khuyenMai.TrangThai = "Đã hủy";
 
                 _context.Update(khuyenMai);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Đã chuyển trạng thái khuyến mãi sang 'Đã kết thúc'." });
+                return Json(new { success = true, message = "Khuyến mãi đã được chuyển sang trạng thái 'Đã hủy'." });
             }
             catch (Exception)
             {
-                return Json(new { success = false, message = "Lỗi khi cập nhật dữ liệu." });
+                return Json(new { success = false, message = "Lỗi khi cập nhật trạng thái dữ liệu." });
             }
         }
 
