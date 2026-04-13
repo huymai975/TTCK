@@ -234,7 +234,7 @@
                                     else
                                     {
                                         <a asp-action="Edit" asp-route-id="@item.MaDanhGia" class="btn-modern btn-edit"><i class="fas fa-reply"></i></a>
-                                        <button type="button" class="btn-modern btn-delete" onclick="deleteDanhGiaAjax('@item.MaDanhGia')"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn-modern btn-delete" onclick="deleteDanhGiaAjax('@item.MaDanhGia')"><i class="fa-rectangle-xmark"></i></button>
                                     }
                                 </td>
                             </tr>
@@ -252,6 +252,7 @@
     @* THỨ TỰ QUAN TRỌNG: Hàm bổ trợ -> Thư viện -> Logic Khởi tạo *@
 
     <script>
+        var table;
         // 1. Hàm xử lý lỗi ảnh (Phải khai báo trước)
         function handleImageError(img) {
             img.onerror = null; // Chống lặp vô hạn
@@ -282,7 +283,9 @@
                         data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
                         success: function (res) {
                             if (res.success) {
-                                Swal.fire('Thành công', res.message, 'success').then(() => location.reload());
+                                Swal.fire('Thành công', res.message, 'success').then(() => {
+                                    table.row($(`button[onclick*='deleteGheAjax(${id})']`).parents('tr')).remove().draw();
+                                });
                             } else {
                                 Swal.fire('Lỗi', res.message, 'error');
                             }
@@ -302,13 +305,13 @@
     @* 4. Khởi tạo DataTable *@
     <script>
         $(document).ready(function() {
-            var table = $('#dataTable').DataTable({
+            table = $('#dataTable').DataTable({
                 "language": { "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
                 "pageLength": 10,
                 "paginate": {
                         "previous": "<i class='fas fa-angle-left'></i>",
                         "next": "<i class='fas fa-angle-right'></i>"
-                    }
+                    },
                 "order": [[0, "desc"]],
                 "columnDefs": [{ "orderable": false, "targets": [2, 4, 7] }],
                 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +

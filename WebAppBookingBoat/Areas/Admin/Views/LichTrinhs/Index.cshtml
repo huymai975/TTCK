@@ -359,9 +359,9 @@
 									icon: 'success',
 									timer: 1500,
 									showConfirmButton: false
-								}).then(() => {
-									location.reload(); // Reload để đồng bộ dữ liệu
-								});
+                                }).then(() => {
+                                    table.row($(`button[onclick*='deleteLichTrinhAjax(${id})']`).parents('tr')).remove().draw();
+                                });
 							} else {
 								Swal.fire('Lỗi!', response.message, 'error');
 							}

@@ -112,6 +112,19 @@ namespace WebAppBookingBoat.Repository
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
+            // --- 5. CẤU HÌNH BẢNG LOG ---
+            modelBuilder.Entity<Log>(entity =>
+            {
+                entity.HasOne(l => l.AppUser)
+                      .WithMany()
+                      .HasForeignKey(l => l.MaTK)
+                      .OnDelete(DeleteBehavior.SetNull); // Quan trọng: Tránh lỗi Restrict khi xóa User
+            });
+            modelBuilder.Entity<Log>().ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Log_Loai", "[LoaiLog] IN ('Info', 'Warning', 'Error', 'Critical')");
+            });
+
             // SeedData ở đây
             DbInitializer.Seed(modelBuilder);
         }

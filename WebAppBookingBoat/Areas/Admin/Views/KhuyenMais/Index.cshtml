@@ -285,7 +285,7 @@
                                         @* Nút Xóa (Hủy) bình thường *@
                                         <button type="button" class="btn-modern btn-delete"
                                                 onclick="deleteKhuyenMaiAjax('@item.MaKM', '@item.TenChuongTrinh')" title="Hủy khuyến mãi">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="fa-rectangle-xmark"></i>
                                         </button>
                                     }
                                 </td>
@@ -307,8 +307,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        var table;
         $(document).ready(function() {
-            var table = $('#dataTable').DataTable({
+            table = $('#dataTable').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
                     "search": "Tìm kiếm:",
@@ -360,7 +361,9 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                Swal.fire('Thành công!', response.message, 'success').then(() => location.reload());
+                                Swal.fire('Thành công!', response.message, 'success').then(() => {
+                                    table.row($(`button[onclick*='deleteKhuyenMaiAjax(${id})']`).parents('tr')).remove().draw();
+                                });
                             } else {
                                 Swal.fire('Thất bại!', response.message, 'error');
                             }

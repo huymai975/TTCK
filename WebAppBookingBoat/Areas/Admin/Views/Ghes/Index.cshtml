@@ -245,6 +245,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 	<script>
+
+		var table;
 		// 1. HÀM XÓA GHẾ (AJAX)
 		function deleteGheAjax(id, tenGhe, tenTau) {
 			Swal.fire({
@@ -273,7 +275,9 @@
 									text: response.message,
 									timer: 1500,
 									showConfirmButton: false
-								}).then(() => location.reload());
+								}).then(() => {
+									table.row($(`button[onclick*='deleteGheAjax(${id})']`).parents('tr')).remove().draw();
+								});
 							} else {
 								Swal.fire('Thất bại!', response.message, 'error');
 							}
@@ -288,7 +292,7 @@
 
 		$(document).ready(function() {
 			// 2. CẤU HÌNH DATATABLE
-			var table = $('#dataTable').DataTable({
+			table = $('#dataTable').DataTable({
 				"language": {
 					"url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
 					"searchPlaceholder": "Tìm ghế, tàu...",

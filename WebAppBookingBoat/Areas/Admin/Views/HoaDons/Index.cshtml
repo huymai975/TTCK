@@ -480,7 +480,9 @@
                                 text: response.message,
                                 timer: 1500,
                                 showConfirmButton: false
-                            }).then(() => location.reload());
+                            }).then(() => {
+                                    table.row($(`button[onclick*='cancelHoaDon(${id})']`).parents('tr')).remove().draw();
+                                });
                         } else {
                             Swal.fire('Lỗi!', response.message, 'error');
                         }
