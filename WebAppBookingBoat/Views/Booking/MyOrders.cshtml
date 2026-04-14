@@ -143,6 +143,11 @@
 
                                     @if (item.TrangThai == "Đã thanh toán")
                                     {
+                                        @* Kiểm tra xem hóa đơn đã có đánh giá chưa (nếu bạn có nạp thêm dữ liệu DanhGias vào Model) *@
+                                        <a asp-action="Evaluate" asp-route-id="@item.MaHoaDon" class="btn btn-outline-primary btn-action mr-2">
+                                            <i class="fas fa-star mr-1"></i> Đánh giá
+                                        </a>
+
                                         <a asp-action="ExportPdf" asp-route-id="@item.MaHoaDon" class="btn btn-outline-danger btn-action">
                                             <i class="fas fa-file-pdf mr-1"></i> Tải vé
                                         </a>

@@ -10,5 +10,7 @@ namespace WebAppBookingBoat.Models.ViewModels
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
         [DataType(DataType.Password)]
         public string? MatKhau { get; set; }
+
+        public bool RememberMe { get; set; }
     }
 }

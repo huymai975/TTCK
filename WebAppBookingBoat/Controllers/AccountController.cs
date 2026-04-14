@@ -10,69 +10,84 @@ namespace WebAppBookingBoat.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-
         private readonly ApplicationDbContext _context;
 
         public AccountController(
-        UserManager<AppUser> userManager,
-        SignInManager<AppUser> signInManager,
-        ApplicationDbContext context)
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _context = context; 
+            _context = context;
+        }
+
+        // --- HÀM GHI LOG HỆ THỐNG (Đã sửa linh hoạt BangTacDong) ---
+        private async Task GhiLogHeThong(string hanhDong, string bangTacDong, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = bangTacDong, // Linh hoạt theo tham số truyền vào
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
         }
 
         // --- ĐĂNG KÝ ---
-
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterVM model)
         {
-
             if (ModelState.IsValid)
             {
-                var user = new AppUser
+                var existingUser = await _userManager.FindByNameAsync(model.TenDangNhap!);
+                if (existingUser != null)
                 {
-                    UserName = model.TenDangNhap,
-                    Email = model.Email
-                };
+                    ModelState.AddModelError("", "Tên tài khoản này đã tồn tại.");
+                    return View(model);
+                }
 
+                var user = new AppUser { UserName = model.TenDangNhap, Email = model.Email };
                 var result = await _userManager.CreateAsync(user, model.MatKhau!);
 
                 if (result.Succeeded)
                 {
-                    // Gán Role "Customer" (Tương ứng với ID 3: Khách hàng)
                     await _userManager.AddToRoleAsync(user, "Khách hàng");
 
-                    // Tạo hồ sơ khách hàng tương ứng
-                    var khachHang = new KhachHang { MaTK = user.Id, Email = user.Email! };
+                    var khachHang = new KhachHang
+                    {
+                        MaTK = user.Id,
+                        Email = user.Email!,
+                        HoTen = model.HoTen!,
+                        Sdt = model.SoDienThoai!
+                    };
+
                     _context.KhachHangs.Add(khachHang);
                     await _context.SaveChangesAsync();
 
-
-                    // Đăng ký xong tự động đăng nhập luôn
+                    // Đăng nhập để ClaimsPrincipal (User) có giá trị trước khi ghi log
                     await _signInManager.SignInAsync(user, isPersistent: false);
+
+                    await GhiLogHeThong("Đăng ký", "KhachHangs", $"Khách hàng {model.TenDangNhap} đăng ký thành công.", "Info");
+
                     return RedirectToAction("Index", "Home");
                 }
 
-                // Nếu lỗi (ví dụ: mật khẩu quá ngắn, tên đã tồn tại...)
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
+                foreach (var error in result.Errors) ModelState.AddModelError("", error.Description);
             }
             return View(model);
         }
 
         // --- ĐĂNG NHẬP ---
-
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -88,33 +103,40 @@ namespace WebAppBookingBoat.Controllers
 
             if (ModelState.IsValid)
             {
-                // false ở cuối là LockoutOnFailure: Không khóa tài khoản nếu nhập sai
-                var result = await _signInManager.PasswordSignInAsync(model.TenDangNhap!, model.MatKhau!, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(
+                    model.TenDangNhap!,
+                    model.MatKhau!,
+                    isPersistent: model.RememberMe,
+                    lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
-                    // Chuyển hướng về trang trước đó nếu có, không thì về Home
+                    await GhiLogHeThong("Đăng nhập", "AspNetUsers", $"Người dùng {model.TenDangNhap} đăng nhập.", "Info");
+
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         return Redirect(returnUrl);
 
                     return RedirectToAction("Index", "Home");
                 }
+
+                await GhiLogHeThong("Đăng nhập thất bại", "AspNetUsers", $"Thử sai mật khẩu: {model.TenDangNhap}", "Warning");
                 ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không chính xác.");
             }
             return View(model);
         }
 
         // --- ĐĂNG XUẤT ---
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // Xóa Cookie định danh của người dùng
-            await _signInManager.SignOutAsync();
+            var userName = User.Identity?.Name;
 
-            // Điều hướng về trang chủ
-            return RedirectToAction("Index", "Home", new {area = ""});
+            // Ghi log trước khi hủy session
+            await GhiLogHeThong("Đăng xuất", "AspNetUsers", $"Người dùng {userName} đăng xuất.", "Info");
+
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

@@ -39,6 +39,7 @@ wwwroot\fonts\icomoon\fonts\icomoon.woff
 wwwroot\fonts\icomoon\Read Me.txt
 wwwroot\fonts\icomoon\selection.json
 wwwroot\fonts\icomoon\style.css
+wwwroot\images\back-ground-login.jpg
 wwwroot\images\danh-gia\review-ghe-vip.jpg
 wwwroot\images\danh-gia\review-tau-01.jpg.png
 wwwroot\images\default.jpg

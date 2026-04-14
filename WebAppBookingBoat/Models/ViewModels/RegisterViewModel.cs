@@ -6,7 +6,14 @@ namespace WebAppBookingBoat.Models.ViewModels
     {
         [Required(ErrorMessage = "Vui lòng nhập Email")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-        public  string? Email { get; set; }
+        public string? Email { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập Họ và Tên")]
+        public string? HoTen { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập Số điện thoại")]
+        [RegularExpression(@"^\d{10,11}$", ErrorMessage = "Số điện thoại phải từ 10-11 số")]
+        public string? SoDienThoai { get; set; }
 
         [Required(ErrorMessage = "Tên tài khoản không được để trống")]
         public string? TenDangNhap { get; set; }

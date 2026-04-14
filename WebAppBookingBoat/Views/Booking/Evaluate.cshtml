@@ -1,0 +1,203 @@
+﻿@model WebAppBookingBoat.Models.DanhGia
+
+@{
+    ViewData["Title"] = "Đánh giá dịch vụ";
+    var hoaDon = (WebAppBookingBoat.Models.HoaDon)ViewBag.HoaDon;
+}
+
+<style>
+    .rating-container {
+        margin-top: 100px;
+        margin-bottom: 60px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .card-rating {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    /* Header trang đánh giá */
+    .rating-header {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+
+    /* Hệ thống chọn sao */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 3rem;
+            color: #eaecf4;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin: 0 5px;
+        }
+
+            .star-rating label:hover,
+            .star-rating label:hover ~ label,
+            .star-rating input:checked ~ label {
+                color: #f6c23e;
+                transform: scale(1.1);
+            }
+
+    /* Khung upload ảnh */
+    .upload-zone {
+        border: 2px dashed #d1d3e2;
+        background: #f8f9fc;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .upload-zone:hover {
+            background: #fff;
+            border-color: #4e73df;
+        }
+
+    #img-preview {
+        max-height: 200px;
+        border-radius: 10px;
+        display: none;
+        margin: 15px auto 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .btn-submit {
+        background: #4e73df;
+        border: none;
+        border-radius: 12px;
+        padding: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+    }
+
+        .btn-submit:hover {
+            background: #2e59d9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+        }
+
+    .trip-summary {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 15px;
+        display: inline-block;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="container rating-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-rating shadow-lg">
+                <div class="rating-header">
+                    <h2 class="font-weight-bold">Trải nghiệm của bạn?</h2>
+                    <p class="mb-0">Ý kiến của bạn giúp chúng tôi cải thiện dịch vụ tốt hơn</p>
+
+                    @if (hoaDon != null)
+                    {
+                        <div class="trip-summary">
+                            <i class="fas fa-anchor mr-2"></i>
+                            <strong>@hoaDon.Ves.FirstOrDefault()?.LichTrinh?.TuyenDuong?.TenTuyen</strong>
+                            <span class="mx-2">|</span>
+                            <small>@hoaDon.Ves.FirstOrDefault()?.LichTrinh?.NgayGioKhoiHanh.ToString("dd/MM/yyyy")</small>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-body p-5">
+                    <form asp-action="Evaluate" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="MaHoaDon" value="@ViewBag.MaHoaDon" />
+
+                        <div class="text-center mb-5">
+                            <label class="h5 font-weight-bold text-dark d-block">Mức độ hài lòng</label>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="SoSao" value="5" />
+                                <label for="star5" class="fas fa-star"></label>
+                                <input type="radio" id="star4" name="SoSao" value="4" />
+                                <label for="star4" class="fas fa-star"></label>
+                                <input type="radio" id="star3" name="SoSao" value="3" />
+                                <label for="star3" class="fas fa-star"></label>
+                                <input type="radio" id="star2" name="SoSao" value="2" />
+                                <label for="star2" class="fas fa-star"></label>
+                                <input type="radio" id="star1" name="SoSao" value="1" required />
+                                <label for="star1" class="fas fa-star"></label>
+                            </div>
+                            <span asp-validation-for="SoSao" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="NoiDung" class="font-weight-bold text-dark">Lời nhắn gửi cho WaterBoat</label>
+                            <textarea asp-for="NoiDung" class="form-control form-control-lg" rows="4"
+                                      placeholder="Hãy chia sẻ về chất lượng tàu, thái độ phục vụ của nhân viên..."></textarea>
+                            <span asp-validation-for="NoiDung" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-5">
+                            <label class="font-weight-bold text-dark">Hình ảnh chuyến đi (Tùy chọn)</label>
+                            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                                <div id="upload-prompt">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                    <p class="mb-0 text-muted font-italic">Bấm vào đây hoặc kéo thả ảnh để tải lên</p>
+                                </div>
+                                <img id="img-preview" src="#" alt="Xem trước ảnh" />
+                                <input type="file" name="fHinhAnh" id="fileInput" class="d-none" accept="image/*" />
+                            </div>
+                        </div>
+
+                        <div class="row pt-3">
+                            <div class="col-md-6 mb-3">
+                                <a asp-action="MyOrders" class="btn btn-outline-secondary btn-block py-3 font-weight-bold">
+                                    LÚC KHÁC
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <button type="submit" class="btn btn-primary btn-submit btn-block text-white">
+                                    GỬI ĐÁNH GIÁ NGAY
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Xử lý preview ảnh và thay đổi UI
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const preview = document.getElementById('img-preview');
+                    const prompt = document.getElementById('upload-prompt');
+
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                    prompt.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}

@@ -9,72 +9,155 @@
 
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Đăng ký - Boat Booking</title>
+    <title>Đăng ký - TTCK Boat Booking</title>
 
     <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
     <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        /* Ảnh nền đồng bộ với trang Login */
+        .bg-register-main {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/images/back-ground-login.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Hiệu ứng kính mờ cho Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .text-white-shadow {
+            color: white !important;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .form-control-user {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 12px !important;
+            border: none !important;
+            height: calc(1.5em + 1.25rem + 2px) !important;
+            padding: 0.6rem 1rem !important;
+        }
+
+        .btn-register-gradient {
+            background: linear-gradient(45deg, #1cc88a, #13855c); /* Màu xanh lá cho Đăng ký */
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 12px !important;
+            padding: 12px !important;
+            transition: 0.3s;
+        }
+
+            .btn-register-gradient:hover {
+                transform: scale(1.02);
+                box-shadow: 0 5px 15px rgba(28, 200, 138, 0.4);
+                color: white;
+            }
+
+        .small-link {
+            color: #f8f9fa !important;
+            font-weight: 600;
+        }
+
+            .small-link:hover {
+                color: #1cc88a !important;
+                text-decoration: none;
+            }
+
+        .text-white-shadow {
+            color: white !important;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8), 0px 0px 10px rgba(0,0,0,0.5);
+        }
+    </style>
 </head>
 
-<body class="bg-gradient-primary">
+<body>
 
-    <div class="container">
-        <div class="card o-hidden border-0 shadow-lg my-5">
-            <div class="card-body p-0">
-                <div class="row">
-                    <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
-                    <div class="col-lg-7">
-                        <div class="p-5">
-                            <div class="text-center">
-                                <h1 class="h4 text-gray-900 mb-4">Tạo tài khoản mới!</h1>
-                            </div>
-
-                            <form asp-action="Register" asp-controller="Account" method="post" class="user">
-                                @* Hiển thị các lỗi tổng quát từ Server (ví dụ: Trùng tên đăng nhập) *@
-                                <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
-
-                                <div class="form-group">
-                                    <input asp-for="TenDangNhap" class="form-control form-control-user" placeholder="Tên đăng nhập">
-                                    <span asp-validation-for="TenDangNhap" class="text-danger small ml-3"></span>
+    <div class="bg-register-main">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-7 col-lg-8 col-md-10">
+                    <div class="card glass-card o-hidden border-0 my-5">
+                        <div class="card-body p-0">
+                            <div class="p-5">
+                                <div class="text-center mb-4">
+                                    <i class="fas fa-user-plus fa-3x text-white-shadow mb-3"></i>
+                                    <h1 class="h3 text-white-shadow font-weight-bold">TẠO TÀI KHOẢN MỚI</h1>
+                                    <p class="text-white small">Tham gia cùng TTCK để nhận nhiều ưu đãi đặt tàu</p>
                                 </div>
 
-                                <div class="form-group">
-                                    <input asp-for="Email" class="form-control form-control-user" placeholder="Địa chỉ Email">
-                                    <span asp-validation-for="Email" class="text-danger small ml-3"></span>
-                                </div>
+                                <form asp-controller="Account" asp-action="Register" method="post" class="user">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger font-weight-bold mb-3"></div>
 
-                                <div class="form-group row">
-                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                        <input asp-for="MatKhau" class="form-control form-control-user" placeholder="Mật khẩu">
-                                        <span asp-validation-for="MatKhau" class="text-danger small ml-3"></span>
+                                    <div class="form-group row">
+                                        <div class="col-sm-6 mb-3 mb-sm-0">
+                                            <input asp-for="TenDangNhap" class="form-control form-control-user" placeholder="Tên đăng nhập">
+                                            <span asp-validation-for="TenDangNhap" class="text-danger small font-weight-bold ml-2"></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <input asp-for="Email" class="form-control form-control-user" placeholder="Địa chỉ Email">
+                                            <span asp-validation-for="Email" class="text-danger small font-weight-bold ml-2"></span>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <input asp-for="NhapLaiMatKhau" class="form-control form-control-user" placeholder="Nhập lại mật khẩu">
-                                        <span asp-validation-for="NhapLaiMatKhau" class="text-danger small ml-3"></span>
+
+                                    @* PHẦN MỚI THÊM: HỌ TÊN & SỐ ĐIỆN THOẠI *@
+                                    <div class="form-group row">
+                                        <div class="col-sm-6 mb-3 mb-sm-0">
+                                            <input asp-for="HoTen" class="form-control form-control-user" placeholder="Họ và Tên">
+                                            <span asp-validation-for="HoTen" class="text-danger small font-weight-bold ml-2"></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <input asp-for="SoDienThoai" class="form-control form-control-user" placeholder="Số điện thoại">
+                                            <span asp-validation-for="SoDienThoai" class="text-danger small font-weight-bold ml-2"></span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <button type="submit" class="btn btn-primary btn-user btn-block">
-                                    Đăng ký tài khoản
-                                </button>
-                                <hr>
-                                <a href="#" class="btn btn-google btn-user btn-block">
-                                    <i class="fab fa-google fa-fw"></i> Register with Google
-                                </a>
-                                <a href="#" class="btn btn-facebook btn-user btn-block">
-                                    <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook
-                                </a>
-                            </form>
+                                    <div class="form-group row">
+                                        <div class="col-sm-6 mb-3 mb-sm-0">
+                                            <input asp-for="MatKhau" type="password" class="form-control form-control-user" placeholder="Mật khẩu">
+                                            <span asp-validation-for="MatKhau" class="text-danger small font-weight-bold ml-2"></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <input asp-for="NhapLaiMatKhau" type="password" class="form-control form-control-user" placeholder="Xác nhận mật khẩu">
+                                            <span asp-validation-for="NhapLaiMatKhau" class="text-danger small font-weight-bold ml-2"></span>
+                                        </div>
+                                    </div>
 
-                            <hr>
-                            <div class="text-center">
-                                <a class="small" href="#">Quên mật khẩu?</a>
-                            </div>
-                            <div class="text-center">
-                                <a class="small" asp-controller="Account" asp-action="Login">Đã có tài khoản? Đăng nhập!</a>
+                                    <button type="submit" class="btn btn-register-gradient btn-user btn-block shadow mt-4">
+                                        ĐĂNG KÝ NGAY
+                                    </button>
+
+                                    <hr style="border-top: 1px solid rgba(255,255,255,0.2);">
+
+                                    <div class="text-center">
+                                        <a class="small small-link" asp-controller="Account" asp-action="Login">
+                                            Đã có tài khoản? Đăng nhập ngay!
+                                        </a>
+                                    </div>
+                                    <div class="text-center mt-2">
+                                        <a class="small small-link" asp-controller="Home" asp-action="Index">
+                                            <i class="fas fa-home mr-1"></i>Về trang chủ
+                                        </a>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -85,12 +168,7 @@
 
     <script src="~/vendor/jquery/jquery.min.js"></script>
     <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
-
     <script src="~/js/sb-admin-2.min.js"></script>
-
-    @* QUAN TRỌNG: Thêm các thư viện Validation để kiểm tra lỗi ngay tại trình duyệt *@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
