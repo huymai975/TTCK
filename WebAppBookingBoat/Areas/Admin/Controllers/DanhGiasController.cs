@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
@@ -10,16 +11,37 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class DanhGiasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public DanhGiasController(ApplicationDbContext context)
+        public DanhGiasController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
+
+        #region PRIVATE LOGIC & HELPERS
+
+        private async Task GhiLogHeThong(string hanhDong, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = "DanhGias",
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
+        #endregion
 
         // GET: Admin/DanhGias
         public async Task<IActionResult> Index()
         {
-            // Lấy kèm thông tin Hóa đơn và Khách hàng để hiển thị ở danh sách
             var applicationDbContext = _context.DanhGias
                 .Include(d => d.HoaDon)
                     .ThenInclude(h => h.KhachHang);
@@ -44,7 +66,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         // GET: Admin/DanhGias/Create
         public IActionResult Create()
         {
-            // Hiển thị mã hóa đơn kèm tên khách hàng để Admin dễ chọn
             var dsHoaDon = _context.HoaDons.Include(h => h.KhachHang).Select(h => new
             {
                 MaHD = h.MaHoaDon,
@@ -62,9 +83,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 _context.Add(danhGia);
                 await _context.SaveChangesAsync();
+
+                await GhiLogHeThong("Tạo đánh giá", $"Tạo thủ công đánh giá cho Hóa đơn #{danhGia.MaHoaDon}");
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MaHoaDon"] = new SelectList(_context.HoaDons, "MaHoaDon", "MaHoaDon", danhGia.MaHoaDon);
             return View(danhGia);
         }
 
@@ -79,7 +102,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (danhGia == null) return NotFound();
 
-            // Truyền thông tin hóa đơn ra để hiển thị (Read-only)
             ViewData["MaHoaDon"] = new SelectList(_context.HoaDons, "MaHoaDon", "MaHoaDon", danhGia.MaHoaDon);
             return View(danhGia);
         }
@@ -90,7 +112,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != model.MaDanhGia) return NotFound();
 
-            // Truy vấn dữ liệu gốc từ DB
             var danhGiaInDb = await _context.DanhGias.FindAsync(id);
             if (danhGiaInDb == null) return NotFound();
 
@@ -98,11 +119,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 try
                 {
-                    // Chỉ cập nhật những trường Admin được phép sửa
+                    string oldStatus = danhGiaInDb.TrangThai;
+                    bool isNewReply = string.IsNullOrEmpty(danhGiaInDb.PhanHoiAdmin) && !string.IsNullOrEmpty(model.PhanHoiAdmin);
+
                     danhGiaInDb.TrangThai = model.TrangThai;
                     danhGiaInDb.PhanHoiAdmin = model.PhanHoiAdmin;
 
-                    // Tự động cập nhật ngày phản hồi
                     if (!string.IsNullOrEmpty(model.PhanHoiAdmin))
                     {
                         danhGiaInDb.NgayPhanHoi = DateTime.Now;
@@ -110,6 +132,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                     _context.Update(danhGiaInDb);
                     await _context.SaveChangesAsync();
+
+                    // Ghi Log: Cập nhật trạng thái hoặc Phản hồi
+                    string actionNote = isNewReply ? "Phản hồi đánh giá" : "Cập nhật đánh giá";
+                    await GhiLogHeThong(actionNote, $"ID: {id}. Trạng thái: {oldStatus} -> {model.TrangThai}");
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -121,32 +148,26 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(model);
         }
 
-        // GET: Admin/DanhGias/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var danhGia = await _context.DanhGias
-                .Include(d => d.HoaDon)
-                .FirstOrDefaultAsync(m => m.MaDanhGia == id);
-
-            if (danhGia == null) return NotFound();
-
-            return View(danhGia);
-        }
-
-        // POST: Admin/DanhGias/Delete/5
+        // POST: Admin/DanhGias/Delete/5 (Ẩn đánh giá)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var danhGia = await _context.DanhGias.FindAsync(id);
+
             if (danhGia != null)
             {
-                _context.DanhGias.Remove(danhGia);
+                danhGia.TrangThai = "Đã ẩn";
+                _context.Update(danhGia);
                 await _context.SaveChangesAsync();
+
+                // Ghi Log: Ẩn đánh giá (Thường do nội dung nhạy cảm/không phù hợp)
+                await GhiLogHeThong("Ẩn đánh giá", $"Ẩn đánh giá ID: {id} của Hóa đơn #{danhGia.MaHoaDon}", "Warning");
+
+                return Json(new { success = true, message = "Đã ẩn đánh giá thành công." });
             }
-            return RedirectToAction(nameof(Index));
+
+            return Json(new { success = false, message = "Không tìm thấy dữ liệu." });
         }
 
         private bool DanhGiaExists(int id)

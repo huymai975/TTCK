@@ -1,0 +1,167 @@
+﻿@model WebAppBookingBoat.Models.AppUser
+@{
+    ViewData["Title"] = "Thêm mới Tài khoản";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-user-plus text-primary mr-2"></i>Thêm mới Tài khoản
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header py-3 bg-white border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                        <i class="fas fa-user-shield mr-1"></i> Thông tin tài khoản định danh
+                    </h6>
+                </div>
+
+                <div class="card-body px-lg-5 py-4">
+                    <form asp-action="Create" method="post" id="createUserForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 border-right">
+                                <h6 class="font-weight-bold text-dark mb-3">
+                                    <i class="fas fa-key mr-2 text-primary"></i>Thông tin đăng nhập
+                                </h6>
+
+                                <div class="form-group mb-4">
+                                    <label class="small font-weight-bold text-muted text-uppercase">Tên đăng nhập (Username)</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light"><i class="fas fa-user-circle text-primary"></i></span>
+                                        </div>
+                                        <input name="username" class="form-control shadow-sm border-left-primary" placeholder="Ví dụ: huymai_admin" required />
+                                    </div>
+                                    <small class="text-muted italic">Đây là tên dùng để đăng nhập vào hệ thống.</small>
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label class="small font-weight-bold text-muted text-uppercase d-flex justify-content-between">
+                                        Mật khẩu khởi tạo
+                                        <a href="javascript:void(0)" onclick="generatePassword()" class="badge badge-info">Tạo ngẫu nhiên</a>
+                                    </label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light"><i class="fas fa-lock text-warning"></i></span>
+                                        </div>
+                                        <input type="password" name="password" id="password" class="form-control shadow-sm border-left-warning" required placeholder="Nhập ít nhất 6 ký tự" />
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-light border" type="button" id="togglePassword">
+                                                <i class="fas fa-eye text-muted"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Trạng thái</label>
+                                    <select asp-for="TrangThai" class="form-control shadow-sm">
+                                        <option value="true">Kích hoạt ngay</option>
+                                        <option value="false">Tạm khóa</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 pl-md-4">
+                                <h6 class="font-weight-bold text-dark mb-3">
+                                    <i class="fas fa-id-card mr-2 text-primary"></i>Thông tin liên hệ
+                                </h6>
+
+                                <div class="form-group mb-4">
+                                    <label asp-for="Email" class="small font-weight-bold text-muted text-uppercase">Email</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light"><i class="fas fa-envelope text-info"></i></span>
+                                        </div>
+                                        <input asp-for="Email" class="form-control shadow-sm border-left-info" placeholder="email@example.com" />
+                                    </div>
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label asp-for="PhoneNumber" class="small font-weight-bold text-muted text-uppercase">Số điện thoại</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-light"><i class="fas fa-phone text-success"></i></span>
+                                        </div>
+                                        <input asp-for="PhoneNumber" class="form-control shadow-sm border-left-success" placeholder="09xxxxxxxx" />
+                                    </div>
+                                </div>
+
+                                <div class="p-3 bg-light rounded shadow-sm small text-muted border-left-danger mt-4">
+                                    <i class="fas fa-info-circle mr-1 text-danger"></i>
+                                    <strong>Ghi chú:</strong> Sau khi tạo thành công, vui lòng gán vai trò tại mục <strong>Phân quyền</strong>.
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                                <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                                <span class="text">Quay lại</span>
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-light mr-2">Nhập lại</button>
+                                <button type="submit" class="btn btn-primary btn-icon-split shadow-sm">
+                                    <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                                    <span class="text font-weight-bold">Tạo tài khoản</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $('#togglePassword').click(function() {
+            const type = $('#password').attr('type') === 'password' ? 'text' : 'password';
+            $('#password').attr('type', type);
+            $(this).find('i').toggleClass('fa-eye fa-eye-slash');
+        });
+
+        function generatePassword() {
+            const pass = Math.random().toString(36).slice(-8) + "@@123";
+            $('#password').val(pass).attr('type', 'text');
+        }
+    </script>
+    <style>
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e !important;
+        }
+
+        .border-left-success {
+            border-left: 4px solid #1cc88a !important;
+        }
+
+        .border-left-danger {
+            border-left: 4px solid #e74a3b !important;
+        }
+
+        .input-group-text {
+            min-width: 45px;
+            justify-content: center;
+        }
+    </style>
+}

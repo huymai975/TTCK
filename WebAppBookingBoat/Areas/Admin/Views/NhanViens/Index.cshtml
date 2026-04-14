@@ -323,7 +323,7 @@
 									timer: 1500,
 									showConfirmButton: false
 								}).then(() => {
-									location.reload();
+									table.row($(`button[onclick*='deleteNhanVienAjax(${id})']`).parents('tr')).remove().draw();
 								});
 							} else {
 								Swal.fire('Lỗi!', response.message, 'error');

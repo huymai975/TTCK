@@ -208,11 +208,11 @@
                                     <div class="promo-img-container mx-auto">
                                         @if (!string.IsNullOrEmpty(item.HinhAnh))
                                         {
-                                            <img src="~/images/khuyen-mai/@item.HinhAnh" class="promo-img" alt="promo" onerror="this.src='/images/no-image.png'">
+                                            <img src="/images/khuyen-mai/@item.HinhAnh" class="promo-img" alt="promo" onerror="this.src='/images/default.jpg'">
                                         }
                                         else
                                         {
-                                            <img src="/images/no-image.png" class="promo-img" alt="no-image">
+                                            <img src="/images/default.jpg" class="promo-img" alt="no-image">
                                         }
                                     </div>
                                 </td>
@@ -248,21 +248,44 @@
                                 </td>
 
                                 <td>
-                                    @* Các nút Edit, Details vẫn giữ nguyên *@
-                                    <a asp-action="Edit" asp-route-id="@item.MaKM" class="btn-modern btn-edit"><i class="fas fa-edit"></i></a>
-                                    <a asp-action="Details" asp-route-id="@item.MaKM" class="btn-modern btn-view" title="Chi tiết"><i class="fas fa-eye"></i></a>
-                                    @if (item.TrangThai.Equals("Đã kết thúc"))
+                                    @if (item.TrangThai == "Đã kết thúc" || item.TrangThai == "Đã hủy")
                                     {
-                                        @* Nút xóa bị vô hiệu hóa, dùng class disabled và thêm tooltip *@
-                                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Khuyến mãi đã kết thúc không thể xóa thêm">
-                                            <button type="button" class="btn-modern btn-delete disabled" style="opacity: 0.5; cursor: not-allowed;" disabled>
+                                        @* Nút Chỉnh sửa bị vô hiệu hóa *@
+                                        <span class="d-inline-block" data-toggle="tooltip" title="Không thể chỉnh sửa khuyến mãi đã @item.TrangThai.ToLower()">
+                                            <button class="btn-modern btn-edit disabled" style="opacity: 0.5; cursor: not-allowed;" disabled>
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @* Nút Chỉnh sửa bình thường *@
+                                        <a asp-action="Edit" asp-route-id="@item.MaKM" class="btn-modern btn-edit" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    }
+
+                                    @* Nút Chi tiết luôn cho phép xem *@
+                                    <a asp-action="Details" asp-route-id="@item.MaKM" class="btn-modern btn-view" title="Chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    @if (item.TrangThai == "Đã kết thúc" || item.TrangThai == "Đã hủy")
+                                    {
+                                        @* Nút Xóa bị vô hiệu hóa *@
+                                        <span class="d-inline-block" data-toggle="tooltip" title="Khuyến mãi này đã @item.TrangThai.ToLower(), không thể tác động thêm">
+                                            <button type="button" class="btn-modern btn-delete disabled"
+                                                    style="opacity: 0.5; cursor: not-allowed;" disabled>
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </span>
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn-modern btn-delete" onclick="deleteKhuyenMaiAjax('@item.MaKM', '@item.TenChuongTrinh')" title="Xóa">
+                                        @* Nút Xóa (Hủy) bình thường *@
+                                        <button type="button" class="btn-modern btn-delete"
+                                                onclick="deleteKhuyenMaiAjax('@item.MaKM', '@item.TenChuongTrinh')"
+                                                title="Hủy khuyến mãi">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     }
@@ -285,8 +308,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        var table;
         $(document).ready(function() {
-            var table = $('#dataTable').DataTable({
+            table = $('#dataTable').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
                     "search": "Tìm kiếm:",
@@ -320,13 +344,13 @@
 
         function deleteKhuyenMaiAjax(id, name) {
             Swal.fire({
-                title: 'Xác nhận xóa?',
-                text: `Bạn có chắc muốn xóa khuyến mãi: "${name}"?`,
+                title: 'Xác nhận hủy bỏ?',
+                text: `Bạn có chắc muốn hủy bỏ khuyến mãi: "${name}"?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74a3b',
                 cancelButtonText: 'Hủy',
-                confirmButtonText: 'Đồng ý xóa'
+                confirmButtonText: 'Đồng ý'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
@@ -338,7 +362,9 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                Swal.fire('Thành công!', response.message, 'success').then(() => location.reload());
+                                Swal.fire('Thành công!', response.message, 'success').then(() => {
+                                    table.row($(`button[onclick*='deleteKhuyenMaiAjax(${id})']`).parents('tr')).remove().draw();
+                                });
                             } else {
                                 Swal.fire('Thất bại!', response.message, 'error');
                             }

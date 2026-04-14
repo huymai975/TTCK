@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
@@ -11,10 +12,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class LichTrinhsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public LichTrinhsController(ApplicationDbContext context)
+        public LichTrinhsController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         #region READ (Index & Details)
@@ -35,7 +38,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 var trangThaiGoc = item.TrangThai;
                 if (bayGio >= item.NgayGioCapBenDuKien) item.TrangThai = "Hoàn thành";
                 else if (bayGio >= item.NgayGioKhoiHanh) item.TrangThai = "Đang vận hành";
-                if (trangThaiGoc != item.TrangThai) coThayDoi = true;
+                if (trangThaiGoc != item.TrangThai)
+                {
+                    await GhiLogHeThong("Hệ thống cập nhật trạng thái", "LichTrinhs",
+                        $"Lịch trình {item.MaLichTrinh} tự động chuyển: {trangThaiGoc} -> {item.TrangThai}");
+                    coThayDoi = true;
+                }
             }
             if (coThayDoi) await _context.SaveChangesAsync();
 
@@ -138,6 +146,10 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                     // 4. Lưu vào Database
                     _context.Add(lichTrinh);
+
+                    await GhiLogHeThong("Tạo lịch trình", "LichTrinhs",
+                        $"Tạo lịch trình mới ID: {lichTrinh.MaLichTrinh}. Khởi hành: {lichTrinh.NgayGioKhoiHanh}");
+
                     await _context.SaveChangesAsync();
 
                     // 5. Thông báo thành công (Dùng cho SweetAlert hoặc Toastr ở View Index)
@@ -279,6 +291,10 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     // ... (gán dữ liệu từ vm sang lichTrinh như code cũ của bạn) ...
 
                     _context.Update(lichTrinh!);
+
+                    await GhiLogHeThong("Thay đổi giờ chạy", "LichTrinhs",
+                            $"ID: {id}. Giờ cũ: {lichTrinhDb.NgayGioKhoiHanh} -> Giờ mới: {vm.NgayGioKhoiHanh}. Cảnh báo: Lịch này đã có khách đặt vé!", "Warning");
+
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
@@ -313,6 +329,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 if (lt != null)
                 {
                     _context.LichTrinhs.Remove(lt);
+
+                    await GhiLogHeThong("Xóa lịch trình", "LichTrinhs", $"Đã xóa vĩnh viễn lịch trình ID: {id}", "Warning");
+
                     await _context.SaveChangesAsync();
                     return Json(new { success = true, message = "Lịch trình đã được xóa vĩnh viễn." });
                 }
@@ -327,6 +346,24 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         #endregion
 
         #region PRIVATE LOGIC & HELPERS
+
+        [NonAction]
+        private async Task GhiLogHeThong(string hanhDong, string bang, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = bang,
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
         private async Task<(bool canDelete, string message)> CanDeleteLichTrinh(int id)
         {
             var lichTrinh = await _context.LichTrinhs.FindAsync(id);

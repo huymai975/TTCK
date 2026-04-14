@@ -41,12 +41,12 @@ wwwroot\fonts\icomoon\selection.json
 wwwroot\fonts\icomoon\style.css
 wwwroot\images\danh-gia\review-ghe-vip.jpg
 wwwroot\images\danh-gia\review-tau-01.jpg.png
+wwwroot\images\default.jpg
 wwwroot\images\hero_1.jpg
 wwwroot\images\hero_2.jpg
 wwwroot\images\khuyen-mai\0b00c585-fb35-4462-9b5d-8e1aee28b429.jpg
 wwwroot\images\khuyen-mai\322b0521-7bf6-40e5-aeea-b28fcfb0c5fd.jpg
 wwwroot\images\logo.png
-wwwroot\images\no-image.png
 wwwroot\images\person_1.jpg
 wwwroot\images\person_2.jpg
 wwwroot\images\person_3.jpg
@@ -62,6 +62,7 @@ wwwroot\images\tau\2073e0cb-cf50-45b1-aa5e-9d40af4b7477.jpg
 wwwroot\images\tau\68002807-83b2-43e5-a103-34f769fee016.jpg
 wwwroot\images\tau\872b8a7a-79ae-4f8b-96da-53c7e3caa5e3.jpg
 wwwroot\images\tuyen-duong\0c8444d3-2eb8-4766-8fc3-d8d7ceab3a09_phu-quoc.jfif
+wwwroot\images\tuyen-duong\4e80d1ba-86e3-4c44-91b0-d779306460b8_phu-quoc.jfif
 wwwroot\images\tuyen-duong\7cdd3d31-bdfb-49d5-ba09-b3fe8a5f3e17_vung-tau.jfif
 wwwroot\images\tuyen-duong\80eec6b7-1650-400a-afda-eec7573a7f48.jfif
 wwwroot\images\tuyen-duong\bcb568e6-983b-4c9e-b638-79ec1ae757dd_phu-quoc.jfif
@@ -158,6 +159,7 @@ wwwroot\lib\jquery\dist\jquery.js
 wwwroot\lib\jquery\dist\jquery.min.js
 wwwroot\lib\jquery\dist\jquery.min.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\Rotativa\wkhtmltopdf.exe
 wwwroot\scss\bootstrap\bootstrap-grid.scss
 wwwroot\scss\bootstrap\bootstrap-reboot.scss
 wwwroot\scss\bootstrap\bootstrap.scss

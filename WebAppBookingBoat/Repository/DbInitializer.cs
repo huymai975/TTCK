@@ -322,11 +322,24 @@ namespace WebAppBookingBoat.Repository
                 new Log
                 {
                     MaLog = 1,
+                    MaTK = adminUser.Id, // Đã sửa: dùng biến adminUser đã khai báo ở trên
+                    LoaiLog = "Info",
+                    HanhDong = "Khởi tạo hệ thống", // Đã sửa: bỏ ký tự N
+                    BangTacDong = "System",
+                    NoiDungChiTiet = "Hệ thống đã khởi tạo dữ liệu mẫu (Seed Data) thành công.",
+                    ThoiGian = new DateTime(2026, 4, 13, 9, 0, 0),
+                    IpAddress = "127.0.0.1"
+                },
+                new Log
+                {
+                    MaLog = 2,
                     MaTK = adminUser.Id,
-                    HanhDong = "Khởi tạo hệ thống",
-                    BangTacDong = "Hệ thống",
-                    NoiDungChiTiet = "Seed dữ liệu mẫu thành công",
-                    ThoiGian = DateTime.Now
+                    LoaiLog = "Info",
+                    HanhDong = "Cấu hình bảo mật",
+                    BangTacDong = "AspNetUsers",
+                    NoiDungChiTiet = "Thiết lập quyền Quản trị viên (Admin) cho hệ thống.",
+                    ThoiGian = new DateTime(2026, 4, 13, 9, 0, 5),
+                    IpAddress = "127.0.0.1"
                 }
             );
 

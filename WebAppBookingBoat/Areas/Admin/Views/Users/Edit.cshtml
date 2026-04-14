@@ -1,0 +1,144 @@
+﻿@model WebAppBookingBoat.Models.AppUser
+
+@{
+    ViewData["Title"] = "Cập nhật tài khoản";
+}
+
+<head>
+    <style>
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e !important;
+        }
+
+        .border-left-danger {
+            border-left: 4px solid #e74a3b !important;
+        }
+
+        .border-left-success {
+            border-left: 4px solid #1cc88a !important;
+        }
+
+        .form-control:focus {
+            border-color: #f6c23e;
+            box-shadow: 0 0 0 0.2rem rgba(246, 194, 62, 0.15);
+        }
+    </style>
+</head>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-user-edit text-warning mr-2"></i>Cập nhật thông tin tài khoản
+        </h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <form asp-action="Edit" method="post" class="card shadow-lg mb-4 border-left-warning">
+                @* Card Header *@
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                        Tài khoản: @Model.Email
+                    </h6>
+                    <span class="badge badge-warning text-white p-2 shadow-sm">
+                        <i class="fas fa-id-badge mr-1"></i> ID: #@Model.Id.Substring(0, 8)
+                    </span>
+                </div>
+
+                <div class="card-body px-lg-5 py-4">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
+
+                    @* Hidden fields *@
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="Email" />
+
+                    <div class="row">
+                        @* Cột 1: Thông tin định danh *@
+                        <div class="col-md-6 border-right">
+                            <h6 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-user-shield mr-2 text-warning"></i>Thông tin định danh
+                            </h6>
+
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase">Email (Không thể đổi)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light"><i class="fas fa-envelope text-gray-400"></i></span>
+                                    </div>
+                                    <input value="@Model.Email" class="form-control shadow-sm border-left-secondary" readonly style="background-color: #f8f9fc;" />
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Trạng thái tài khoản</label>
+                                <select asp-for="TrangThai" class="form-control shadow-sm border-left-info">
+                                    <option value="true">Đang hoạt động (Active)</option>
+                                    <option value="false">Khóa tài khoản (Locked)</option>
+                                </select>
+                                <span asp-validation-for="TrangThai" class="text-danger small mt-1"></span>
+                            </div>
+                        </div>
+
+                        @* Cột 2: Thông tin liên hệ *@
+                        <div class="col-md-6 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-3">
+                                <i class="fas fa-address-card mr-2 text-warning"></i>Thông tin cá nhân
+                            </h6>
+
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase">Số điện thoại liên lạc</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="fas fa-phone text-success"></i></span>
+                                    </div>
+                                    <input asp-for="PhoneNumber" class="form-control shadow-sm border-left-0" placeholder="09xxxxxxx" />
+                                </div>
+                                <span asp-validation-for="PhoneNumber" class="text-danger small mt-1"></span>
+                            </div>
+
+                            @* Bạn có thể thêm trường Họ Tên nếu có trong ApplicationUser *@
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold text-muted text-uppercase">Ghi chú bảo mật</label>
+                                <div class="p-3 bg-light rounded border-left-danger small">
+                                    <i class="fas fa-exclamation-triangle mr-1 text-danger"></i>
+                                    Thay đổi trạng thái tài khoản sẽ ảnh hưởng đến khả năng đăng nhập của người dùng ngay lập tức.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Footer Action Buttons *@
+                <div class="card-footer bg-light d-flex justify-content-between py-3">
+                    <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Hủy thay đổi</span>
+                    </a>
+
+                    <button type="submit" class="btn btn-warning btn-icon-split shadow-sm font-weight-bold">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-save"></i>
+                        </span>
+                        <span class="text">Lưu thay đổi</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

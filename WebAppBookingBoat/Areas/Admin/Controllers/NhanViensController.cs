@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Repository;
 
 namespace WebAppBookingBoat.Areas.Admin.Controllers
@@ -9,10 +11,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class NhanViensController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public NhanViensController(ApplicationDbContext context)
+        public NhanViensController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // ==========================================
@@ -29,22 +33,41 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             if (await _context.NhanViens.AnyAsync(n => n.Sdt == nv.Sdt && n.MaNV != id))
                 return "Số điện thoại này đã tồn tại!";
 
-            if (!string.IsNullOrEmpty(nv.MaTK) && await _context.NhanViens.AnyAsync(n => n.MaTK == nv.MaTK && n.MaNV != id))
-                return "Tài khoản này đã được gán cho nhân viên khác!";
+            // KIỂM TRA CHÉO: Tài khoản không được tồn tại ở cả bảng NhanVien và KhachHang
+            if (!string.IsNullOrEmpty(nv.MaTK))
+            {
+                if (await _context.NhanViens.AnyAsync(n => n.MaTK == nv.MaTK && n.MaNV != id))
+                    return "Tài khoản này đã được gán cho nhân viên khác!";
+
+                if (await _context.KhachHangs.AnyAsync(kh => kh.MaTK == nv.MaTK))
+                    return "Tài khoản này đã được gán cho một Khách hàng, không thể gán làm Nhân viên!";
+            }
 
             return null;
         }
 
         private void LoadUserData(int? currentMaNV = null, string? selectedMaTK = null)
         {
-            var assignedUserIds = _context.NhanViens
+            // 1. Lấy tất cả MaTK đã bị gán ở bảng Nhân viên (trừ nhân viên hiện tại đang sửa)
+            var assignedInStaff = _context.NhanViens
                 .Where(n => n.MaTK != null && n.MaNV != currentMaNV)
-                .Select(n => n.MaTK).ToList();
+                .Select(n => n.MaTK);
 
+            // 2. Lấy tất cả MaTK đã bị gán ở bảng Khách hàng
+            var assignedInCustomer = _context.KhachHangs
+                .Where(k => k.MaTK != null)
+                .Select(k => k.MaTK);
+
+            // 3. Hợp nhất danh sách ID đã bị gán
+            var allAssignedIds = assignedInStaff.Union(assignedInCustomer).ToList();
+
+            // 4. Lọc ra những User "Sạch" hoàn toàn
             var availableUsers = _context.Users
-                .Where(u => !assignedUserIds.Contains(u.Id)).ToList();
+                .Where(u => !allAssignedIds.Contains(u.Id))
+                .Select(u => new { u.Id, Display = u.UserName + " (" + u.Email + ")" })
+                .ToList();
 
-            ViewData["MaTK"] = new SelectList(availableUsers, "Id", "UserName", selectedMaTK);
+            ViewData["MaTK"] = new SelectList(availableUsers, "Id", "Display", selectedMaTK);
         }
 
         // ==========================================
@@ -62,17 +85,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             return View(await query.OrderByDescending(n => n.MaNV).ToListAsync());
         }
 
-        // --- BỔ SUNG ACTION DETAILS ---
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-
-            var nhanVien = await _context.NhanViens
-                .Include(n => n.AppUser)
-                .FirstOrDefaultAsync(m => m.MaNV == id);
-
+            var nhanVien = await _context.NhanViens.Include(n => n.AppUser).FirstOrDefaultAsync(m => m.MaNV == id);
             if (nhanVien == null) return NotFound();
-
             return View(nhanVien);
         }
 
@@ -89,19 +106,36 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             ModelState.Remove("AppUser");
             ModelState.Remove("HoaDons");
 
-            if (string.IsNullOrWhiteSpace(nhanVien.MaTK)) nhanVien.MaTK = null!;
+            if (string.IsNullOrWhiteSpace(nhanVien.MaTK)) nhanVien.MaTK = null;
 
             if (ModelState.IsValid)
             {
                 var error = await CheckNhanVienLogic(nhanVien);
                 if (error == null)
                 {
-                    _context.Add(nhanVien);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Thêm nhân viên mới thành công!";
-                    return RedirectToAction(nameof(Index));
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+                    try
+                    {
+                        _context.Add(nhanVien);
+                        await _context.SaveChangesAsync();
+
+                        await GhiLogHeThong("Thêm nhân viên", "NhanViens",
+                            $"Admin đã tạo hồ sơ nhân viên cho: {nhanVien.HoTen} (ID: {nhanVien.MaNV}), gán MaTK: {nhanVien.MaTK ?? "N/A"}", "Info");
+
+                        await transaction.CommitAsync();
+                        TempData["SuccessMessage"] = "Thêm nhân viên mới thành công!";
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
+                    }
                 }
-                ModelState.AddModelError("", error);
+                else
+                {
+                    ModelState.AddModelError("", error);
+                }
             }
             LoadUserData(null, nhanVien.MaTK);
             return View(nhanVien);
@@ -126,42 +160,42 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             ModelState.Remove("AppUser");
             ModelState.Remove("HoaDons");
 
-            if (string.IsNullOrWhiteSpace(nhanVien.MaTK))
-            {
-                nhanVien.MaTK = null; // Đảm bảo truyền null thực sự nếu không có tài khoản
-            }
+            if (string.IsNullOrWhiteSpace(nhanVien.MaTK)) nhanVien.MaTK = null;
 
             if (ModelState.IsValid)
             {
                 var error = await CheckNhanVienLogic(nhanVien, id);
                 if (error == null)
                 {
+                    using var transaction = await _context.Database.BeginTransactionAsync();
                     try
                     {
-                        // 2. TRÁNH LỖI THEO DÕI (TRACKING):
-                        // Nếu DBContext đang theo dõi một instance khác của NhanVien, 
-                        // hãy dùng cách này để update an toàn hơn
                         _context.Update(nhanVien);
                         await _context.SaveChangesAsync();
 
+                        await GhiLogHeThong("Cập nhật nhân viên", "NhanViens",
+                            $"Cập nhật thông tin nhân viên: {nhanVien.HoTen} (ID: {id})", "Info");
+
+                        await transaction.CommitAsync();
                         TempData["SuccessMessage"] = "Cập nhật thành công!";
                         return RedirectToAction(nameof(Index));
                     }
-                    catch (DbUpdateConcurrencyException)
+                    catch (Exception ex)
                     {
-                        if (!_context.NhanViens.Any(e => e.MaNV == nhanVien.MaNV)) return NotFound();
-                        throw;
+                        await transaction.RollbackAsync();
+                        ModelState.AddModelError("", "Lỗi khi cập nhật: " + ex.Message);
                     }
                 }
-                ModelState.AddModelError("", error);
+                else
+                {
+                    ModelState.AddModelError("", error);
+                }
             }
 
-            // Nếu đến đây là có lỗi, load lại dữ liệu cho Dropdown
             LoadUserData(id, nhanVien.MaTK);
             return View(nhanVien);
         }
 
-        // --- CẬP NHẬT DELETE AJAX ĐỒNG NHẤT ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -171,24 +205,53 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             bool hasInvoices = await _context.HoaDons.AnyAsync(h => h.MaNV == id);
 
-            if (hasInvoices)
+            try
             {
-                // Nếu đã có hóa đơn -> Khóa mềm (Soft Delete)
-                nv.TrangThai = false;
-                if (nv.AppUser != null)
+                if (hasInvoices)
                 {
-                    nv.AppUser.TrangThai = false;
-                    _context.Update(nv.AppUser);
-                }
-                _context.Update(nv);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Nhân viên đã có hóa đơn. Hệ thống đã khóa tài khoản và cập nhật trạng thái nghỉ việc." });
-            }
+                    nv.TrangThai = false; // Nghỉ việc
+                    if (nv.AppUser != null)
+                    {
+                        nv.AppUser.TrangThai = false; // Khóa tài khoản đăng nhập
+                        _context.Update(nv.AppUser);
+                    }
+                    _context.Update(nv);
+                    await _context.SaveChangesAsync();
 
-            // Nếu chưa có hóa đơn -> Xóa vĩnh viễn (Hard Delete)
-            _context.NhanViens.Remove(nv);
-            await _context.SaveChangesAsync();
-            return Json(new { success = true, message = "Đã xóa nhân viên vĩnh viễn khỏi hệ thống." });
+                    await GhiLogHeThong("Khóa nhân viên", "NhanViens", $"Nhân viên {nv.HoTen} đã nghỉ việc (Soft Delete)", "Warning");
+                    return Json(new { success = true, message = "Đã cập nhật trạng thái nghỉ việc và khóa tài khoản." });
+                }
+
+                _context.NhanViens.Remove(nv);
+                await _context.SaveChangesAsync();
+
+                await GhiLogHeThong("Xóa nhân viên", "NhanViens", $"Xóa vĩnh viễn nhân viên: {nv.HoTen}", "Warning");
+                return Json(new { success = true, message = "Đã xóa nhân viên vĩnh viễn." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
         }
+
+        #region Helpers
+
+        [NonAction]
+        private async Task GhiLogHeThong(string hanhDong, string bang, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = bang,
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+        #endregion
     }
 }

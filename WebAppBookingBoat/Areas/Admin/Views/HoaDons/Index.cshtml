@@ -273,6 +273,11 @@
                                 </td>
                                 <td class="text-center align-middle">
                                     <div class="d-flex justify-content-center">
+                                        <a asp-action="XuatHoaDon" asp-route-id="@item.MaHoaDon"
+                                           class="btn-modern btn-view" target="_blank">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+
                                         <a asp-action="Details" asp-route-id="@item.MaHoaDon" class="btn-modern btn-view" title="Xem chi tiết">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
@@ -480,7 +485,9 @@
                                 text: response.message,
                                 timer: 1500,
                                 showConfirmButton: false
-                            }).then(() => location.reload());
+                            }).then(() => {
+                                    table.row($(`button[onclick*='cancelHoaDon(${id})']`).parents('tr')).remove().draw();
+                                });
                         } else {
                             Swal.fire('Lỗi!', response.message, 'error');
                         }

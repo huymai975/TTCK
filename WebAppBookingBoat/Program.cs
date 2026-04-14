@@ -39,7 +39,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login"; // Đường dẫn đến trang đăng nhập
     options.LogoutPath = "/Account/Logout";
-    options.AccessDeniedPath = "/Account/AccessDenied"; // Trang báo lỗi khi không có quyền
+    options.AccessDeniedPath = "/Error/403"; // Trang báo lỗi khi không có quyền
     options.Cookie.Name = "BoatBookingCookie";
     options.ExpireTimeSpan = TimeSpan.FromDays(30); // Ghi nhớ đăng nhập 30 ngày
 });
@@ -55,7 +55,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseStatusCodePagesWithReExecute("/Admin/Error/{0}");
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 
 app.UseHttpsRedirection();
@@ -79,5 +79,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+
+IWebHostEnvironment env = app.Environment;
+Rotativa.AspNetCore.RotativaConfiguration.Setup(env.WebRootPath, "Rotativa");
 
 app.Run();
