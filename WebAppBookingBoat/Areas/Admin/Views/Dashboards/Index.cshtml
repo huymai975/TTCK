@@ -262,8 +262,8 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const labels7Days = @Html.Raw(Json.Serialize(Model.Labels7Ngay));
-        const data7Days = @Html.Raw(Json.Serialize(Model.DoanhThu7Ngay));
+                const labels7Days = JSON.parse('@Html.Raw(Json.Serialize(Model.Labels7Ngay))');
+        const data7Days = JSON.parse('@Html.Raw(Json.Serialize(Model.DoanhThu7Ngay))');
 
         var ctx = document.getElementById("myAreaChart").getContext('2d');
         new Chart(ctx, {

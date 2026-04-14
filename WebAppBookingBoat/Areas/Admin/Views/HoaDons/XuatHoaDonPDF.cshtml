@@ -1,0 +1,109 @@
+﻿@model WebAppBookingBoat.ViewModels.HoaDonViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .invoice-title {
+            text-align: center;
+            color: #2c3e50;
+            text-transform: uppercase;
+        }
+
+        .info-section {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+            .table th, .table td {
+                border: 1px solid #bdc3c7;
+                padding: 10px;
+                text-align: left;
+            }
+
+            .table th {
+                background-color: #ecf0f1;
+            }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .total-box {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-title">
+        <h2>Hóa đơn dịch vụ tàu</h2>
+        <p>Mã: #@Model.MaHoaDon | Ngày lập: @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+
+    <table class="info-section">
+        <tr>
+            <td><strong>Khách hàng:</strong> @Model.TenKhachHang</td>
+            <td><strong>SĐT:</strong> @Model.SoDienThoaiKH</td>
+        </tr>
+        <tr>
+            <td><strong>Tàu:</strong> @Model.TenTau</td>
+            <td><strong>Lịch trình:</strong> @Model.TuyenDuong</td>
+        </tr>
+        <tr>
+            <td><strong>Nhân viên lập:</strong> @Model.TenNhanVien</td>
+            <td><strong>Khởi hành:</strong> @Model.NgayKhoiHanh.ToString("dd/MM/yyyy HH:mm")</td>
+        </tr>
+    </table>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã vé</th>
+                <th>Vị trí ghế</th>
+                <th class="text-right">Giá vé</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int stt = 1;
+            }
+            @foreach (var ve in Model.DanhSachVe)
+            {
+                <tr>
+                    <td>@(stt++)</td>
+                    <td>#@ve.MaVe</td>
+                    <td>@ve.TenGhe</td>
+                    <td class="text-right">@ve.GiaVe.ToString("N0")đ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="total-box">
+        TỔNG TIỀN: @Model.TongTienFormat
+    </div>
+
+    <div style="margin-top: 40px; text-align: center; font-style: italic;">
+        <p>Cảm ơn quý khách đã tin tưởng dịch vụ của chúng tôi!</p>
+    </div>
+</body>
+</html>

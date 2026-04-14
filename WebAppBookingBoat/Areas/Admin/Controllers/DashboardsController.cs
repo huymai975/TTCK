@@ -20,7 +20,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             _userManager = userManager;
         }
 
-        // Action chính xử lý hiển thị Dashboard và Lọc
         public async Task<IActionResult> Index(string filter = "today")
         {
             try
@@ -35,7 +34,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             }
         }
 
-        // Action xuất PDF
         public async Task<IActionResult> ExportPdf(string filter = "today")
         {
             var model = await GetDashboardsData(filter);
@@ -55,67 +53,78 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             var today = DateTime.Today;
             DateTime startDate;
 
-            // Xác định mốc thời gian dựa trên filter
             switch (filter.ToLower())
             {
-                case "week":
-                    startDate = today.AddDays(-7);
-                    break;
-                case "month":
-                    startDate = new DateTime(today.Year, today.Month, 1);
-                    break;
-                default: // today
-                    startDate = today;
-                    break;
+                case "week": startDate = today.AddDays(-7); break;
+                case "month": startDate = new DateTime(today.Year, today.Month, 1); break;
+                default: startDate = today; break;
             }
 
-            // 1. Thống kê cơ bản
             var hoaDonsThanhToan = _context.HoaDons.Where(h => h.TrangThai == "Đã thanh toán");
 
-            var dtThangNay = await hoaDonsThanhToan
-                .Where(h => h.NgayLap.Month == today.Month && h.NgayLap.Year == today.Year)
-                .SumAsync(h => (decimal?)h.TongTien) ?? 0;
-
-            // 2. Xử lý dữ liệu biểu đồ (7 ngày gần nhất)
+            // 1. Dữ liệu biểu đồ 7 ngày
             var labels = new List<string>();
             var values = new List<decimal>();
             var dateRangeStart = today.AddDays(-6);
 
             var hoaDonsInRange = await hoaDonsThanhToan
-                .Where(h => h.NgayLap.Date >= dateRangeStart)
-                .Select(h => new { h.NgayLap.Date, h.TongTien })
+                .Where(h => h.NgayLap >= dateRangeStart)
+                .Select(h => new { h.NgayLap, h.TongTien })
                 .ToListAsync();
 
             for (int i = 6; i >= 0; i--)
             {
                 var targetDate = today.AddDays(-i);
                 labels.Add(targetDate.ToString("dd/MM"));
-                values.Add(hoaDonsInRange.Where(x => x.Date == targetDate).Sum(x => x.TongTien));
+                values.Add(hoaDonsInRange.Where(x => x.NgayLap.Date == targetDate).Sum(x => x.TongTien));
             }
 
-            // 3. Tính Tỷ lệ lấp đầy (Dựa trên lịch trình hôm nay)
+            // 2. Tính toán tỷ lệ lấp đầy trong ngày hôm nay
+            var startOfToday = DateTime.Today;
+            var endOfToday = startOfToday.AddDays(1).AddTicks(-1);
+
             var lichTrinhHnay = await _context.LichTrinhs
-                .Include(lt => lt.Tau)
-                .Where(lt => lt.NgayGioKhoiHanh.Date == today)
+                .Where(lt => lt.NgayGioKhoiHanh >= startOfToday && lt.NgayGioKhoiHanh <= endOfToday && lt.TrangThai != "Đã hủy")
                 .ToListAsync();
 
-            int tongGhe = lichTrinhHnay.Sum(lt => lt.Tau?.TongSoGhe ?? 0);
-            int gheTrong = lichTrinhHnay.Sum(lt => lt.SoGheTrong);
-            double tyLe = tongGhe > 0 ? (double)(tongGhe - gheTrong) / tongGhe * 100 : 0;
+            double tongGheHnay = 0;
+            double gheTrongHnay = 0;
 
-            // 4. Khởi tạo và trả về ViewModel
+            if (lichTrinhHnay.Any())
+            {
+                foreach (var lt in lichTrinhHnay)
+                {
+                    // Đếm số ghế thực tế từ thiết lập của tàu
+                    int soGheTauNay = await _context.Ghes.CountAsync(g => g.MaTau == lt.MaTau);
+                    tongGheHnay += soGheTauNay;
+                    gheTrongHnay += lt.SoGheTrong;
+                }
+            }
+
+            double tyLeFinal = 0;
+            if (tongGheHnay > 0)
+            {
+                double gheDaDat = tongGheHnay - gheTrongHnay;
+                tyLeFinal = Math.Round((gheDaDat / tongGheHnay) * 100, 1);
+            }
+
+            // 3. Khởi tạo và trả về ViewModel duy nhất
             return new DashboardViewModel
             {
                 CurrentFilter = filter,
                 TongDoanhThu = await hoaDonsThanhToan.SumAsync(h => (decimal?)h.TongTien) ?? 0,
-                DoanhThuThangNay = dtThangNay,
+                DoanhThuThangNay = await hoaDonsThanhToan
+                    .Where(h => h.NgayLap.Month == today.Month && h.NgayLap.Year == today.Year)
+                    .SumAsync(h => (decimal?)h.TongTien) ?? 0,
+
                 SoKhachHang = await _context.KhachHangs.CountAsync(),
                 SoTauDangChay = await _context.Taus.CountAsync(t => t.TrangThai == true),
-
                 HoaDonChoXuLy = await _context.HoaDons.CountAsync(h => h.TrangThai == "Chưa thanh toán"),
                 HoaDonMoiTrongNgay = await _context.HoaDons.CountAsync(h => h.NgayLap >= startDate),
 
-                TyLeLapDay = Math.Round(tyLe, 1),
+                // Gán tỷ lệ đã tính toán
+                TyLeLapDay = tyLeFinal,
+
                 Labels7Ngay = labels,
                 DoanhThu7Ngay = values,
 

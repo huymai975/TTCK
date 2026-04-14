@@ -46,7 +46,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     coThayDoi = true;
                     // Ghi log hệ thống tự cập nhật trạng thái
                     await GhiLogHeThong("Hệ thống cập nhật trạng thái", "KhuyenMais",
-                        $"Khuyến mãi {km.MaKM} tự động chuyển: {trangThaiGoc} -> {km.TrangThai}", "Auto");
+                        $"Khuyến mãi {km.MaKM} tự động chuyển: {trangThaiGoc} -> {km.TrangThai}", "Info");
                 }
             }
 
@@ -166,11 +166,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     await _context.SaveChangesAsync();
 
                     // Ghi log chi tiết nếu thay đổi mức giảm giá
-                    string logDetail = $"Cập nhật KM: {khuyenMai.MaKM}.";
-                    if (oldData.PhanTramGiam != khuyenMai.PhanTramGiam)
-                        logDetail += $" Thay đổi giảm giá: {oldData.PhanTramGiam}% -> {khuyenMai.PhanTramGiam}%.";
+                    var changes = new List<string>();
+                    if (oldData.TenChuongTrinh != khuyenMai.TenChuongTrinh) changes.Add($"Tên: {oldData.TenChuongTrinh} -> {khuyenMai.TenChuongTrinh}");
+                    if (oldData.PhanTramGiam != khuyenMai.PhanTramGiam) changes.Add($"Giảm giá: {oldData.PhanTramGiam}% -> {khuyenMai.PhanTramGiam}%");
+                    if (oldData.TrangThai != khuyenMai.TrangThai) changes.Add($"Trạng thái: {oldData.TrangThai} -> {khuyenMai.TrangThai}");
 
-                    await GhiLogHeThong("Cập nhật khuyến mãi", "KhuyenMais", logDetail);
+                    string logDetail = $"Cập nhật KM {khuyenMai.MaKM}: " + (changes.Count > 0 ? string.Join(", ", changes) : "Không thay đổi thông tin quan trọng.");
+
+                    await GhiLogHeThong("Cập nhật khuyến mãi", "KhuyenMais", logDetail, "Info");
 
                     TempData["SuccessMessage"] = "Cập nhật thành công!";
                     return RedirectToAction(nameof(Index));

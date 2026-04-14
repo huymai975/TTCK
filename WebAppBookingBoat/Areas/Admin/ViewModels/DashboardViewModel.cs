@@ -4,6 +4,7 @@ namespace WebAppBookingBoat.Areas.Admin.ViewModels
 {
     public class DashboardViewModel
     {
+
         // Thuộc tính hỗ trợ bộ lọc (Quan trọng cho giao diện)
         public string CurrentFilter { get; set; } = "today";
 

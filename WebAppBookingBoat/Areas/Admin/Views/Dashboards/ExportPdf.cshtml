@@ -1,96 +1,183 @@
 ﻿@model WebAppBookingBoat.Areas.Admin.ViewModels.DashboardViewModel
 @{
-    Layout = null; // Xuất PDF không dùng Layout chung của Admin
+    Layout = null;
 }
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <meta charset="utf-8" />
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 30px;
             color: #333;
+            line-height: 1.5;
         }
 
-        .header-title {
-            color: #4e73df;
-            border-bottom: 2px solid #4e73df;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #4e73df;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
 
-        .stat-box {
+            .header h1 {
+                color: #4e73df;
+                margin: 0;
+                text-transform: uppercase;
+                font-size: 24px;
+            }
+
+        .info-section {
+            margin-bottom: 30px;
+            display: table;
+            width: 100%;
+        }
+
+        .info-box {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .card-summary {
+            background-color: #f8f9fc;
             border: 1px solid #e3e6f0;
             padding: 15px;
-            border-radius: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+            .table th, .table td {
+                border: 1px solid #e3e6f0;
+                padding: 10px;
+                text-align: left;
+            }
+
+            .table th {
+                background-color: #4e73df;
+                color: white;
+                font-weight: bold;
+            }
+
+            .table tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
             text-align: center;
         }
 
-        .table thead {
-            background-color: #f8f9fc;
+        .font-weight-bold {
+            font-weight: bold;
         }
 
-        .text-primary {
-            color: #4e73df !important;
+        .status-paid {
+            color: #1cc88a;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #f6c23e;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: right;
+            font-style: italic;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <div class="text-center">
-            <h2 class="header-title">BÁO CÁO HOẠT ĐỘNG HỆ THỐNG</h2>
-            <p>Ngày xuất báo cáo: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
-        </div>
+    <div class="header">
+        <h1>BÁO CÁO QUẢN TRỊ HỆ THỐNG</h1>
+        <p>Kỳ báo cáo: @(Model.CurrentFilter == "week" ? "7 ngày gần nhất" : Model.CurrentFilter == "month" ? "Tháng này" : "Hôm nay")</p>
+        <p>Ngày xuất bản: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
 
-        <div class="row mb-4">
-            <div class="col-4">
-                <div class="stat-box">
-                    <small class="text-uppercase font-weight-bold">Tổng doanh thu</small>
-                    <h4 class="text-primary">@Model.TongDoanhThu.ToString("N0") đ</h4>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="stat-box">
-                    <small class="text-uppercase font-weight-bold">Tổng đơn hàng</small>
-                    <h4>@Model.HoaDonMoiNhat.Count</h4>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="stat-box">
-                    <small class="text-uppercase font-weight-bold">Tỷ lệ lấp đầy</small>
-                    <h4 class="text-info">@Model.TyLeLapDay%</h4>
-                </div>
+    <div class="info-section">
+        <div class="info-box">
+            <div class="card-summary">
+                <p><strong>Tổng doanh thu hệ thống:</strong> @Model.TongDoanhThu.ToString("N0") VNĐ</p>
+                <p><strong>Doanh thu trong kỳ:</strong> @Model.DoanhThuThangNay.ToString("N0") VNĐ</p>
+                <p><strong>Tỷ lệ lấp đầy bình quân:</strong> @Model.TyLeLapDay%</p>
             </div>
         </div>
+        <div class="info-box" style="padding-left: 20px;">
+            <div class="card-summary">
+                <p><strong>Tổng số khách hàng:</strong> @Model.SoKhachHang.ToString("N0")</p>
+                <p><strong>Tàu đang hoạt động:</strong> @Model.SoTauDangChay</p>
+                <p><strong>Hóa đơn mới trong kỳ:</strong> @Model.HoaDonMoiTrongNgay</p>
+            </div>
+        </div>
+    </div>
 
-        <h5>Danh sách giao dịch gần nhất</h5>
-        <table class="table table-bordered">
-            <thead>
+    <h3>1. Giao dịch mới phát sinh</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th class="text-center">Ngày lập</th>
+                <th class="text-right">Tổng tiền</th>
+                <th class="text-center">Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var hd in Model.HoaDonMoiNhat)
+            {
                 <tr>
-                    <th>Mã đơn</th>
-                    <th>Khách hàng</th>
-                    <th>Ngày đặt</th>
-                    <th>Tổng tiền</th>
-                    <th>Trạng thái</th>
+                    <td class="font-weight-bold">#@hd.MaHoaDon</td>
+                    <td>
+                        @hd.KhachHang?.HoTen<br />
+                        <small>@hd.KhachHang?.Sdt</small>
+                    </td>
+                    <td class="text-center">@hd.NgayLap.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td class="text-right">@hd.TongTien.ToString("N0") đ</td>
+                    <td class="text-center">@hd.TrangThai</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var hd in Model.HoaDonMoiNhat)
-                {
-                    <tr>
-                        <td>#@hd.MaHoaDon</td>
-                        <td>@hd.KhachHang?.HoTen</td>
-                        <td>@hd.NgayLap.ToString("dd/MM/yyyy")</td>
-                        <td class="text-right">@hd.TongTien.ToString("N0") đ</td>
-                        <td>@hd.TrangThai</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+            }
+        </tbody>
+    </table>
 
-        <div class="mt-5 text-right">
-            <p class="font-italic" style="font-size: 12px;">Người xuất báo cáo: Hệ thống quản trị Water Boat Booking</p>
-        </div>
+    <div style="page-break-before: always;"></div>
+
+    <h3>2. Nhật ký hoạt động gần đây</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 20%;">Thời gian</th>
+                <th style="width: 25%;">Hành động</th>
+                <th>Nội dung chi tiết</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model.LogGanDay.Take(20))
+            {
+                <tr>
+                    <td class="text-center">@log.ThoiGian.ToString("dd/MM HH:mm")</td>
+                    <td class="font-weight-bold">@log.HanhDong</td>
+                    <td>@log.NoiDungChiTiet</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Người xuất báo cáo: Hệ thống WebAppBookingBoat</p>
     </div>
 </body>
 </html>

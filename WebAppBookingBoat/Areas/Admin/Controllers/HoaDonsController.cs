@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
 using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Repository;
 using WebAppBookingBoat.ViewModels;
@@ -24,9 +25,10 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
         private async Task GhiLogHeThong(string hanhDong, string chiTiet, string loai = "Info")
         {
+            var userId = _userManager.GetUserId(User);
             var log = new Log
             {
-                MaTK = _userManager.GetUserId(User),
+                MaTK = userId,
                 HanhDong = hanhDong,
                 BangTacDong = "HoaDons",
                 NoiDungChiTiet = chiTiet,
@@ -40,16 +42,17 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
         private async Task PopulateListsAsync(HoaDonCreateViewModel vm)
         {
-            vm.DanhSachKhachHang = new SelectList(await _context.KhachHangs.ToListAsync(), "MaKH", "HoTen", vm.MaKH);
-            vm.DanhSachKhuyenMai = new SelectList(await _context.KhuyenMais.Where(k => k.TrangThai == "Đang diễn ra").ToListAsync(), "MaKM", "TenKM", vm.MaKM);
+            vm.DanhSachKhachHang = new SelectList(await _context.KhachHangs.OrderBy(k => k.HoTen).ToListAsync(), "MaKH", "HoTen", vm.MaKH);
+            vm.DanhSachKhuyenMai = new SelectList(await _context.KhuyenMais.Where(k => k.TrangThai == "Đang diễn ra").ToListAsync(), "MaKM", "TenChuongTrinh", vm.MaKM);
 
             var dsLT = await _context.LichTrinhs
                 .Include(lt => lt.TuyenDuong)
-                .OrderByDescending(lt => lt.NgayGioKhoiHanh)
+                .Where(lt => lt.TrangThai == "Sắp khởi hành" && lt.NgayGioKhoiHanh > DateTime.Now)
+                .OrderBy(lt => lt.NgayGioKhoiHanh)
                 .Select(lt => new
                 {
                     MaLT = lt.MaLichTrinh,
-                    Text = $"[{lt.TuyenDuong.TenTuyen}] - {lt.NgayGioKhoiHanh:dd/MM HH:mm}"
+                    Text = $"[{lt.TuyenDuong.TenTuyen}] - {lt.NgayGioKhoiHanh:dd/MM HH:mm} (Trống: {lt.SoGheTrong})"
                 }).ToListAsync();
 
             vm.DanhSachLichTrinh = new SelectList(dsLT, "MaLT", "Text", vm.MaLichTrinh);
@@ -85,7 +88,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (hoaDon == null) return NotFound();
 
-            var veDauTien = hoaDon.Ves.FirstOrDefault();
+            var veDauTien = hoaDon.Ves?.FirstOrDefault();
             var lichTrinh = veDauTien?.LichTrinh;
 
             var viewModel = new HoaDonViewModel
@@ -95,7 +98,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 SoDienThoaiKH = hoaDon.KhachHang?.Sdt ?? "N/A",
                 TenNhanVien = hoaDon.NhanVien?.HoTen ?? "Hệ thống",
                 NgayLap = hoaDon.NgayLap,
-                TenChuyen = lichTrinh != null ? $"Chuyến khởi hành {lichTrinh.NgayGioKhoiHanh:HH:mm}" : "N/A",
+                TenChuyen = lichTrinh != null ? $"Khởi hành {lichTrinh.NgayGioKhoiHanh:HH:mm}" : "N/A",
                 TuyenDuong = lichTrinh?.TuyenDuong?.TenTuyen ?? "N/A",
                 NgayKhoiHanh = lichTrinh?.NgayGioKhoiHanh ?? DateTime.MinValue,
                 TenTau = lichTrinh?.Tau?.TenTau ?? "N/A",
@@ -106,14 +109,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 PhuongThucTT = hoaDon.PhuongThucTT,
                 TrangThai = hoaDon.TrangThai,
                 GhiChu = hoaDon.GhiChu,
-                DanhSachVe = hoaDon.Ves.Select(v => new VeChiTietViewModel
+                DanhSachVe = hoaDon.Ves?.Select(v => new VeChiTietViewModel
                 {
                     MaVe = v.MaVe,
                     TenGhe = v.Ghe?.TenGhe ?? "N/A",
                     LoaiGhe = v.Ghe?.LoaiGhe ?? "Thường",
                     GiaVe = v.GiaVe,
                     TrangThai = v.TrangThai
-                }).ToList()
+                }).ToList() ?? new List<VeChiTietViewModel>()
             };
 
             return View(viewModel);
@@ -131,16 +134,22 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<IActionResult> Create(HoaDonCreateViewModel vm)
         {
             if (vm.SelectedVeIds == null || !vm.SelectedVeIds.Any())
-                ModelState.AddModelError("", "Vui lòng chọn ít nhất một ghế.");
+                ModelState.AddModelError("", "Vui lòng chọn ít nhất một chỗ ngồi.");
+
+            var checkLichTrinh = await _context.LichTrinhs.FindAsync(vm.MaLichTrinh);
+            if (checkLichTrinh == null)
+                ModelState.AddModelError("", "Lịch trình không hợp lệ.");
+            else if (checkLichTrinh.TrangThai != "Sắp khởi hành")
+                ModelState.AddModelError("", "Chỉ có thể đặt vé cho lịch trình 'Sắp khởi hành'.");
 
             if (vm.IsVangLai)
             {
                 if (string.IsNullOrWhiteSpace(vm.TenKhachVangLai))
-                    ModelState.AddModelError("TenKhachVangLai", "Vui lòng nhập tên khách vãng lai.");
+                    ModelState.AddModelError("TenKhachVangLai", "Tên khách vãng lai không được để trống.");
             }
             else if (vm.MaKH == null || vm.MaKH == 0)
             {
-                ModelState.AddModelError("MaKH", "Vui lòng chọn một khách hàng.");
+                ModelState.AddModelError("MaKH", "Vui lòng chọn khách hàng từ danh sách.");
             }
 
             if (ModelState.IsValid)
@@ -150,11 +159,11 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 {
                     int? maKH_Final = vm.MaKH;
                     var userId = _userManager.GetUserId(User);
-                    var nhanVienThucTe = _context.NhanViens.FirstOrDefault(nv => nv.MaTK!.Trim().Equals(userId));
+                    var nhanVien = await _context.NhanViens.FirstOrDefaultAsync(nv => nv.MaTK == userId);
 
-                    if (nhanVienThucTe == null)
+                    if (nhanVien == null)
                     {
-                        ModelState.AddModelError("", "Tài khoản chưa gán nhân viên!");
+                        ModelState.AddModelError("", "Lỗi: Tài khoản quản trị viên chưa được liên kết với hồ sơ Nhân viên.");
                         await PopulateListsAsync(vm);
                         return View(vm);
                     }
@@ -170,7 +179,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     var hoaDon = new HoaDon
                     {
                         MaKH = maKH_Final ?? 0,
-                        MaNV = nhanVienThucTe.MaNV,
+                        MaNV = nhanVien.MaNV,
                         MaKM = vm.MaKM,
                         NgayLap = DateTime.Now,
                         PhuongThucTT = vm.PhuongThucTT,
@@ -188,71 +197,138 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     foreach (var maGhe in vm.SelectedVeIds)
                     {
                         var ghe = await _context.Ghes.FindAsync(maGhe);
-                        var lichTrinh = await _context.LichTrinhs.FindAsync(vm.MaLichTrinh);
-                        decimal giaThucTe = (ghe?.LoaiGhe == "VIP") ? (lichTrinh?.GiaVeCoBan * 1.2m ?? 0) : (lichTrinh?.GiaVeCoBan ?? 0);
+                        decimal giaThucTe = (ghe?.LoaiGhe == "VIP") ? (checkLichTrinh!.GiaVeCoBan * 1.2m) : (checkLichTrinh!.GiaVeCoBan);
 
-                        var newVe = new Ve
+                        _context.Ves.Add(new Ve
                         {
                             MaHoaDon = hoaDon.MaHoaDon,
                             MaLichTrinh = vm.MaLichTrinh,
                             MaGhe = maGhe,
                             GiaVe = giaThucTe,
                             TrangThai = hoaDon.TrangThai == "Đã thanh toán" ? "Hợp lệ" : "Đang chờ"
-                        };
-                        _context.Ves.Add(newVe);
+                        });
                     }
+
+                    checkLichTrinh!.SoGheTrong = Math.Max(0, checkLichTrinh.SoGheTrong - vm.SelectedVeIds.Count);
+                    _context.LichTrinhs.Update(checkLichTrinh);
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    await GhiLogHeThong("Lập hóa đơn", $"Lập HD #{hoaDon.MaHoaDon} cho KH ID:{maKH_Final}. Tổng tiền: {hoaDon.TongTien:N0}đ");
-
-                    TempData["SuccessMessage"] = "Lập hóa đơn #" + hoaDon.MaHoaDon + " thành công!";
+                    await GhiLogHeThong("Lập hóa đơn", $"Tạo HD #{hoaDon.MaHoaDon} - Tổng tiền: {hoaDon.TongTien:N0}đ");
+                    TempData["SuccessMessage"] = $"Lập hóa đơn #{hoaDon.MaHoaDon} thành công!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    await GhiLogHeThong("Lỗi lập hóa đơn", ex.Message, "Error");
-                    ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
+                    await GhiLogHeThong("Lỗi nghiệp vụ", ex.Message, "Error");
+                    ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu dữ liệu: " + ex.Message);
                 }
             }
+
             await PopulateListsAsync(vm);
             return View(vm);
+        }
+
+        public async Task<IActionResult> XuatHoaDon(int id)
+        {
+            var hoaDon = await _context.HoaDons
+                .Include(h => h.KhachHang)
+                .Include(h => h.NhanVien)
+                .Include(h => h.Ves).ThenInclude(v => v.LichTrinh).ThenInclude(lt => lt!.Tau)
+                .Include(h => h.Ves).ThenInclude(v => v.LichTrinh).ThenInclude(lt => lt!.TuyenDuong)
+                .Include(h => h.Ves).ThenInclude(v => v.Ghe)
+                .FirstOrDefaultAsync(m => m.MaHoaDon == id);
+
+            if (hoaDon == null) return NotFound();
+
+            var veDau = hoaDon.Ves?.FirstOrDefault();
+            var lt = veDau?.LichTrinh;
+
+            var viewModel = new HoaDonViewModel
+            {
+                MaHoaDon = hoaDon.MaHoaDon,
+                TenKhachHang = hoaDon.KhachHang?.HoTen ?? "Khách lẻ",
+                SoDienThoaiKH = hoaDon.KhachHang?.Sdt ?? "",
+                TenNhanVien = hoaDon.NhanVien?.HoTen ?? "Hệ thống",
+                NgayLap = hoaDon.NgayLap,
+                TenTau = lt?.Tau?.TenTau ?? "N/A",
+                TuyenDuong = lt?.TuyenDuong != null ? $"{lt.TuyenDuong.DiemDi} - {lt.TuyenDuong.DiemDen}" : "N/A",
+                NgayKhoiHanh = lt?.NgayGioKhoiHanh ?? DateTime.Now,
+                SoLuongVe = hoaDon.SoLuongVe,
+                TamTinh = hoaDon.TamTinh,
+                SoTienGiam = hoaDon.SoTienGiam,
+                TongTien = hoaDon.TongTien,
+                PhuongThucTT = hoaDon.PhuongThucTT,
+                TrangThai = hoaDon.TrangThai,
+                DanhSachVe = hoaDon.Ves?.Select(v => new VeChiTietViewModel
+                {
+                    MaVe = v.MaVe,
+                    TenGhe = v.Ghe?.TenGhe ?? "N/A",
+                    LoaiGhe = v.Ghe?.LoaiGhe ?? "Thường",
+                    GiaVe = v.GiaVe
+                }).ToList() ?? new List<VeChiTietViewModel>()
+            };
+
+            return new ViewAsPdf("XuatHoaDonPDF", viewModel)
+            {
+                FileName = $"HoaDon_{id}.pdf",
+                PageSize = Rotativa.AspNetCore.Options.Size.A4,
+                CustomSwitches = "--print-media-type"
+            };
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdatePayment(int id, string status, string method)
         {
-            var hoaDon = await _context.HoaDons.Include(h => h.Ves).FirstOrDefaultAsync(h => h.MaHoaDon == id);
+            var hoaDon = await _context.HoaDons
+                .Include(h => h.Ves).ThenInclude(v => v.LichTrinh)
+                .FirstOrDefaultAsync(h => h.MaHoaDon == id);
+
             if (hoaDon == null) return Json(new { success = false, message = "Không tìm thấy hóa đơn" });
 
             try
             {
                 string oldStatus = hoaDon.TrangThai;
+                var lichTrinh = hoaDon.Ves.FirstOrDefault()?.LichTrinh;
+
+                if (status == "Đã hủy")
+                {
+                    if (lichTrinh != null)
+                    {
+                        if (lichTrinh.TrangThai == "Hoàn thành")
+                            return Json(new { success = false, message = "Hành trình đã kết thúc, không thể hủy." });
+
+                        if ((lichTrinh.NgayGioKhoiHanh - DateTime.Now).TotalHours < 1)
+                            return Json(new { success = false, message = "Quá hạn hủy vé (Yêu cầu trước 1 giờ khởi hành)." });
+
+                        if (oldStatus != "Đã hủy")
+                        {
+                            lichTrinh.SoGheTrong += hoaDon.Ves.Count;
+                            _context.LichTrinhs.Update(lichTrinh);
+                        }
+                    }
+                    foreach (var v in hoaDon.Ves) v.TrangThai = "Đã hủy";
+                    hoaDon.NgayThanhToan = null;
+                }
+                else if (status == "Đã thanh toán")
+                {
+                    hoaDon.NgayThanhToan = DateTime.Now;
+                    foreach (var v in hoaDon.Ves) v.TrangThai = "Hợp lệ";
+                }
+
                 hoaDon.TrangThai = status;
                 hoaDon.PhuongThucTT = method;
 
-                if (status == "Đã thanh toán")
-                {
-                    hoaDon.NgayThanhToan = DateTime.Now;
-                    foreach (var ve in hoaDon.Ves) ve.TrangThai = "Hợp lệ";
-                }
-                else if (status == "Đã hủy")
-                {
-                    hoaDon.NgayThanhToan = null;
-                    _context.Ves.RemoveRange(hoaDon.Ves); // Giải phóng ghế
-                }
-
                 await _context.SaveChangesAsync();
-                await GhiLogHeThong("Cập nhật thanh toán", $"HD #{id}: {oldStatus} -> {status} ({method})");
+                await GhiLogHeThong("Cập nhật thanh toán", $"HD #{id}: {oldStatus} -> {status}");
 
                 return Json(new { success = true, message = "Cập nhật thành công!" });
             }
             catch (Exception ex)
             {
-                await GhiLogHeThong("Lỗi cập nhật thanh toán", $"HD #{id}: {ex.Message}", "Error");
-                return Json(new { success = false, message = "Lỗi khi cập nhật dữ liệu." });
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
 
@@ -260,18 +336,29 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var hoaDon = await _context.HoaDons.Include(h => h.Ves).FirstOrDefaultAsync(h => h.MaHoaDon == id);
+            var hoaDon = await _context.HoaDons.Include(h => h.Ves).ThenInclude(v => v.LichTrinh).FirstOrDefaultAsync(h => h.MaHoaDon == id);
+
             if (hoaDon != null)
             {
-                foreach (var ve in hoaDon.Ves)
+                var lichTrinh = hoaDon.Ves.FirstOrDefault()?.LichTrinh;
+                if (lichTrinh != null && (lichTrinh.TrangThai == "Hoàn thành" || (lichTrinh.NgayGioKhoiHanh - DateTime.Now).TotalHours < 1))
                 {
-                    ve.MaHoaDon = null;
-                    ve.TrangThai = "Còn trống";
+                    TempData["ErrorMessage"] = "Không thể xóa hóa đơn do vi phạm quy định thời gian hoặc trạng thái chuyến đi.";
+                    return RedirectToAction(nameof(Index));
                 }
+
+                if (lichTrinh != null && hoaDon.TrangThai != "Đã hủy")
+                {
+                    lichTrinh.SoGheTrong += hoaDon.Ves.Count;
+                    _context.LichTrinhs.Update(lichTrinh);
+                }
+
                 _context.HoaDons.Remove(hoaDon);
                 await _context.SaveChangesAsync();
-                await GhiLogHeThong("Xóa hóa đơn", $"Xóa HD #{id} và giải phóng các vé liên quan.", "Warning");
+                await GhiLogHeThong("Xóa hóa đơn", $"Xóa vĩnh viễn HD #{id}", "Warning");
+                TempData["SuccessMessage"] = "Đã xóa hóa đơn khỏi hệ thống.";
             }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -288,27 +375,27 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (lichTrinh == null) return Json(new List<object>());
 
-            var gheDaCoVe = await _context.Ves
+            var gheDaBan = await _context.Ves
                 .Where(v => v.MaLichTrinh == maLT && v.TrangThai != "Đã hủy")
                 .Select(v => v.MaGhe)
                 .ToListAsync();
 
-            var soDoGhe = lichTrinh.Tau.Ghes.Select(ghe => new
+            var result = lichTrinh.Tau.Ghes.Select(g => new
             {
-                maGhe = ghe.MaGhe,
-                tenGhe = ghe.TenGhe,
-                loaiGhe = ghe.LoaiGhe,
-                giaThucTe = ghe.LoaiGhe == "VIP" ? (lichTrinh.GiaVeCoBan * 1.2m) : lichTrinh.GiaVeCoBan,
-                isAvailable = !gheDaCoVe.Contains(ghe.MaGhe)
+                maGhe = g.MaGhe,
+                tenGhe = g.TenGhe,
+                loaiGhe = g.LoaiGhe,
+                giaThucTe = g.LoaiGhe == "VIP" ? (lichTrinh.GiaVeCoBan * 1.2m) : lichTrinh.GiaVeCoBan,
+                isAvailable = !gheDaBan.Contains(g.MaGhe)
             }).OrderBy(g => g.tenGhe).ToList();
 
-            return Json(soDoGhe);
+            return Json(result);
         }
 
         [HttpGet]
         public async Task<JsonResult> GetKhuyenMaiInfo(string maKM)
         {
-            var km = await _context.KhuyenMais.FirstOrDefaultAsync(k => k.MaKM == maKM);
+            var km = await _context.KhuyenMais.FirstOrDefaultAsync(k => k.MaKM == maKM && k.TrangThai == "Đang diễn ra");
             return Json(km == null ? null : new { phanTram = km.PhanTramGiam, toiDa = km.SoTienToiDaGiam });
         }
 
