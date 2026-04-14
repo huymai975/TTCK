@@ -219,18 +219,18 @@
 								@if (SignInManager.IsSignedIn(User))
 								{
 									@* Biểu tượng Chuông *@
-									<li class="nav-item dropdown no-arrow mx-1">
+									@* <li class="nav-item dropdown no-arrow mx-1">
 										<a class="nav-link dropdown-toggle p-0 text-gray-600" href="#" id="alertsDropdown" role="button" data-toggle="dropdown">
 											<i class="fas fa-bell fa-fw"></i>
 											<span class="badge badge-danger badge-counter">3+</span>
 										</a>
-										@* Dropdown Chuông *@
+										Dropdown Chuông
 										<div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0" aria-labelledby="alertsDropdown">
 											<h6 class="dropdown-header bg-primary border-0 text-white py-3">
 												<i class="fas fa-bell mr-2"></i>Thông báo
 											</h6>
 
-											@* Item 1 *@
+											Item 1
 											<a class="dropdown-item d-flex align-items-center" href="#">
 												<div class="mr-3">
 													<div class="icon-circle bg-primary text-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -243,7 +243,7 @@
 												</div>
 											</a>
 
-											@* Item 2 *@
+											Item 2
 											<a class="dropdown-item d-flex align-items-center" href="#">
 												<div class="mr-3">
 													<div class="icon-circle bg-success text-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -258,10 +258,10 @@
 
 											<a class="dropdown-item text-center small text-gray-500 py-2" href="#">Xem tất cả</a>
 										</div>
-									</li>
+									</li> *@
 
 									@* Biểu tượng Thư *@
-									<li class="nav-item dropdown no-arrow mx-2">
+									@* <li class="nav-item dropdown no-arrow mx-2">
 										<a class="nav-link dropdown-toggle p-0 text-gray-600" href="#" id="messagesDropdown" role="button" data-toggle="dropdown">
 											<i class="fas fa-envelope fa-fw"></i>
 											<span class="badge badge-danger badge-counter">5+</span>
@@ -274,7 +274,7 @@
 												<div class="dropdown-list-image mr-3">
 													<img class="rounded-circle" src="~/images/person_1.jpg" width="40" height="40" style="object-fit: cover;">
 												</div>
-												@* Bao bọc chữ trong một div để kiểm soát khoảng cách *@
+												Bao bọc chữ trong một div để kiểm soát khoảng cách
 												<div style="padding-right: 10px;">
 													<div class="text-truncate font-weight-bold" style="color: #333;">
 														Chào bạn, mình muốn hỏi về tàu...
@@ -284,7 +284,7 @@
 											</a>
 											<a class="dropdown-item text-center small text-gray-500 py-2" href="#">Đọc thêm tin nhắn</a>
 										</div>
-									</li>
+									</li> *@
 
 									<li class="nav-item d-none d-sm-block">
 										<div style="width: 0; border-right: 1px solid #e3e6f0; height: 1.5rem; margin: 0 10px; margin-top: 8px;"></div>
@@ -302,8 +302,8 @@
 											<a class="dropdown-item py-2" href="#">
 												<i class="fas fa-user fa-sm fa-fw mr-3 text-gray-400"></i>Thông tin cá nhân
 											</a>
-											<a class="dropdown-item py-2" href="#">
-												<i class="fas fa-cogs fa-sm fa-fw mr-3 text-gray-400"></i>Cài đặt
+											<a class="dropdown-item py-2" asp-controller="Booking" asp-action="MyOrders">
+												<i class="fas fa-history fa-sm fa-fw mr-3 text-gray-400"></i>Lịch sử đặt vé
 											</a>
 											<div class="dropdown-divider"></div>
 											<form asp-controller="Account" asp-action="Logout" method="post">
@@ -451,6 +451,8 @@
 
 	<script src="~/js/main.js"></script>
 
+
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>

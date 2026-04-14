@@ -1,0 +1,206 @@
+﻿@model WebAppBookingBoat.Models.HoaDon
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.MaHoaDon;
+}
+
+<style>
+    body {
+        background-color: #f8f9fc;
+    }
+
+    .details-wrapper {
+        margin-top: 100px; /* Tránh bị che bởi Navbar */
+        padding-bottom: 50px;
+    }
+
+    .card-custom {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+
+    .status-banner {
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .banner-success {
+        background: linear-gradient(90deg, #1cc88a, #13855c);
+        color: white;
+    }
+
+    .banner-warning {
+        background: linear-gradient(90deg, #f6c23e, #dda20a);
+        color: white;
+    }
+
+    .banner-danger {
+        background: linear-gradient(90deg, #e74a3b, #be2617);
+        color: white;
+    }
+
+    .timeline-steps {
+        position: relative;
+        padding-left: 30px;
+    }
+
+        .timeline-steps::before {
+            content: "";
+            position: absolute;
+            left: 7px;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: #e3e6f0;
+        }
+
+    .step-item {
+        position: relative;
+        margin-bottom: 25px;
+    }
+
+        .step-item::after {
+            content: "";
+            position: absolute;
+            left: -28px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4e73df;
+            border: 2px solid white;
+        }
+
+    .ticket-item {
+        background: #fdfdfd;
+        border-left: 4px solid #4e73df;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #858796;
+        font-weight: 700;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #3a3b45;
+    }
+</style>
+
+<div class="container details-wrapper">
+    @{
+        var bannerClass = Model.TrangThai == "Đã thanh toán" ? "banner-success" :
+        (Model.TrangThai == "Chờ thanh toán" ? "banner-warning" : "banner-danger");
+        var statusIcon = Model.TrangThai == "Đã thanh toán" ? "fa-check-circle" :
+        (Model.TrangThai == "Chờ thanh toán" ? "fa-clock" : "fa-times-circle");
+    }
+
+    <div class="status-banner @bannerClass">
+        <div>
+            <h4 class="mb-0 font-weight-bold"><i class="fas @statusIcon mr-2"></i>@Model.TrangThai</h4>
+            <small>Mã đơn hàng: #@Model.MaHoaDon | Ngày lập: @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")</small>
+        </div>
+        @if (Model.TrangThai == "Đã thanh toán")
+        {
+            <a asp-action="ExportPdf" asp-route-id="@Model.MaHoaDon" class="btn btn-light btn-sm font-weight-bold px-4">
+                <i class="fas fa-file-pdf mr-1"></i> TẢI VÉ PDF
+            </a>
+        }
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card card-custom mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin hành trình</h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline-steps">
+                        <div class="step-item">
+                            <div class="info-label">Tuyến đường</div>
+                            <div class="h5 font-weight-bold">@Model.Ves.FirstOrDefault()?.LichTrinh?.TuyenDuong?.TenTuyen</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="info-label">Thời gian khởi hành</div>
+                            <div class="info-value">
+                                <i class="far fa-calendar-check mr-1"></i>
+                                @Model.Ves.FirstOrDefault()?.LichTrinh?.NgayGioKhoiHanh.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="info-label">Tên tàu</div>
+                            <div class="info-value">@Model.Ves.FirstOrDefault()?.LichTrinh?.Tau?.TenTau</div>
+                        </div>
+                    </div>
+
+                    <h6 class="font-weight-bold mt-4 mb-3">Danh sách ghế đặt (@Model.Ves.Count)</h6>
+                    @foreach (var ve in Model.Ves)
+                    {
+                        <div class="ticket-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="font-weight-bold text-primary">Ghế @ve.Ghe?.TenGhe</span>
+                                <span class="badge badge-secondary ml-2">@ve.Ghe?.LoaiGhe</span>
+                            </div>
+                            <div class="font-weight-bold">@ve.GiaVe.ToString("N0") VND</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card card-custom mb-4">
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-dark border-bottom pb-2 mb-3">Thông tin khách hàng</h6>
+                    <p class="mb-1 small text-muted">Họ và tên</p>
+                    <p class="font-weight-bold">@Model.KhachHang?.HoTen</p>
+                    <p class="mb-1 small text-muted">Phương thức thanh toán</p>
+                    <p class="mb-0">@(Model.PhuongThucTT ?? "Chưa xác định")</p>
+                </div>
+            </div>
+
+            <div class="card card-custom bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="font-weight-bold border-bottom border-white-50 pb-2 mb-3">Chi tiết chi phí</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính:</span>
+                        <span>@Model.TamTinh.ToString("N0") VND</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.MaKM))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Mã giảm giá (@Model.MaKM):</span>
+                            <span>- @((Model.TamTinh - Model.TongTien).ToString("N0")) VND</span>
+                        </div>
+                    }
+                    <hr class="bg-white-50" />
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 mb-0">Tổng tiền:</span>
+                        <span class="h3 font-weight-bold mb-0">@Model.TongTien.ToString("N0") VND</span>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.TrangThai == "Chờ thanh toán")
+            {
+                <a asp-action="Payment" asp-route-id="@Model.MaHoaDon" class="btn btn-warning btn-block btn-lg mt-3 shadow font-weight-bold">
+                    <i class="fas fa-credit-card mr-2"></i> THANH TOÁN NGAY
+                </a>
+            }
+
+            <a asp-action="MyOrders" class="btn btn-outline-secondary btn-block mt-3">
+                <i class="fas fa-arrow-left mr-1"></i> Quay lại lịch sử
+            </a>
+        </div>
+    </div>
+</div>
