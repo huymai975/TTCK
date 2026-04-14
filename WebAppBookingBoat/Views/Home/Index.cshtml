@@ -1,461 +1,202 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model WebAppBookingBoat.Models.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Trang chủ - Đặt vé tàu";
+    // Đường dẫn ảnh thực tế từ Model TuyenDuong sẽ là /images/tuyen-duong/
+    // Biến dẫn để bạn dễ quản lý
+    var imagePath = "/images/tuyen-duong";
 }
 
+@* 1. Slider chính - Có thể giữ nguyên hoặc lấy ảnh từ các tuyến đường nổi bật *@
 <div class="hero-slide owl-carousel site-blocks-cover">
-    <div class="intro-section" style="background-image: url('images/hero_1.jpg');">
+    <div class="intro-section" style="background-image: url('@Url.Content("~/images/hero_1.jpg")');">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-7 ml-auto text-right" data-aos="fade-up">
-                    <h1>Explore, Discover The Ocean</h1>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quaerat, in distinctio nostrum laborum sed quisquam voluptate facilis non.</p>
-                    <p><a href="#" class="btn btn-primary py-3 px-5">Read More</a></p>
+                    <h1>Khám phá đại dương xanh</h1>
+                    <p>Trải nghiệm dịch vụ đặt vé tàu cao tốc nhanh chóng, an toàn và hiện đại nhất hiện nay.</p>
+                    <p><a href="#booking-section" class="btn btn-primary py-3 px-5">Đặt Vé Ngay</a></p>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="intro-section" style="background-image: url('images/hero_2.jpg');">
+    <div class="intro-section" style="background-image: url('@Url.Content("~/images/hero_2.jpg")');">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-7 mx-auto text-center" data-aos="fade-up">
-                    <h1>Enjoy The Ocean With Your Family</h1>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quaerat, in distinctio nostrum laborum sed quisquam voluptate facilis non.</p>
-                    <p><a href="#" class="btn btn-primary py-3 px-5">Read More</a></p>
+                    <h1>Tận hưởng kỳ nghỉ cùng gia đình</h1>
+                    <p>Hành trình kết nối những địa danh du lịch nổi tiếng với mức giá ưu đãi nhất.</p>
+                    <p><a href="#destination-section" class="btn btn-primary py-3 px-5">Xem Tuyến Đường</a></p>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
-<!-- END slider -->
 
-<div class="site-section">
+@* 2. Section: Tìm kiếm & Đặt vé (Thay thế phần form cũ) *@
+<div class="site-section" id="booking-section">
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                <img src="images/hero_2.jpg" alt="Image" class="img-fluid">
+                <img src="~/images/hero_2.jpg" alt="Image" class="img-fluid rounded shadow">
             </div>
-            <div class="col-md-6">
-                <span class="text-serif text-primary">About Us</span>
-                <h3 class="heading-92913 text-black">Welcome To Our Website</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsum, illum, quasi. Odit velit deserunt eligendi unde, enim. Enim fugiat.</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium eius ullam impedit architecto debitis facilis!</p>
-                <p><a href="#" class="btn btn-primary py-3 px-4">Learn More</a></p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 col-lg-4">
-                <div class="service-29283">
-                    <span class="wrap-icon-39293">
-                        <span class="flaticon-yacht"></span>
-                    </span>
-                    <h3>Luxuries Yacht</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Necessitatibus ipsa, ad ratione quos distinctio unde.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="service-29283">
-                    <span class="wrap-icon-39293">
-                        <span class="flaticon-shield"></span>
-                    </span>
-                    <h3>30 Years of Experience</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Necessitatibus ipsa, ad ratione quos distinctio unde.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="service-29283">
-                    <span class="wrap-icon-39293">
-                        <span class="flaticon-captain"></span>
-                    </span>
-                    <h3>Good Captain</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Necessitatibus ipsa, ad ratione quos distinctio unde.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="site-section bg-image overlay" style="background-image: url('images/hero_1.jpg');">
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <div class="counter-39392">
-                    <h3>349</h3>
-                    <span>Number of Yacht</span>
-                </div>
-            </div>
-            <div class="col">
-                <div class="counter-39392">
-                    <h3>7000+</h3>
-                    <span>Customers Satisfied</span>
-                </div>
-            </div>
-            <div class="col">
-                <div class="counter-39392">
-                    <h3>120</h3>
-                    <span>Number of Staffs</span>
-                </div>
-            </div>
-            <div class="col">
-                <div class="counter-39392">
-                    <h3>493</h3>
-                    <span>Sea Destinations</span>
-                </div>
-            </div>
-            <div class="col">
-                <div class="counter-39392">
-                    <h3>230</h3>
-                    <span>Professional Sailors</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="site-section bg-light">
-    <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-7 text-center">
-                <span class="text-serif text-primary">Destination</span>
-                <h3 class="heading-92913 text-black text-center">Our Destinations</h3>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="service-39381">
-                    <img src="images/hero_1.jpg" alt="Image" class="img-fluid">
-                    <div class="p-4">
-                        <h3><a href="#"><span class="icon-room mr-1 text-primary"></span> Croatia &mdash; Columbia</a></h3>
-                        <div class="d-flex">
-                            <div class="mr-auto">
-                                <span class="icon-date_range"></span>
-                                Sep. 05 &mdash; Oct. 15
-                            </div>
-                            <div class="ml-auto price">
-                                <span class="bg-primary">$600</span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="service-39381">
-                    <img src="images/hero_2.jpg" alt="Image" class="img-fluid">
-                    <div class="p-4">
-                        <h3><a href="#"><span class="icon-room mr-1 text-primary"></span> Croatia &mdash; Columbia</a></h3>
-                        <div class="d-flex">
-                            <div class="mr-auto">
-                                <span class="icon-date_range"></span>
-                                Sep. 05 &mdash; Oct. 15
-                            </div>
-                            <div class="ml-auto price">
-                                <span class="bg-primary">$600</span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="service-39381">
-                    <img src="images/hero_1.jpg" alt="Image" class="img-fluid">
-                    <div class="p-4">
-                        <h3><a href="#"><span class="icon-room mr-1 text-primary"></span> Croatia &mdash; Columbia</a></h3>
-                        <div class="d-flex">
-                            <div class="mr-auto">
-                                <span class="icon-date_range"></span>
-                                Sep. 05 &mdash; Oct. 15
-                            </div>
-                            <div class="ml-auto price">
-                                <span class="bg-primary">$600</span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="service-39381">
-                    <img src="images/hero_2.jpg" alt="Image" class="img-fluid">
-                    <div class="p-4">
-                        <h3><a href="#"><span class="icon-room mr-1 text-primary"></span> Croatia &mdash; Columbia</a></h3>
-                        <div class="d-flex">
-                            <div class="mr-auto">
-                                <span class="icon-date_range"></span>
-                                Sep. 05 &mdash; Oct. 15
-                            </div>
-                            <div class="ml-auto price">
-                                <span class="bg-primary">$600</span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="service-39381">
-                    <img src="images/hero_1.jpg" alt="Image" class="img-fluid">
-                    <div class="p-4">
-                        <h3><a href="#"><span class="icon-room mr-1 text-primary"></span> Croatia &mdash; Columbia</a></h3>
-                        <div class="d-flex">
-                            <div class="mr-auto">
-                                <span class="icon-date_range"></span>
-                                Sep. 05 &mdash; Oct. 15
-                            </div>
-                            <div class="ml-auto price">
-                                <span class="bg-primary">$600</span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="service-39381">
-                    <img src="images/hero_2.jpg" alt="Image" class="img-fluid">
-                    <div class="p-4">
-                        <h3><a href="#"><span class="icon-room mr-1 text-primary"></span> Croatia &mdash; Columbia</a></h3>
-                        <div class="d-flex">
-                            <div class="mr-auto">
-                                <span class="icon-date_range"></span>
-                                Sep. 05 &mdash; Oct. 15
-                            </div>
-                            <div class="ml-auto price">
-                                <span class="bg-primary">$600</span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div class="site-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-7">
-                <p><img src="images/hero_1.jpg" alt="Image" class="img-fluid"></p>
-            </div>
-            <div class="col-md-5">
-                <span class="text-serif text-primary">Book Now</span>
-                <h3 class="heading-92913 text-black">Book A Yacht</h3>
-                <form action="#" class="row">
-                    <div class="form-group col-md-6">
-                        <label for="input-1">Full Name:</label>
-                        <input type="text" class="form-control" id="input-1">
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="input-2">Number of People:</label>
-                        <input type="text" class="form-control" id="input-2">
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label for="input-3">Date From:</label>
-                        <input type="text" class="form-control datepicker" id="input-3">
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="input-4">Date To:</label>
-                        <input type="text" class="form-control datepicker" id="input-4">
-                    </div>
-
+            <div class="col-md-5 ml-auto">
+                <span class="text-serif text-primary">Đặt chuyến đi</span>
+                <h3 class="heading-92913 text-black">Tìm Chuyến Tàu</h3>
+                <form asp-controller="Booking" asp-action="Search" method="get" class="row">
                     <div class="form-group col-md-12">
-                        <label for="input-5">Yacht You're Interested in:</label>
-                        <select name="" id="input-5" class="form-control">
-                            <option value="">Motor Yacht</option>
-                            <option value="">Hi-Speed Yacht</option>
-                            <option value="">Premium Yacht</option>
-                            <option value="">Presidential Yacht</option>
+                        <label for="maTuyen">Chọn Tuyến Đường (Địa danh):</label>
+                        <select name="maTuyen" id="maTuyen" class="form-control" required>
+                            <option value="">-- Chọn điểm đi - điểm đến --</option>
+                            @foreach (var tuyen in Model.TuyenDuongs)
+                            {
+                                <option value="@tuyen.MaTuyen">@tuyen.TenTuyen</option>
+                            }
                         </select>
                     </div>
 
-                    <div class="form-group col-md-6">
-                        <label for="input-6">Email Address</label>
-                        <input type="text" class="form-control" id="input-6">
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label for="input-7">Phone Number</label>
-                        <input type="text" class="form-control" id="input-7">
-                    </div>
-
-
-
                     <div class="form-group col-md-12">
-                        <label for="input-8">Notes</label>
-                        <textarea name="" id="input-8" cols="30" rows="5" class="form-control"></textarea>
+                        <label for="ngayGioKhoiHanh">Ngày Khởi Hành:</label>
+                        <input type="date" name="ngayGioKhoiHanh" class="form-control" id="ngayGioKhoiHanh">
                     </div>
 
                     <div class="form-group col-md-12">
-                        <input type="submit" class="btn btn-primary py-3 px-5" value="Book Now">
+                        <input type="submit" class="btn btn-primary py-3 px-5 btn-block" value="Tìm Kiếm Chuyến Tàu">
                     </div>
-
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-
-<div class="site-section">
+@* 3. Section: Ưu điểm dịch vụ (Giữ nguyên icon flaticon) *@
+<div class="py-5 bg-light">
     <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-7 text-center">
-                <span class="text-serif text-primary">Team</span>
-                <h3 class="heading-92913 text-black text-center">Our Team</h3>
-            </div>
-        </div>
         <div class="row">
-            <div class="col-lg-3 col-md-6 mb-lg-0">
-                <div class="person">
-                    <figure>
-                        <img src="images/person_1.jpg" alt="Image" class="img-fluid">
-                        <div class="social">
-                            <a href="#"><span class="icon-facebook"></span></a>
-                            <a href="#"><span class="icon-twitter"></span></a>
-                            <a href="#"><span class="icon-linkedin"></span></a>
-                        </div>
-                    </figure>
-                    <div class="person-contents">
-                        <h3>Craig Daniel</h3>
-                        <span class="position">Engineer</span>
-                    </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-29283">
+                    <span class="wrap-icon-39293"><span class="flaticon-yacht"></span></span>
+                    <h3>Tàu Cao Tốc Hiện Đại</h3>
+                    <p>Hệ thống tàu đạt chuẩn quốc tế, trang bị đầy đủ thiết bị an toàn và tiện nghi cao cấp.</p>
                 </div>
             </div>
-
-            <div class="col-lg-3 col-md-6 mb-lg-0">
-                <div class="person">
-                    <figure>
-                        <img src="images/person_2.jpg" alt="Image" class="img-fluid">
-                        <div class="social">
-                            <a href="#"><span class="icon-facebook"></span></a>
-                            <a href="#"><span class="icon-twitter"></span></a>
-                            <a href="#"><span class="icon-linkedin"></span></a>
-                        </div>
-                    </figure>
-                    <div class="person-contents">
-                        <h3>Craig Daniel</h3>
-                        <span class="position">Engineer</span>
-                    </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-29283">
+                    <span class="wrap-icon-39293"><span class="flaticon-shield"></span></span>
+                    <h3>An Toàn Tuyệt Đối</h3>
+                    <p>Đội ngũ kỹ thuật kiểm tra nghiêm ngặt trước mỗi chuyến đi, bảo hiểm đầy đủ cho hành khách.</p>
                 </div>
             </div>
-
-            <div class="col-lg-3 col-md-6 mb-lg-0">
-                <div class="person">
-                    <figure>
-                        <img src="images/person_3.jpg" alt="Image" class="img-fluid">
-                        <div class="social">
-                            <a href="#"><span class="icon-facebook"></span></a>
-                            <a href="#"><span class="icon-twitter"></span></a>
-                            <a href="#"><span class="icon-linkedin"></span></a>
-                        </div>
-                    </figure>
-                    <div class="person-contents">
-                        <h3>Craig Daniel</h3>
-                        <span class="position">Engineer</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6 mb-lg-0">
-                <div class="person">
-                    <figure>
-                        <img src="images/person_4.jpg" alt="Image" class="img-fluid">
-                        <div class="social">
-                            <a href="#"><span class="icon-facebook"></span></a>
-                            <a href="#"><span class="icon-twitter"></span></a>
-                            <a href="#"><span class="icon-linkedin"></span></a>
-                        </div>
-                    </figure>
-                    <div class="person-contents">
-                        <h3>Craig Daniel</h3>
-                        <span class="position">Engineer</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div class="site-section">
-    <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-7 text-center">
-                <span class="text-serif text-primary">Testimonial</span>
-                <h3 class="heading-92913 text-black text-center">What Customer Saying...</h3>
-            </div>
-        </div>
-        <div class="row">
-            <div class="mb-4 mb-lg-0 col-md-6 col-lg-4">
-                <div class="testimony-39291">
-                    <blockquote>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem laborum cumque commodi, unde doloribus.</p>
-                    </blockquote>
-                    <div class="d-flex vcard align-items-center">
-                        <div class="pic mr-3">
-                            <img src="images/person_3_sq.jpg" alt="Image" class="img-fluid">
-                        </div>
-                        <div class="text">
-                            <strong class="d-block">John Doe</strong>
-                            <span>CEO and Co-Founder</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-4 mb-lg-0 col-md-6 col-lg-4">
-                <div class="testimony-39291">
-                    <blockquote>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem laborum cumque commodi, unde doloribus.</p>
-                    </blockquote>
-                    <div class="d-flex vcard align-items-center">
-                        <div class="pic mr-3">
-                            <img src="images/person_4_sq.jpg" alt="Image" class="img-fluid">
-                        </div>
-                        <div class="text">
-                            <strong class="d-block">John Doe</strong>
-                            <span>CEO and Co-Founder</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-4 mb-lg-0 col-md-6 col-lg-4">
-                <div class="testimony-39291">
-                    <blockquote>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorem laborum cumque commodi, unde doloribus.</p>
-                    </blockquote>
-                    <div class="d-flex vcard align-items-center">
-                        <div class="pic mr-3">
-                            <img src="images/person_3_sq.jpg" alt="Image" class="img-fluid">
-                        </div>
-                        <div class="text">
-                            <strong class="d-block">John Doe</strong>
-                            <span>CEO and Co-Founder</span>
-                        </div>
-                    </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="service-29283">
+                    <span class="wrap-icon-39293"><span class="flaticon-captain"></span></span>
+                    <h3>Thuyền Trưởng Giỏi</h3>
+                    <p>Các thuyền trưởng dày dạn kinh nghiệm, am hiểu hải trình và luôn đặt sự an toàn lên hàng đầu.</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="site-section bg-image overlay" style="background-image: url('images/hero_2.jpg');">
+@* 4. Section: Tuyến đường nổi bật (Dữ liệu từ TuyenDuong) *@
+<div class="site-section" id="destination-section">
     <div class="container">
-        <div class="row justify-content-center">
+        <div class="row justify-content-center mb-5">
             <div class="col-md-7 text-center">
-                <h2 class="text-white">Get In Touch With Us</h2>
-                <p class="lead text-white">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-                <p class="mb-0"><a href="#" class="btn btn-warning py-3 px-5 text-white">Contact Us</a></p>
+                <span class="text-serif text-primary">Địa danh</span>
+                <h3 class="heading-92913 text-black text-center">Tuyến Đường Nổi Bật</h3>
+            </div>
+        </div>
+        <div class="row">
+            @foreach (var tuyen in Model.TuyenDuongs)
+            {
+                <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up">
+                    <div class="service-39381">
+                        @* Nếu HinhAnh null sẽ dùng ảnh mặc định *@
+                        <img src="@(string.IsNullOrEmpty(tuyen.HinhAnh) ? "/images/default.jpg" : imagePath + tuyen.HinhAnh)" alt="@tuyen.TenTuyen" class="img-fluid">
+                        <div class="p-4">
+                            <h3><a href="#"><span class="icon-room mr-1 text-primary"></span> @tuyen.TenTuyen</a></h3>
+                            <div class="d-flex">
+                                <div class="mr-auto">
+                                    <span class="icon-map"></span> @tuyen.KhoangCach km
+                                </div>
+                                <div class="ml-auto price">
+                                    <span class="bg-primary">@tuyen.ThoiGianDuKien.ToString(@"hh\:mm") h</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* 5. Section: Lịch trình chuyến tàu sắp khởi hành (Dữ liệu từ LichTrinh) *@
+<div class="site-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-7 text-center">
+                <span class="text-serif text-primary">Chuyến tàu</span>
+                <h3 class="heading-92913 text-black text-center">Lịch Trình Sắp Khởi Hành</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-white shadow-sm">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>Chuyến Tàu</th>
+                                <th>Tên Tàu</th>
+                                <th>Khởi Hành</th>
+                                <th>Giá Vé</th>
+                                <th>Còn Trống</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lt in Model.LichTrinhs)
+                            {
+                                <tr>
+                                    <td><strong>@lt.TuyenDuong.TenTuyen</strong></td>
+                                    <td>@lt.Tau.TenTau</td>
+                                    <td>@lt.NgayGioKhoiHanh.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="text-danger font-weight-bold">@lt.GiaVeCoBan.ToString("N0")đ</td>
+                                    <td>@lt.SoGheTrong ghế</td>
+                                    <td>
+                                        <a asp-controller="Booking" asp-action="Search" asp-route-id="@lt.MaLichTrinh" class="btn btn-warning btn-sm">Đặt vé</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* 6. Counter Section (Thông số hệ thống) *@
+<div class="site-section bg-image overlay" style="background-image: url('@Url.Content("~/images/hero_1.jpg")');">
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <div class="counter-39392">
+                    <h3>50+</h3>
+                    <span>Đội Tàu</span>
+                </div>
+            </div>
+            <div class="col text-center">
+                <div class="counter-39392">
+                    <h3>10k+</h3>
+                    <span>Khách Hàng</span>
+                </div>
+            </div>
+            <div class="col text-center">
+                <div class="counter-39392">
+                    <h3>20+</h3>
+                    <span>Tuyến Đường</span>
+                </div>
             </div>
         </div>
     </div>

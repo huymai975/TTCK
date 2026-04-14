@@ -45,6 +45,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 
+builder.Services.AddHostedService<BookingCleanupService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,0 +1,249 @@
+﻿@model WebAppBookingBoat.Models.HoaDon
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Vé tàu điện tử - #@Model.MaHoaDon</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        .ticket-wrapper {
+            padding: 40px;
+            max-width: 900px;
+            margin: auto;
+            margin-top: 150px;
+        }
+
+        /* Border bao quanh toàn bộ vé */
+        .ticket-border {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Thanh màu phía trên cùng */
+        .top-accent {
+            height: 10px;
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+        }
+
+        .header {
+            padding: 30px;
+            display: block;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+
+        .header-title {
+            color: #1e40af;
+            font-size: 28px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .info-grid {
+            padding: 30px;
+            background-color: #f8fafc;
+        }
+
+        /* Giả lập Grid vì PDF engine cũ không hỗ trợ Flexbox tốt */
+        .info-table {
+            width: 100%;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            padding-bottom: 20px;
+        }
+
+        .table-section {
+            padding: 0 30px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+            .table th {
+                text-align: left;
+                font-size: 13px;
+                color: #475569;
+                background-color: #f1f5f9;
+                padding: 12px;
+                border-bottom: 2px solid #e2e8f0;
+            }
+
+            .table td {
+                padding: 15px 12px;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 14px;
+            }
+
+        .total-box {
+            background-color: #f8fafc;
+            padding: 30px;
+            text-align: right;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .total-item {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .grand-total {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-top: 10px;
+        }
+
+        .footer {
+            padding: 30px;
+            text-align: center;
+            background-color: #fff;
+            border-top: 1px dashed #cbd5e1;
+        }
+
+        .qr-code-placeholder {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            display: inline-block;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .status-paid {
+            color: #16a34a;
+            font-weight: bold;
+            border: 2px solid #16a34a;
+            padding: 5px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            text-transform: uppercase;
+            transform: rotate(-5deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-wrapper">
+        <div class="ticket-border">
+            <div class="top-accent"></div>
+
+            <div class="header">
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <h1 class="header-title">WaterBoat Ticket</h1>
+                            <div class="header-subtitle">Vé tàu điện tử chính thức</div>
+                        </td>
+                        <td align="right">
+                            <div class="status-paid">Đã Thanh Toán</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="info-grid">
+                <table class="info-table">
+                    <tr>
+                        <td width="50%">
+                            <div class="info-label">Khách hàng</div>
+                            <div class="info-value">@Model.KhachHang?.HoTen</div>
+                        </td>
+                        <td width="50%">
+                            <div class="info-label">Mã hóa đơn</div>
+                            <div class="info-value">#@Model.MaHoaDon</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="info-label">Ngày thanh toán</div>
+                            <div class="info-value">@Model.NgayThanhToan?.ToString("dd/MM/yyyy HH:mm")</div>
+                        </td>
+                        <td>
+                            <div class="info-label">Phương thức</div>
+                            <div class="info-value">@Model.PhuongThucTT</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="table-section">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tuyến đường</th>
+                            <th>Tàu</th>
+                            <th>Ghế</th>
+                            <th>Giá vé</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ve in Model.Ves)
+                        {
+                            <tr>
+                                <td>@ve.LichTrinh?.TuyenDuong?.TenTuyen</td>
+                                <td>@ve.LichTrinh?.Tau?.TenTau</td>
+                                <td><strong>@ve.Ghe?.TenGhe</strong> (@ve.Ghe?.LoaiGhe)</td>
+                                <td>@ve.GiaVe.ToString("N0") VNĐ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="total-box">
+                <div class="total-item">Tạm tính: @Model.TamTinh.ToString("N0") VNĐ</div>
+                @if (!string.IsNullOrEmpty(Model.MaKM))
+                {
+                    <div class="total-item">Mã giảm giá: @Model.MaKM</div>
+                }
+                <div class="grand-total">
+                    TỔNG CỘNG: @Model.TongTien.ToString("N0") VNĐ
+                </div>
+            </div>
+
+            <div class="footer">
+                <p style="margin: 0; color: #1e293b; font-weight: 600;">Chúc quý khách có một chuyến đi thượng lộ bình an!</p>
+                <p style="margin: 5px 0 0 0; font-size: 11px; color: #94a3b8;">Vui lòng có mặt tại bến tàu ít nhất 30 phút trước giờ khởi hành.</p>
+                <div class="qr-code-placeholder">
+                    <small style="display:block; color:#94a3b8">Scan mã này để kiểm soát</small>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=WATERBOAT-@Model.MaHoaDon" width="80" height="80" alt="QR" />
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

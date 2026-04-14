@@ -10,3 +10,12 @@ Add the following code to the Configure method in your Application's Startup cla
             pattern : "{area:exists}/{controller=Home}/{action=Index}/{id?}"
           );
         });
+
+
+
+
+Ngân hàng	NCB
+Số thẻ	9704198526191432198
+Tên chủ thẻ	NGUYEN VAN A
+Ngày phát hành	07/15
+Mật khẩu OTP	123456

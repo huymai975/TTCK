@@ -1,0 +1,277 @@
+﻿@model WebAppBookingBoat.Models.ViewModels.BookingStepViewModel
+
+@{
+    ViewData["Title"] = "Chọn chỗ ngồi - " + Model.LichTrinh!.TuyenDuong.TenTuyen;
+}
+
+<style>
+    .main-content-wrapper {
+        margin-top: 150px; /* Điều chỉnh con số này tùy theo độ cao thực tế của Navbar */
+        min-height: 600px;
+    }
+
+    /* CSS cho sơ đồ ghế */
+    .seat-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #f8f9fc;
+        border-radius: 15px;
+    }
+
+    .seat {
+        width: 100%;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+        flex-direction: column;
+        font-size: 0.8rem;
+    }
+
+    /* Trạng thái ghế */
+    .seat-available {
+        background-color: #ffffff;
+        border-color: #4e73df;
+        color: #4e73df;
+    }
+
+    .seat-vip {
+        background-color: #fff3cd;
+        border-color: #f6c23e;
+        color: #856404;
+    }
+
+    .seat-occupied {
+        background-color: #eaecf4;
+        border-color: #d1d3e2;
+        color: #b7b9cc;
+        cursor: not-allowed;
+    }
+
+    .seat-selected {
+        background-color: #1cc88a !important;
+        border-color: #169b6b !important;
+        color: #fff !important;
+        transform: scale(1.05);
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+        font-size: 0.85rem;
+    }
+
+    .legend-box {
+        width: 15px;
+        height: 15px;
+        border-radius: 3px;
+        margin-right: 5px;
+    }
+
+    .sticky-card {
+        position: sticky;
+        top: 100px;
+    }
+</style>
+
+<div class="container main-content-wrapper py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent p-0">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Chọn chỗ ngồi</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        @* Cột bên trái: Sơ đồ ghế *@
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-couch mr-2"></i>Sơ đồ ghế ngồi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center mb-4 flex-wrap">
+                        <div class="legend-item"><div class="legend-box seat-available border border-primary"></div> Thường</div>
+                        <div class="legend-item"><div class="legend-box seat-vip"></div> VIP (+20%)</div>
+                        <div class="legend-item"><div class="legend-box seat-occupied"></div> Đã bán</div>
+                        <div class="legend-item"><div class="legend-box seat-selected"></div> Đang chọn</div>
+                    </div>
+
+                    <div class="seat-container shadow-inner">
+                        @foreach (var ghe in Model.LichTrinh.Tau.Ghes.OrderBy(g => g.TenGhe))
+                        {
+                            var isOccupied = Model.GheDaBanIds.Contains(ghe.MaGhe);
+                            var isVIP = ghe.LoaiGhe == "VIP";
+                            var statusClass = isOccupied ? "seat-occupied" : (isVIP ? "seat-vip" : "seat-available");
+
+                            <div class="seat @statusClass"
+                                 data-id="@ghe.MaGhe"
+                                 data-price="@(isVIP? Model.GiaVeCoBan * 1.2m : Model.GiaVeCoBan)"
+                                 onclick="@(isOccupied ? "" : "toggleSeat(this)")">
+                                <i class="fas fa-chair mb-1"></i>
+                                <span>@ghe.TenGhe</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Cột bên phải: Thông tin thanh toán *@
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 sticky-card">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="m-0 font-weight-bold">Chi tiết đặt vé</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-dark text-uppercase small">Tàu: @Model.LichTrinh.Tau.TenTau</h6>
+                    <p class="text-muted small mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i> @Model.LichTrinh.TuyenDuong.TenTuyen<br />
+                        <i class="fas fa-calendar-alt mr-1"></i> @Model.LichTrinh.NgayGioKhoiHanh.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+                    <hr />
+
+                    <div id="selected-info">
+                        <p class="text-center text-muted small italic">Chưa có ghế nào được chọn</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="font-weight-bold text-dark small">MÃ KHUYẾN MÃI</label>
+                        <div class="input-group">
+                            <input type="text" id="coupon-code" class="form-control form-control-sm" placeholder="Nhập mã nếu có...">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary btn-sm" type="button" onclick="applyCoupon()">Áp dụng</button>
+                            </div>
+                        </div>
+                        <div id="coupon-message" class="small mt-1"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <span class="font-weight-bold">Tổng tiền:</span>
+                        <span id="total-amount" class="h4 font-weight-bold text-success mb-0">0đ</span>
+                    </div>
+
+                    <form asp-action="ConfirmBooking" method="post" id="bookingForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="MaLichTrinh" />
+                        @* Thêm input ẩn để gửi mã KM về server khi submit *@
+                        <input type="hidden" name="MaKM" id="hiddenMaKM" />
+                        <div id="hidden-inputs"></div>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg mt-4 shadow-sm font-weight-bold" id="btnConfirm" disabled>
+                            XÁC NHẬN ĐẶT VÉ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let selectedSeats = [];
+        let discount = 0;
+
+        function toggleSeat(el) {
+            const seatId = $(el).data('id');
+            const seatName = $(el).find('span').text();
+            const price = parseFloat($(el).data('price'));
+
+            if ($(el).hasClass('seat-selected')) {
+                $(el).removeClass('seat-selected');
+                selectedSeats = selectedSeats.filter(s => s.id !== seatId);
+            } else {
+                $(el).addClass('seat-selected');
+                selectedSeats.push({ id: seatId, name: seatName, price: price });
+            }
+            updateSummary();
+        }
+
+            async function applyCoupon() {
+            const code = $('#coupon-code').val();
+            const msg = $('#coupon-message');
+
+            if (!code) {
+                msg.html('<span class="text-danger">Vui lòng nhập mã!</span>');
+                return;
+            }
+
+            // Gọi API kiểm tra mã (Bạn cần viết Action CheckCoupon trong Controller)
+            try {
+                const response = await fetch(`/Booking/CheckCoupon?code=${code}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    // Ví dụ result trả về: { success: true, discountAmount: 50000, message: 'Thành công' }
+                    discount = result.discountAmount;
+                    $('#hiddenMaKM').val(code); // Gán mã vào input ẩn để submit form
+                    msg.html(`<span class="text-success">${result.message} (-${discount.toLocaleString('vi-VN')}đ)</span>`);
+                    updateSummary();
+                } else {
+                    discount = 0;
+                    $('#hiddenMaKM').val('');
+                    msg.html(`<span class="text-danger">${result.message}</span>`);
+                    updateSummary();
+                }
+            } catch (error) {
+                msg.html('<span class="text-danger">Lỗi kiểm tra mã!</span>');
+            }
+        }
+
+            function updateSummary() {
+            const infoDiv = $('#selected-info');
+            const hiddenDiv = $('#hidden-inputs');
+            const totalSpan = $('#total-amount');
+            const btn = $('#btnConfirm');
+
+            infoDiv.empty();
+            hiddenDiv.empty();
+            let subtotal = 0;
+
+            if (selectedSeats.length === 0) {
+                infoDiv.append('<p class="text-center text-muted small italic">Chưa có ghế nào được chọn</p>');
+                totalSpan.text('0đ');
+                btn.prop('disabled', true);
+                return;
+            }
+
+            let html = '<ul class="list-group list-group-flush small">';
+            selectedSeats.forEach((s, index) => {
+                subtotal += s.price;
+                html += `<li class="list-group-item d-flex justify-content-between px-0 py-2 bg-transparent">
+                            <span>Ghế: <b>${s.name}</b></span>
+                            <span class="text-dark">${s.price.toLocaleString('vi-VN')}đ</span>
+                         </li>`;
+
+                hiddenDiv.append(`<input type="hidden" name="SelectedGheIds[${index}]" value="${s.id}" />`);
+            });
+
+            // Hiển thị dòng giảm giá nếu có
+            if (discount > 0) {
+                html += `<li class="list-group-item d-flex justify-content-between px-0 py-2 bg-transparent text-danger">
+                            <span>Giảm giá:</span>
+                            <span>-${discount.toLocaleString('vi-VN')}đ</span>
+                         </li>`;
+            }
+            html += '</ul>';
+
+            infoDiv.append(html);
+
+            // Tính tổng cuối cùng (Không được âm)
+            const finalTotal = Math.max(0, subtotal - discount);
+            totalSpan.text(finalTotal.toLocaleString('vi-VN') + 'đ');
+            btn.prop('disabled', false);
+        }
+    </script>
+}
