@@ -72,5 +72,7 @@ namespace WebAppBookingBoat.Models
 
         // --- Navigation Property ---
         public virtual ICollection<Ve> Ves { get; set; } = new List<Ve>();
+
+        public virtual ICollection<DanhGia> DanhGias { get; set; } = new List<DanhGia>();
     }
 }

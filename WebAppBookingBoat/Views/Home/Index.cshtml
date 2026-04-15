@@ -3,8 +3,57 @@
     ViewData["Title"] = "Trang chủ - Đặt vé tàu";
     // Đường dẫn ảnh thực tế từ Model TuyenDuong sẽ là /images/tuyen-duong/
     // Biến dẫn để bạn dễ quản lý
-    var imagePath = "/images/tuyen-duong";
+    var imagePath = "/images/tuyen-duong/";
 }
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<style>
+    .testimonial-section {
+        background-color: #ffffff;
+    }
+
+    /* Hiệu ứng đổ bóng và bo góc cho thẻ đánh giá */
+    .testimonial-card {
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important;
+        }
+
+    /* Tạo Avatar tròn từ tên chữ cái đầu */
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        box-shadow: 0 3px 6px rgba(78,115,223,0.2);
+    }
+
+    /* Khối phản hồi của Admin */
+    .admin-reply-box {
+        background-color: #f8f9fc;
+        padding: 10px 15px;
+        border-radius: 10px;
+        border-left: 3px solid #4e73df;
+        color: #5a5c69;
+    }
+
+    /* Định dạng icon sao */
+    .text-warning {
+        color: #f6c23e !important;
+    }
+</style>
 
 @* 1. Slider chính - Có thể giữ nguyên hoặc lấy ảnh từ các tuyến đường nổi bật *@
 <div class="hero-slide owl-carousel site-blocks-cover">
@@ -175,6 +224,78 @@
         </div>
     </div>
 </div>
+
+
+<section class="testimonial-section py-5">
+    <div class="container">
+        @* Tiêu đề phần đánh giá *@
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h6 class="text-primary font-weight-bold text-uppercase" style="letter-spacing: 2px;">Phản hồi</h6>
+            <h2 class="font-weight-bold text-dark">Khách hàng nói gì về chúng tôi</h2>
+            <div class="mx-auto mt-3" style="width: 50px; height: 3px; background: #4e73df; border-radius: 2px;"></div>
+        </div>
+
+        <div class="row">
+            @if (Model != null && Model.DanhGias!.Any())
+            {
+                foreach (var item in Model.DanhGias!.Take(3)) // Chỉ lấy 3 cái đẹp nhất ra trang chủ
+                {
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100 border-0 shadow-sm testimonial-card">
+                            <div class="card-body p-4">
+                                @* Phần sao đánh giá *@
+                                <div class="mb-3">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="@(i <= item.SoSao ? "fas" : "far") fa-star text-warning small"></i>
+                                    }
+                                </div>
+
+                                @* Nội dung đánh giá *@
+                                <p class="text-secondary mb-4 italic" style="font-style: italic; min-height: 70px;">
+                                    "@item.NoiDung"
+                                </p>
+
+                                @* Thông tin khách hàng *@
+                                <div class="d-flex align-items-center mt-auto border-top pt-3">
+                                    <div class="avatar-circle mr-3">
+                                        @(item.HoaDon?.KhachHang?.HoTen?.Substring(0, 1).ToUpper() ?? "K")
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 font-weight-bold text-dark">@(item.HoaDon?.KhachHang?.HoTen ?? "Khách hàng")</h6>
+                                        <small class="text-muted">Hành khách đi tuyến @(item.HoaDon?.Ves?.FirstOrDefault()?.LichTrinh?.TuyenDuong?.TenTuyen ?? "Tàu cao tốc")</small>
+                                    </div>
+                                </div>
+
+                                @* Phản hồi của Admin nếu có *@
+                                @if (!string.IsNullOrEmpty(item.PhanHoiAdmin))
+                                {
+                                    <div class="admin-reply-box mt-3 small">
+                                        <strong class="text-primary"><i class="fas fa-reply mr-1"></i> Admin:</strong> @item.PhanHoiAdmin
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center">
+                    <p class="text-muted italic">Chưa có đánh giá nào được hiển thị.</p>
+                </div>
+            }
+        </div>
+
+        @* Nút xem thêm *@
+        <div class="text-center mt-4">
+            <a href="/DanhGia" class="btn btn-link text-primary font-weight-bold text-decoration-none">
+                Xem tất cả đánh giá <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
 
 @* 6. Counter Section (Thông số hệ thống) *@
 <div class="site-section bg-image overlay" style="background-image: url('@Url.Content("~/images/hero_1.jpg")');">

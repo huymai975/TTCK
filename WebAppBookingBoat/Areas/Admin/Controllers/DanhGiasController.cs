@@ -44,7 +44,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             var applicationDbContext = _context.DanhGias
                 .Include(d => d.HoaDon)
-                    .ThenInclude(h => h.KhachHang);
+                    .ThenInclude(h => h!.KhachHang);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -55,7 +55,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             var danhGia = await _context.DanhGias
                 .Include(d => d.HoaDon)
-                    .ThenInclude(h => h.KhachHang)
+                    .ThenInclude(h => h!.KhachHang)
                 .FirstOrDefaultAsync(m => m.MaDanhGia == id);
 
             if (danhGia == null) return NotFound();
@@ -112,16 +112,25 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != model.MaDanhGia) return NotFound();
 
-            var danhGiaInDb = await _context.DanhGias.FindAsync(id);
+            // 1. Lấy bản ghi gốc từ Database
+            var danhGiaInDb = await _context.DanhGias.FirstOrDefaultAsync(d => d.MaDanhGia == id);
             if (danhGiaInDb == null) return NotFound();
+
+            // 2. Loại bỏ kiểm tra các trường mà Admin không sửa (MaHoaDon, SoSao, NoiDung, v.v.)
+            // Vì các trường này có [Required] trong Model nhưng Admin chỉ chỉnh Status/Reply
+            ModelState.Remove("HoaDon");
+            ModelState.Remove("MaHoaDon");
+            ModelState.Remove("SoSao"); // Nếu trên View không cho sửa SoSao
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     string oldStatus = danhGiaInDb.TrangThai;
+                    // Kiểm tra xem có phải lần đầu phản hồi không để ghi Log
                     bool isNewReply = string.IsNullOrEmpty(danhGiaInDb.PhanHoiAdmin) && !string.IsNullOrEmpty(model.PhanHoiAdmin);
 
+                    // 3. GÁN TRỰC TIẾP GIÁ TRỊ TỪ MODEL VÀO BẢN GHI ĐANG ĐƯỢC TRACKING
                     danhGiaInDb.TrangThai = model.TrangThai;
                     danhGiaInDb.PhanHoiAdmin = model.PhanHoiAdmin;
 
@@ -130,10 +139,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         danhGiaInDb.NgayPhanHoi = DateTime.Now;
                     }
 
-                    _context.Update(danhGiaInDb);
+                    // 4. LƯU THAY ĐỔI (Không cần gọi _context.Update vì EF đang tracking danhGiaInDb)
                     await _context.SaveChangesAsync();
 
-                    // Ghi Log: Cập nhật trạng thái hoặc Phản hồi
                     string actionNote = isNewReply ? "Phản hồi đánh giá" : "Cập nhật đánh giá";
                     await GhiLogHeThong(actionNote, $"ID: {id}. Trạng thái: {oldStatus} -> {model.TrangThai}");
 
@@ -145,7 +153,15 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     else throw;
                 }
             }
-            return View(model);
+
+            // Nếu lỗi Validation, log lỗi ra Console để bạn dễ debug
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var error in errors)
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
+
+            return View(danhGiaInDb);
         }
 
         // POST: Admin/DanhGias/Delete/5 (Ẩn đánh giá)

@@ -47,7 +47,9 @@ namespace WebAppBookingBoat.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterVM model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+
+            try
             {
                 var existingUser = await _userManager.FindByNameAsync(model.TenDangNhap!);
                 if (existingUser != null)
@@ -74,16 +76,22 @@ namespace WebAppBookingBoat.Controllers
                     _context.KhachHangs.Add(khachHang);
                     await _context.SaveChangesAsync();
 
-                    // Đăng nhập để ClaimsPrincipal (User) có giá trị trước khi ghi log
                     await _signInManager.SignInAsync(user, isPersistent: false);
-
                     await GhiLogHeThong("Đăng ký", "KhachHangs", $"Khách hàng {model.TenDangNhap} đăng ký thành công.", "Info");
 
+                    // --- THÊM THÔNG BÁO ---
+                    TempData["SuccessMessage"] = "Đăng ký tài khoản thành công! Chào mừng bạn đến với TTCK.";
                     return RedirectToAction("Index", "Home");
                 }
 
                 foreach (var error in result.Errors) ModelState.AddModelError("", error.Description);
             }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại.";
+                await GhiLogHeThong("Lỗi đăng ký", "System", ex.Message, "Error");
+            }
+
             return View(model);
         }
 
@@ -100,28 +108,31 @@ namespace WebAppBookingBoat.Controllers
         public async Task<IActionResult> Login(LoginVM model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+            if (!ModelState.IsValid) return View(model);
 
-            if (ModelState.IsValid)
+            var result = await _signInManager.PasswordSignInAsync(
+                model.TenDangNhap!,
+                model.MatKhau!,
+                isPersistent: model.RememberMe,
+                lockoutOnFailure: false);
+
+            if (result.Succeeded)
             {
-                var result = await _signInManager.PasswordSignInAsync(
-                    model.TenDangNhap!,
-                    model.MatKhau!,
-                    isPersistent: model.RememberMe,
-                    lockoutOnFailure: false);
+                await GhiLogHeThong("Đăng nhập", "AspNetUsers", $"Người dùng {model.TenDangNhap} đăng nhập.", "Info");
 
-                if (result.Succeeded)
-                {
-                    await GhiLogHeThong("Đăng nhập", "AspNetUsers", $"Người dùng {model.TenDangNhap} đăng nhập.", "Info");
+                TempData["SuccessMessage"] = "Chào mừng bạn quay trở lại!";
 
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                        return Redirect(returnUrl);
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
 
-                    return RedirectToAction("Index", "Home");
-                }
-
-                await GhiLogHeThong("Đăng nhập thất bại", "AspNetUsers", $"Thử sai mật khẩu: {model.TenDangNhap}", "Warning");
-                ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không chính xác.");
+                return RedirectToAction("Index", "Home");
             }
+
+            // Xử lý khi đăng nhập thất bại
+            await GhiLogHeThong("Đăng nhập thất bại", "AspNetUsers", $"Thử sai mật khẩu: {model.TenDangNhap}", "Warning");
+            ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không chính xác.");
+            TempData["ErrorMessage"] = "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.";
+
             return View(model);
         }
 
@@ -131,11 +142,10 @@ namespace WebAppBookingBoat.Controllers
         public async Task<IActionResult> Logout()
         {
             var userName = User.Identity?.Name;
-
-            // Ghi log trước khi hủy session
             await GhiLogHeThong("Đăng xuất", "AspNetUsers", $"Người dùng {userName} đăng xuất.", "Info");
 
             await _signInManager.SignOutAsync();
+            TempData["SuccessMessage"] = "Bạn đã đăng xuất an toàn.";
             return RedirectToAction("Index", "Home");
         }
     }

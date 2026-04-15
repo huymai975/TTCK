@@ -352,7 +352,7 @@
 							<li class="active"><a asp-controller="Home" asp-action="Index" class="nav-link">Home</a></li>
 							<li><a href="#" class="nav-link">About Us</a></li>
 							<li><a href="#" class="nav-link">Services</a></li>
-							<li><a href="#" class="nav-link">Testimonials</a></li>
+							<li><a asp-area="" asp-controller="DanhGiaController" asp-action="Index" class="nav-link">Testimonials</a></li>
 							<li><a href="#" class="nav-link">Blog</a></li>
 							<li><a href="#" class="nav-link">Contact</a></li>
 						</ul>
@@ -451,6 +451,39 @@
 
 	<script src="~/js/main.js"></script>
 
+
+	<script src="~/js/notification.js"></script>
+
+	<script>
+
+		document.addEventListener("DOMContentLoaded", function() {
+			// 1. LẤY DỮ LIỆU TỪ CONTROLLER
+			var success = '@Html.Raw(TempData["SuccessMessage"] ?? "")';
+			var error = '@Html.Raw(TempData["ErrorMessage"] ?? "")';
+
+			// 2. CẤU HÌNH TOAST
+			const Toast = Swal.mixin({
+				toast: true,
+				position: 'top-end',
+				showConfirmButton: false,
+				timer: 3000,
+				timerProgressBar: true,
+				didOpen: (toast) => {
+					toast.addEventListener('mouseenter', Swal.stopTimer)
+					toast.addEventListener('mouseleave', Swal.resumeTimer)
+				}
+			});
+
+			// Cho nổ thông báo nếu có nội dung
+			if (success.trim()) {
+				Toast.fire({ icon: 'success', title: success });
+			}
+			if (error.trim()) {
+				Toast.fire({ icon: 'error', title: error });
+			}
+		});
+
+	</script>
 
 	@await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -22,17 +22,27 @@ namespace WebAppBookingBoat.Controllers
         {
             var model = new HomeViewModel();
 
-            // Lấy danh sách tuyến đường để hiển thị ảnh điểm đến
             model.TuyenDuongs = await _context.TuyenDuongs.Take(6).ToListAsync();
 
-            // Lấy các lịch trình sắp tới (Sắp khởi hành)
             model.LichTrinhs = await _context.LichTrinhs
-                .Include(l => l.TuyenDuong)
-                .Include(l => l.Tau)
+                .Include(l => l.TuyenDuong).Include(l => l.Tau)
                 .Where(l => l.NgayGioKhoiHanh >= DateTime.Now)
-                .OrderBy(l => l.NgayGioKhoiHanh)
-                .Take(6)
-                .ToListAsync();
+                .Take(6).ToListAsync();
+
+            // Logic: Lọc mỗi khách hàng chỉ lấy 1 đánh giá mới nhất
+            model.DanhGias = await _context.DanhGias
+                .Include(d => d.HoaDon).ThenInclude(h => h!.KhachHang)
+                .Include(d => d.HoaDon).ThenInclude(h => h!.Ves)
+                    .ThenInclude(v => v.LichTrinh).ThenInclude(l => l!.TuyenDuong)
+                .Where(d => d.TrangThai == "Đã hiển thị")
+                .OrderByDescending(d => d.NgayDanhGia)
+                .ToListAsync(); // Lấy hết về bộ nhớ để lọc GroupBy dễ hơn
+
+            model.DanhGias = model.DanhGias
+                .GroupBy(d => d.HoaDon?.MaKH) // Nhóm theo mã khách hàng
+                .Select(g => g.First()) // Lấy đánh giá đầu tiên (mới nhất) của mỗi nhóm
+                .Take(3) // Chỉ lấy 3 người khác nhau
+                .ToList();
 
             return View(model);
         }

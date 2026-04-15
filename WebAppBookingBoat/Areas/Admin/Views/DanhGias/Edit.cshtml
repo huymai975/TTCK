@@ -46,7 +46,8 @@
             <form asp-action="Edit" method="post" class="card shadow-lg mb-4 border-left-primary">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger mx-4 mt-3 small"></div>
                 <input type="hidden" asp-for="MaDanhGia" />
-
+                <input type="hidden" asp-for="MaHoaDon" />
+                <input type="hidden" asp-for="SoSao" /> <input type="hidden" asp-for="NgayDanhGia" />
                 <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-primary text-uppercase">
                         <i class="fas fa-fingerprint mr-1"></i> ID Đánh giá: #@Model.MaDanhGia

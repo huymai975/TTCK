@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // QUAN TRỌNG: Thêm dòng này để sửa lỗi FirstOrDefaultAsync
+using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Models.ViewModels;
 using WebAppBookingBoat.Repository;
@@ -20,21 +20,32 @@ namespace WebAppBookingBoat.Controllers
             _userManager = userManager;
         }
 
+        private async Task GhiLogHeThong(string hanhDong, string bangTacDong, string chiTiet, string loai = "Info")
+        {
+            var log = new Log
+            {
+                MaTK = _userManager.GetUserId(User),
+                HanhDong = hanhDong,
+                BangTacDong = bangTacDong,
+                NoiDungChiTiet = chiTiet,
+                LoaiLog = loai,
+                ThoiGian = DateTime.Now,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.Logs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
-
-            // Tìm trong bảng KhachHang xem có bản ghi ứng với tài khoản này không
-            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaTK == userId);
             var user = await _userManager.FindByIdAsync(userId!);
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaTK == userId);
 
-            // LOGIC KIỂM TRA:
-            // Nếu là Admin/Nhân viên (không có trong bảng KhachHang)
+            // Logic cho Admin/Nhân viên không có trong bảng KhachHang
             if (khachHang == null)
             {
-                // Bạn có thể redirect về trang Profile dành cho nội bộ hoặc thông báo
-                // Ở đây tôi tạm thời khởi tạo model rỗng từ Identity để tránh crash
                 var adminModel = new ProfileVM
                 {
                     TenDangNhap = user?.UserName,
@@ -45,7 +56,6 @@ namespace WebAppBookingBoat.Controllers
                 return View(adminModel);
             }
 
-            // Nếu là Khách hàng
             var model = new ProfileVM
             {
                 MaKH = khachHang.MaKH,
@@ -59,50 +69,60 @@ namespace WebAppBookingBoat.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateInfo(ProfileVM model)
         {
-            var userId = _userManager.GetUserId(User);
-            var user = await _userManager.FindByIdAsync(userId!);
-
-            if (user == null) return NotFound();
-
-            // Tìm thông tin khách hàng
-            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaTK == userId);
-
-            // 1. CẬP NHẬT IDENTITY (AppUser)
-            // Luôn cập nhật Email và Sdt ở Identity để đồng bộ hệ thống
-            user.Email = model.Email;
-            user.UserName = user.UserName; // Giữ nguyên UserName hoặc cho phép đổi tùy bạn
-            user.PhoneNumber = model.Sdt;
-
-            var resultIdentity = await _userManager.UpdateAsync(user);
-
-            if (resultIdentity.Succeeded)
+            if (!ModelState.IsValid)
             {
-                // 2. CẬP NHẬT BẢNG KHACHHANG (Nếu là khách hàng)
-                if (khachHang != null)
-                {
-                    khachHang.HoTen = model.HoTen;
-                    khachHang.Sdt = model.Sdt;
-                    khachHang.Email = model.Email;
-                    khachHang.NgaySinh = model.NgaySinh;
+                // Xóa các lỗi validation liên quan đến mật khẩu vì mình đang ở hàm UpdateInfo
+                // Việc này giúp tránh việc báo lỗi "Mật khẩu không được để trống" khi đang sửa tên
+                ModelState.Remove("OldPassword");
+                ModelState.Remove("NewPassword");
+                ModelState.Remove("ConfirmPassword");
 
-                    _context.Update(khachHang);
-                    await _context.SaveChangesAsync();
-                }
-
-                // 3. GHI LOG (Sử dụng hàm GhiLog bạn đã tạo ở AccountController hoặc đưa vào BaseController)
-                // await GhiLog(userId, "Cập nhật hồ sơ", "Người dùng đã thay đổi thông tin cá nhân thành công");
-
-                TempData["Success"] = "Thông tin của bạn đã được cập nhật thành công!";
+                if (!ModelState.IsValid) return View("Index", model);
             }
-            else
+
+            try
             {
-                // Trả về lỗi nếu Identity không cho cập nhật (ví dụ Email đã tồn tại)
-                TempData["Error"] = resultIdentity.Errors.FirstOrDefault()?.Description ?? "Có lỗi xảy ra khi cập nhật.";
+                var userId = _userManager.GetUserId(User);
+                var user = await _userManager.FindByIdAsync(userId!);
+                if (user == null) return NotFound();
+
+                var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaTK == userId);
+
+                // 1. Cập nhật bảng Identity (AspNetUsers)
+                user.Email = model.Email;
+                user.PhoneNumber = model.Sdt;
+                var resultIdentity = await _userManager.UpdateAsync(user);
+
+                if (resultIdentity.Succeeded)
+                {
+                    // 2. Cập nhật bảng KhachHang (nếu có)
+                    if (khachHang != null)
+                    {
+                        khachHang.HoTen = model.HoTen;
+                        khachHang.Sdt = model.Sdt;
+                        khachHang.Email = model.Email;
+                        khachHang.NgaySinh = model.NgaySinh;
+
+                        _context.Update(khachHang);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    await GhiLogHeThong("Cập nhật hồ sơ", "KhachHangs/AspNetUsers", $"Người dùng {user.UserName} cập nhật thông tin thành công", "Info");
+                    TempData["SuccessMessage"] = "Thông tin cá nhân của bạn đã được cập nhật!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = resultIdentity.Errors.FirstOrDefault()?.Description ?? "Lỗi cập nhật tài khoản.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra trong quá trình lưu dữ liệu.";
+                await GhiLogHeThong("Lỗi UpdateInfo", "System", ex.Message, "Error");
             }
 
             return RedirectToAction("Index");
@@ -112,28 +132,89 @@ namespace WebAppBookingBoat.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ProfileVM model)
         {
-            if (string.IsNullOrEmpty(model.OldPassword) || string.IsNullOrEmpty(model.NewPassword))
-            {
-                TempData["ErrorPass"] = "Vui lòng nhập đầy đủ thông tin mật khẩu.";
-                return RedirectToAction("Index");
-            }
-
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            // 1. Loại bỏ các trường không liên quan để tránh báo lỗi oan bên form Hồ sơ
+            ModelState.Remove("HoTen");
+            ModelState.Remove("Sdt");
+            ModelState.Remove("Email");
+            ModelState.Remove("NgaySinh");
 
-            if (result.Succeeded)
+            // 2. Kiểm tra Validation (Lỗi thẻ span hiện ở đây)
+            if (!ModelState.IsValid)
             {
-                TempData["SuccessPass"] = "Đổi mật khẩu thành công!";
-            }
-            else
-            {
-                // Lấy lỗi từ Identity trả về (ví dụ: mật khẩu cũ sai)
-                TempData["ErrorPass"] = result.Errors.FirstOrDefault()?.Description ?? "Đổi mật khẩu thất bại.";
+                await PopulateUserInfo(model); // Hàm nạp lại dữ liệu hồ sơ bạn đã viết
+                return View("Index", model); // Trả về View để hiện lỗi đỏ dưới thẻ span
             }
 
-            return RedirectToAction("Index");
+            try
+            {
+                var result = await _userManager.ChangePasswordAsync(user, model.OldPassword!, model.NewPassword!);
+
+                if (result.Succeeded)
+                {
+                    // THÀNH CÔNG: Thông báo qua TempData (Modal/Toast)
+                    await GhiLogHeThong("Đổi mật khẩu", "AspNetUsers", $"Người dùng {user.UserName} đổi mật khẩu thành công", "Info");
+                    TempData["SuccessMessage"] = "Mật khẩu của bạn đã được thay đổi thành công!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    // THẤT BẠI: Nếu là lỗi nghiệp vụ (như sai mật khẩu cũ), đưa nó vào ModelState 
+                    // để nó hiện thành chữ đỏ dưới thẻ span luôn cho đồng bộ, không dùng TempData ở đây.
+                    foreach (var error in result.Errors)
+                    {
+                        if (error.Code == "PasswordMismatch")
+                        {
+                            ModelState.AddModelError("OldPassword", "Mật khẩu cũ không chính xác.");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("NewPassword", error.Description);
+                        }
+                    }
+
+                    await GhiLogHeThong("Đổi mật khẩu thất bại", "AspNetUsers", $"User {user.UserName} nhập sai mật khẩu cũ", "Warning");
+
+                    // Trả về View để hiện lỗi đỏ dưới ô input (không redirect)
+                    await PopulateUserInfo(model);
+                    return View("Index", model);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Lỗi hệ thống khi đổi mật khẩu.";
+                await GhiLogHeThong("Lỗi ChangePassword", "System", ex.Message, "Error");
+                return RedirectToAction("Index");
+            }
+        }
+
+        private async Task PopulateUserInfo(ProfileVM model)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return;
+
+            // Lấy thông tin từ AspNetUsers (Identity)
+            var user = await _userManager.FindByIdAsync(userId);
+
+            // Lấy thông tin từ bảng KhachHang
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaTK == userId);
+
+            if (user != null)
+            {
+                model.TenDangNhap = user.UserName;
+                // Nếu model đang trống (do lỗi validation), nạp lại từ DB
+                if (string.IsNullOrEmpty(model.Email)) model.Email = user.Email ?? "";
+                if (string.IsNullOrEmpty(model.Sdt)) model.Sdt = user.PhoneNumber ?? "";
+            }
+
+            if (khachHang != null)
+            {
+                if (string.IsNullOrEmpty(model.HoTen)) model.HoTen = khachHang.HoTen;
+                if (model.NgaySinh == null) model.NgaySinh = khachHang.NgaySinh;
+                model.MaKH = khachHang.MaKH;
+            }
         }
     }
 }

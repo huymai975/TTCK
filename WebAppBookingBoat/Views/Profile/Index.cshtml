@@ -145,16 +145,25 @@
                     <form asp-action="ChangePassword" method="post">
                         <div class="mb-3">
                             <label class="font-weight-bold text-muted small">Mật khẩu hiện tại</label>
-                            <input asp-for="OldPassword" type="password" class="form-control" placeholder="••••••••" required />
+                            <input asp-for="OldPassword" type="password" class="form-control" placeholder="••••••••" />
+                            @* Bổ sung dòng này *@
+                            <span asp-validation-for="OldPassword" class="text-danger small"></span>
                         </div>
+
                         <div class="mb-3">
                             <label class="font-weight-bold text-muted small">Mật khẩu mới</label>
-                            <input asp-for="NewPassword" type="password" class="form-control" placeholder="Ít nhất 6 ký tự" required />
+                            <input asp-for="NewPassword" type="password" class="form-control" placeholder="Ít nhất 6 ký tự" />
+                            @* Bổ sung dòng này *@
+                            <span asp-validation-for="NewPassword" class="text-danger small"></span>
                         </div>
+
                         <div class="mb-4">
                             <label class="font-weight-bold text-muted small">Xác nhận mật khẩu mới</label>
-                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu mới" required />
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu mới" />
+                            @* Bổ sung dòng này *@
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                         </div>
+
                         <button type="submit" class="btn btn-outline-dark btn-block btn-save">
                             <i class="fas fa-key mr-2"></i> Đổi mật khẩu ngay
                         </button>
