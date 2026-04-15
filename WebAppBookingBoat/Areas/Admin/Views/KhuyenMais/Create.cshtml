@@ -103,8 +103,6 @@
                                     <select asp-for="TrangThai" class="form-control shadow-sm border-left-info">
                                         <option value="Sắp diễn ra">Sắp diễn ra</option>
                                         <option value="Đang diễn ra">Đang diễn ra</option>
-                                        <option value="Đã kết thúc">Đã kết thúc</option>
-                                        <option value="Đã hủy">Đã hủy</option>
                                     </select>
                                 </div>
                             </div>
@@ -162,6 +160,18 @@
     </style>
 
     <script>
+            $("#customFile").change(function () {
+            const file = this.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function (event) {
+                    $("#previewImg").attr("src", event.target.result);
+                };
+                reader.readAsDataURL(file);
+                $(this).next('.custom-file-label').html(file.name);
+            }
+        });
+
                 $(document).ready(function () {
             const displayInput = $('#SoTienDisplay');
             const realInput = $('#SoTienReal');
@@ -182,6 +192,7 @@
                 let rawValue = $(this).val().replace(/,/g, '');
                 realInput.val(rawValue);
             });
+
 
             // 4. Xử lý trước khi gửi Form
             $('#createPromotionForm').on('submit', function (e) {

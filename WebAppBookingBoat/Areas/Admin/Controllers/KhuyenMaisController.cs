@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
@@ -7,6 +8,7 @@ using WebAppBookingBoat.Repository;
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class KhuyenMaisController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -44,7 +46,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 if (trangThaiGoc != km.TrangThai)
                 {
                     coThayDoi = true;
-                    // Ghi log hệ thống tự cập nhật trạng thái
                     await GhiLogHeThong("Hệ thống cập nhật trạng thái", "KhuyenMais",
                         $"Khuyến mãi {km.MaKM} tự động chuyển: {trangThaiGoc} -> {km.TrangThai}", "Info");
                 }
@@ -93,6 +94,19 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 ModelState.AddModelError("MaKM", "Mã khuyến mãi này đã tồn tại!");
             }
 
+            var bayGio = DateTime.Now;
+
+            // Ép kiểu trạng thái dựa trên ngày thực tế để tránh người dùng "hack" giao diện
+            if (khuyenMai.TrangThai != "Đã hủy") // Không ghi đè nếu admin chủ động hủy
+            {
+                if (bayGio < khuyenMai.NgayBatDau)
+                    khuyenMai.TrangThai = "Sắp diễn ra";
+                else if (bayGio >= khuyenMai.NgayBatDau && bayGio <= khuyenMai.NgayKetThuc)
+                    khuyenMai.TrangThai = "Đang diễn ra";
+                else
+                    khuyenMai.TrangThai = "Đã kết thúc";
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -108,12 +122,15 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     await GhiLogHeThong("Thêm khuyến mãi", "KhuyenMais",
                         $"Tạo mới KM: {khuyenMai.TenChuongTrinh} (Mã: {khuyenMai.MaKM}) - Giảm: {khuyenMai.PhanTramGiam}%");
 
+                    // SUCCESS MESSAGE
                     TempData["SuccessMessage"] = "Thêm chương trình khuyến mãi thành công!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     await GhiLogHeThong("Lỗi thêm khuyến mãi", "KhuyenMais", ex.Message, "Error");
+                    // ERROR MESSAGE
+                    TempData["ErrorMessage"] = "Lỗi hệ thống khi lưu dữ liệu: " + ex.Message;
                     ModelState.AddModelError("", "Lỗi hệ thống khi lưu dữ liệu.");
                 }
             }
@@ -140,48 +157,45 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != khuyenMai.MaKM) return NotFound();
 
-            var oldData = await _context.KhuyenMais.AsNoTracking().FirstOrDefaultAsync(x => x.MaKM == id);
-            if (oldData == null) return NotFound();
-
+            // Vẫn giữ validate nghiệp vụ cho Edit để tránh dữ liệu sai lệch khi sửa
             ValidateKhuyenMaiBusiness(khuyenMai);
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Lấy dữ liệu cũ để xử lý file ảnh
+                    var existingKM = await _context.KhuyenMais.AsNoTracking().FirstOrDefaultAsync(k => k.MaKM == id);
+
                     if (ImageFile != null)
                     {
-                        if (!string.IsNullOrEmpty(oldData.HinhAnh))
+                        // Xóa ảnh cũ trên server
+                        if (!string.IsNullOrEmpty(existingKM?.HinhAnh))
                         {
-                            DeleteOldImage(oldData.HinhAnh);
+                            DeleteOldImage(existingKM.HinhAnh);
                         }
+                        // Lưu ảnh mới
                         khuyenMai.HinhAnh = await SaveImage(ImageFile);
                     }
                     else
                     {
-                        khuyenMai.HinhAnh = oldData.HinhAnh; // Giữ lại ảnh cũ
+                        // Người dùng không chọn ảnh mới -> giữ nguyên tên file cũ
+                        khuyenMai.HinhAnh = existingKM?.HinhAnh;
                     }
 
                     _context.Update(khuyenMai);
                     await _context.SaveChangesAsync();
 
-                    // Ghi log chi tiết nếu thay đổi mức giảm giá
-                    var changes = new List<string>();
-                    if (oldData.TenChuongTrinh != khuyenMai.TenChuongTrinh) changes.Add($"Tên: {oldData.TenChuongTrinh} -> {khuyenMai.TenChuongTrinh}");
-                    if (oldData.PhanTramGiam != khuyenMai.PhanTramGiam) changes.Add($"Giảm giá: {oldData.PhanTramGiam}% -> {khuyenMai.PhanTramGiam}%");
-                    if (oldData.TrangThai != khuyenMai.TrangThai) changes.Add($"Trạng thái: {oldData.TrangThai} -> {khuyenMai.TrangThai}");
+                    await GhiLogHeThong("Cập nhật khuyến mãi", "KhuyenMais", $"Chỉnh sửa KM: {khuyenMai.MaKM}");
 
-                    string logDetail = $"Cập nhật KM {khuyenMai.MaKM}: " + (changes.Count > 0 ? string.Join(", ", changes) : "Không thay đổi thông tin quan trọng.");
-
-                    await GhiLogHeThong("Cập nhật khuyến mãi", "KhuyenMais", logDetail, "Info");
-
-                    TempData["SuccessMessage"] = "Cập nhật thành công!";
+                    TempData["SuccessMessage"] = "Cập nhật thay đổi thành công!";
                     return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!KhuyenMaiExists(khuyenMai.MaKM)) return NotFound();
-                    else throw;
+                    await GhiLogHeThong("Lỗi cập nhật khuyến mãi", "KhuyenMais", ex.Message, "Error");
+                    TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
+                    ModelState.AddModelError("", "Lỗi: " + ex.Message);
                 }
             }
             return View(khuyenMai);
@@ -195,27 +209,33 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
+            // Tìm nhanh đối tượng
             var khuyenMai = await _context.KhuyenMais.FindAsync(id);
+
             if (khuyenMai == null)
-                return Json(new { success = false, message = "Không tìm thấy dữ liệu." });
+            {
+                return Json(new { success = false, message = "Không tìm thấy chương trình khuyến mãi này." });
+            }
 
             try
             {
+                // Bỏ qua mọi logic kiểm tra ngày tháng hay điều kiện khác, ép buộc chuyển sang Đã hủy
                 string trangThaiCu = khuyenMai.TrangThai;
                 khuyenMai.TrangThai = "Đã hủy";
 
                 _context.Update(khuyenMai);
                 await _context.SaveChangesAsync();
 
+                // Ghi log nhanh
                 await GhiLogHeThong("Hủy khuyến mãi", "KhuyenMais",
-                    $"Hủy chương trình: {khuyenMai.TenChuongTrinh} ({id}). Trạng thái trước đó: {trangThaiCu}", "Warning");
+                    $"Hủy: {khuyenMai.TenChuongTrinh} ({id}). Từ: {trangThaiCu}", "Warning");
 
-                return Json(new { success = true, message = "Khuyến mãi đã được chuyển sang trạng thái 'Đã hủy'." });
+                return Json(new { success = true, message = "Đã hủy chương trình khuyến mãi thành công." });
             }
             catch (Exception ex)
             {
                 await GhiLogHeThong("Lỗi hủy khuyến mãi", "KhuyenMais", ex.Message, "Error");
-                return Json(new { success = false, message = "Lỗi khi cập nhật trạng thái dữ liệu." });
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
 
@@ -234,17 +254,19 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         private void DeleteOldImage(string fileName)
         {
             if (string.IsNullOrEmpty(fileName) || fileName == "no-image.png") return;
-            string path = Path.Combine(_hostEnvironment.WebRootPath, "images/promotions/", fileName);
+            string path = Path.Combine(_hostEnvironment.WebRootPath, "images", "khuyen-mai", fileName);
             if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
         }
 
         private async Task<string> SaveImage(IFormFile file)
         {
-            string wwwRootPath = _hostEnvironment.WebRootPath;
+            string folderPath = Path.Combine(_hostEnvironment.WebRootPath, "images", "khuyen-mai");
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
             string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string path = Path.Combine(wwwRootPath, @"images/promotions/");
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-            using (var fileStream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+            string fullPath = Path.Combine(folderPath, fileName);
+
+            using (var fileStream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
             }
@@ -256,9 +278,10 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         [NonAction]
         private async Task GhiLogHeThong(string hanhDong, string bang, string chiTiet, string loai = "Info")
         {
+            var userId = _userManager.GetUserId(User);
             var log = new Log
             {
-                MaTK = _userManager.GetUserId(User),
+                MaTK = userId ?? "System", // Nếu chưa login thì ghi System
                 HanhDong = hanhDong,
                 BangTacDong = bang,
                 NoiDungChiTiet = chiTiet,

@@ -328,6 +328,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Booking/Evaluate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xFdmFsdWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Booking/ExportPdf.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xFeHBvcnRQZGYuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -354,6 +358,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Profile/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Shared/Error.cshtml]

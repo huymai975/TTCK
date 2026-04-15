@@ -299,7 +299,7 @@
 											<img class="img-profile rounded-circle border border-primary" src="~/images/person_1.jpg" width="40" height="40" style="object-fit: cover;">
 										</a>
 										<div class="dropdown-menu dropdown-menu-right shadow border-0 overflow-hidden" aria-labelledby="userDropdown">
-											<a class="dropdown-item py-2" href="#">
+											<a class="dropdown-item py-2" asp-controller="Profile" asp-action="Index">
 												<i class="fas fa-user fa-sm fa-fw mr-3 text-gray-400"></i>Thông tin cá nhân
 											</a>
 											<a class="dropdown-item py-2" asp-controller="Booking" asp-action="MyOrders">
@@ -352,7 +352,7 @@
 							<li class="active"><a asp-controller="Home" asp-action="Index" class="nav-link">Home</a></li>
 							<li><a href="#" class="nav-link">About Us</a></li>
 							<li><a href="#" class="nav-link">Services</a></li>
-							<li><a href="#" class="nav-link">Testimonials</a></li>
+							<li><a asp-area="" asp-controller="DanhGiaController" asp-action="Index" class="nav-link">Testimonials</a></li>
 							<li><a href="#" class="nav-link">Blog</a></li>
 							<li><a href="#" class="nav-link">Contact</a></li>
 						</ul>
@@ -451,6 +451,39 @@
 
 	<script src="~/js/main.js"></script>
 
+
+	<script src="~/js/notification.js"></script>
+
+	<script>
+
+		document.addEventListener("DOMContentLoaded", function() {
+			// 1. LẤY DỮ LIỆU TỪ CONTROLLER
+			var success = '@Html.Raw(TempData["SuccessMessage"] ?? "")';
+			var error = '@Html.Raw(TempData["ErrorMessage"] ?? "")';
+
+			// 2. CẤU HÌNH TOAST
+			const Toast = Swal.mixin({
+				toast: true,
+				position: 'top-end',
+				showConfirmButton: false,
+				timer: 3000,
+				timerProgressBar: true,
+				didOpen: (toast) => {
+					toast.addEventListener('mouseenter', Swal.stopTimer)
+					toast.addEventListener('mouseleave', Swal.resumeTimer)
+				}
+			});
+
+			// Cho nổ thông báo nếu có nội dung
+			if (success.trim()) {
+				Toast.fire({ icon: 'success', title: success });
+			}
+			if (error.trim()) {
+				Toast.fire({ icon: 'error', title: error });
+			}
+		});
+
+	</script>
 
 	@await RenderSectionAsync("Scripts", required: false)
 </body>

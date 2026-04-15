@@ -14,15 +14,25 @@
     }
 
     .col-id {
-        width: 50px;
+        width: 40px;
     }
 
     .col-customer {
         width: auto;
     }
 
+    .col-route {
+        width: 160px; 
+    }
+
+    .time-info {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-top: 2px;
+    }
+
     .col-date {
-        width: 120px;
+        width: 60px;
     }
 
     .col-amount {
@@ -34,7 +44,7 @@
     }
 
     .col-status {
-        width: 130px;
+        width: 110px;
     }
 
     .col-action {
@@ -175,6 +185,22 @@
                                 <input type="date" id="dateFilter" class="form-control border-0 font-weight-bold text-primary">
                             </div>
 
+                            <div class="input-group input-group-sm shadow-sm mr-2" style="width: 220px;">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-success text-white border-0"><i class="fas fa-ship"></i></span>
+                                </div>
+                                <select id="routeFilter" class="form-control border-0 font-weight-bold text-success">
+                                    <option value="">Tất cả tuyến đi</option>
+                                    @if (ViewBag.DanhSachTuyen != null)
+                                    {
+                                        foreach (var tuyen in ViewBag.DanhSachTuyen)
+                                        {
+                                            <option value="@tuyen">@tuyen</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
                             <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
@@ -189,6 +215,7 @@
                         <tr>
                             <th class="text-center col-id border-0">ID</th>
                             <th class="col-customer border-0">Khách hàng / Nhân viên</th>
+                            <th class="col-route border-0">Lịch trình</th>
                             <th class="col-date border-0">Ngày lập</th>
                             <th class="text-right col-amount border-0">Tổng tiền</th>
                             <th class="text-center col-method border-0">HTTT</th>
@@ -216,6 +243,37 @@
                                         </span>
                                     </small>
                                 </td>
+
+                                <td class="align-middle">
+                                    @{
+                                        var lichTrinhs = item.Ves?
+                                        .Select(v => v.LichTrinh)
+                                        .Where(lt => lt != null)
+                                        .GroupBy(lt => lt!.MaLichTrinh)
+                                        .Select(g => g.First())
+                                        .ToList();
+                                    }
+                                    @if (lichTrinhs != null && lichTrinhs.Any())
+                                    {
+                                        foreach (var lt in lichTrinhs)
+                                        {
+                                            <div class="mb-1">
+                                                <div class="small font-weight-bold text-dark">
+                                                    <i class="fa-solid fa-anchor mr-1 text-success"></i>@(lt!.TuyenDuong?.TenTuyen ?? "Chưa xác định")
+                                                </div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">
+                                                    <i class="fa-regular fa-clock mr-1"></i>
+                                                    @lt.NgayGioKhoiHanh.ToString(@"hh\:mm") <i class="fa-solid fa-arrow-right-long mx-1"></i> @lt.NgayGioCapBenDuKien.ToString(@"hh\:mm")
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small italic">Không có lịch trình</span>
+                                    }
+                                </td>
+
                                 <td class="align-middle">
                                     <div class="small font-weight-bold text-dark">
                                         <i class="fa-regular fa-calendar-check mr-1 text-primary"></i>@item.NgayLap.ToString("dd/MM/yyyy")
@@ -260,7 +318,7 @@
                                     @if (item.TrangThai == "Chưa thanh toán")
                                     {
                                         <button type="button" class="badge badge-status shadow-sm @sClass border-0"
-                                                onclick="updateStatus(@item.MaHoaDon, 'Đã thanh toán')" title="Click để xác nhận thanh toán">
+                                                onclick="updateStatus(@item.MaHoaDon, 'Đã thanh toán', this)" title="Click để xác nhận thanh toán">
                                             <i class="@sIcon mr-1"></i> @item.TrangThai
                                         </button>
                                     }
@@ -282,7 +340,7 @@
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
                                         <button type="button" class="btn-modern btn-cancel"
-                                                onclick="cancelHoaDon(@item.MaHoaDon)" title="Hủy hóa đơn">
+                                                onclick="cancelHoaDon(@item.MaHoaDon, this)" title="Hủy hóa đơn">
                                             <i class="fa-solid fa-rectangle-xmark"></i>
                                         </button>
                                     </div>
@@ -308,110 +366,70 @@
     <script>
         var table;
         $(document).ready(function() {
+            // Khởi tạo DataTable
             table = $('#dataTable').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
-                    "search": "Tìm kiếm:",
-                    "searchPlaceholder": "Mã HD, tên khách...",
+                    "search": "Tìm nhanh:",
+                    "searchPlaceholder": "Mã HD, khách hàng...",
                     "paginate": {
                         "previous": "<i class='fas fa-angle-left'></i>",
-                        "next": "<i class='fas fa-angle-right'></i>",
-                        "first": "<i class='fas fa-angle-double-left'></i>",
-                        "last": "<i class='fas fa-angle-double-right'></i>"
+                        "next": "<i class='fas fa-angle-right'></i>"
                     }
                 },
                 "pageLength": 10,
                 "order": [[0, "desc"]],
-                "columnDefs": [ { "orderable": false, "targets": [6] } ],
-                 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                "columnDefs": [
+                    { "orderable": false, "targets": [7] }
+                ],
+                "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                        "<'row'<'col-sm-12'tr>>" +
-                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-                "drawCallback": function() {
-                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
-                }
+                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
             });
 
+            // 1. Lọc theo Trạng thái (Cột index 6)
             $('#statusFilter').on('change', function() {
                 var val = $(this).val();
-                table.column(5).search(val ? '^' + val + '$' : '', true, false).draw();
+                table.column(6).search(val ? '^' + val + '$' : '', true, false).draw();
             });
 
+            // 2. Lọc theo Tuyến đường (Cột index 2)
+            $('#routeFilter').on('change', function() {
+                var val = $(this).val();
+                table.column(2).search(val).draw();
+            });
+
+            // 3. Lọc theo Ngày tháng (Cột index 3)
+            $('#dateFilter').on('change', function() {
+                var dateVal = $(this).val();
+                if (!dateVal) {
+                    table.column(3).search('').draw();
+                    return;
+                }
+                var parts = dateVal.split('-');
+                var formattedDate = parts[2] + '/' + parts[1] + '/' + parts[0];
+                table.column(3).search(formattedDate).draw();
+            });
+
+            // 4. Nút Làm mới bộ lọc
             $('#btnResetFilter').on('click', function() {
                 $('#statusFilter').val('');
-                table.search('').column(5).search('').draw();
+                $('#routeFilter').val('');
+                $('#dateFilter').val('');
+                table.search('').columns().search('').draw();
             });
-
-                    // 1. Lọc theo Trạng thái (Cột index 5)
-        $('#statusFilter').on('change', function() {
-            var val = $(this).val();
-                if (val) {
-            table.column(5).search('^' + val + '$', true, false).draw();
-        } else {
-            table.column(5).search('').draw();
-        }
         });
 
-        // 2. Lọc theo Ngày tháng (Cột index 2)
-        $('#dateFilter').on('change', function() {
-            var dateVal = $(this).val(); // Trả về yyyy-mm-dd
+        // --- CÁC HÀM XỬ LÝ AJAX CẬP NHẬT REAL-TIME ---
 
-            if (!dateVal) {
-                table.column(2).search('').draw();
-                return;
-            }
-
-            // Cắt chuỗi để chuyển về dd/MM/yyyy
-            var parts = dateVal.split('-');
-            var formattedDate = parts[2] + '/' + parts[1] + '/' + parts[0];
-
-            // Lọc cột số 2
-            table.column(2).search(formattedDate).draw();
-        });
-
-        // 3. Nút Reset
-        $('#btnResetFilter').on('click', function() {
-            $('#statusFilter').val('');
-            $('#dateFilter').val('');
-            table.search('').columns().search('').draw();
-        });
-        });
-
-                function changePaymentMethod(id, newMethod) {
-            $.post('@Url.Action("UpdatePaymentMethod", "HoaDons")', {
-                id: id,
-                method: newMethod,
-                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-            }, function(response) {
-                if (response.success) {
-                    // Cập nhật text hiển thị ngay lập tức trên nút mà không cần reload
-                    $(`#method-text-${id}`).text(newMethod);
-
-                    // Thông báo nhỏ ở góc màn hình (Toast) thay vì hiện Popup to
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                    Toast.fire({
-                        icon: 'success',
-                        title: response.message
-                    });
-                } else {
-                    Swal.fire('Lỗi!', response.message, 'error');
-                }
-            });
-        }
-
-                        function updateStatus(id, newStatus) {
+        function updateStatus(id, newStatus, btnElement) {
             if (newStatus === 'Đã thanh toán') {
                 Swal.fire({
                     title: 'Xác nhận thanh toán',
                     html: `
                         <div class="text-left mb-3">Hóa đơn: <b>#${id}</b></div>
                         <div class="form-group text-left">
-                            <label class="font-weight-bold">Chọn phương thức thanh toán:</label>
+                            <label class="font-weight-bold small text-uppercase">Phương thức thanh toán:</label>
                             <select id="swal-payment-method" class="form-control">
                                 <option value="Tiền mặt">Tiền mặt</option>
                                 <option value="Chuyển khoản">Chuyển khoản</option>
@@ -423,23 +441,33 @@
                     icon: 'info',
                     showCancelButton: true,
                     confirmButtonColor: '#1cc88a',
-                    cancelButtonColor: '#858796',
-                    confirmButtonText: 'Xác nhận & Cập nhật',
-                    cancelButtonText: 'Hủy',
-                    preConfirm: () => {
-                        return document.getElementById('swal-payment-method').value;
-                    }
+                    confirmButtonText: 'Xác nhận',
+                    preConfirm: () => document.getElementById('swal-payment-method').value
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Gửi cả Trạng thái mới và Phương thức đã chọn lên Server
-                        sendUpdate(id, newStatus, result.value);
+                        sendUpdate(id, newStatus, result.value, btnElement);
                     }
                 });
             }
         }
 
-        function sendUpdate(id, status, method) {
-            $.post('@Url.Action("UpdatePayment", "HoaDons")', { // Đổi tên Action cho khớp
+        function cancelHoaDon(id, btnElement) {
+            Swal.fire({
+                title: 'Hủy hóa đơn?',
+                text: `Bạn có chắc chắn muốn hủy hóa đơn #${id}? Hành động này không thể hoàn tác.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                confirmButtonText: 'Đồng ý hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sendUpdate(id, 'Đã hủy', 'N/A', btnElement);
+                }
+            });
+        }
+
+        function sendUpdate(id, status, method, btnElement) {
+            $.post('@Url.Action("UpdatePayment", "HoaDons")', {
                 id: id,
                 status: status,
                 method: method,
@@ -450,49 +478,36 @@
                         icon: 'success',
                         title: 'Thành công',
                         text: response.message,
-                        timer: 1500,
+                        timer: 1200,
                         showConfirmButton: false
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire('Lỗi!', response.message, 'error');
-                }
-            });
-        }
-
-                function cancelHoaDon(id) {
-            Swal.fire({
-                title: 'Xác nhận hủy hóa đơn?',
-                text: `Hóa đơn #${id} sẽ chuyển sang trạng thái "Đã hủy" và giải phóng các vé liên quan.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#e74a3b',
-                cancelButtonColor: '#858796',
-                confirmButtonText: 'Đồng ý hủy',
-                cancelButtonText: 'Quay lại'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Gọi AJAX đến UpdatePayment với status là 'Đã hủy'
-                    $.post('@Url.Action("UpdatePayment", "HoaDons")', {
-                        id: id,
-                        status: 'Đã hủy',
-                        method: 'N/A', // Hoặc giữ nguyên phương thức cũ
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    }, function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Đã hủy hóa đơn',
-                                text: response.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => {
-                                    table.row($(`button[onclick*='cancelHoaDon(${id})']`).parents('tr')).remove().draw();
-                                });
-                        } else {
-                            Swal.fire('Lỗi!', response.message, 'error');
-                        }
                     });
+
+                    // Xử lý cập nhật giao diện DataTable
+                    var rowNode = $(btnElement).closest('tr');
+                    var rowIndex = table.row(rowNode).index();
+
+                    // Cập nhật Cột Trạng thái (Index 6)
+                    var statusHtml = '';
+                    if (status === 'Đã thanh toán') {
+                        statusHtml = '<span class="badge badge-success shadow-sm"><i class="fas fa-check-circle mr-1"></i> Đã thanh toán</span>';
+                    } else if (status === 'Đã hủy') {
+                        statusHtml = '<span class="badge badge-danger shadow-sm"><i class="fas fa-ban mr-1"></i> Đã hủy</span>';
+                    }
+                    table.cell(rowIndex, 6).data(statusHtml).draw(false);
+
+                    // Cập nhật Cột Hình thức thanh toán (Index 5)
+                    var methodHtml = '<span class="badge badge-light border small"><i class="fas fa-wallet mr-1 text-secondary"></i> ' + method + '</span>';
+                    table.cell(rowIndex, 5).data(methodHtml).draw(false);
+
+                    // Ẩn các nút thao tác không còn cần thiết (nút hủy, nút trạng thái)
+                    $(rowNode).find('.btn-status-action').fadeOut(); // Giả sử bạn đặt class này cho các nút thay đổi trạng thái
+                    $(rowNode).find('button[onclick*="cancelHoaDon"]').fadeOut();
+
+                } else {
+                    Swal.fire('Thất bại!', response.message, 'error');
                 }
+            }).fail(function() {
+                Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ.', 'error');
             });
         }
     </script>

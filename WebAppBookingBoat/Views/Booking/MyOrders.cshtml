@@ -9,17 +9,41 @@
         background-color: #f8f9fc;
     }
 
-    .page-header {
-        margin-bottom: 2rem;
+    .container.py-5 {
+        margin-top: 80px;
     }
 
+    /* Style cho bộ lọc */
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        border: none;
+    }
+
+    .form-control-custom {
+        border-radius: 10px;
+        border: 1px solid #e3e6f0;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+
+    /* Style cho Card đơn hàng */
     .order-card {
         background: white;
         border-radius: 15px;
         border: none;
-        transition: transform 0.2s, box-shadow 0.2s;
         margin-bottom: 1.5rem;
+        /* Chuyển sang dùng CSS Transition thay vì jQuery Animate để mượt hơn */
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s ease-out, transform 0.2s ease, box-shadow 0.2s ease;
     }
+
+        .order-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
         .order-card:hover {
             transform: translateY(-5px);
@@ -27,14 +51,16 @@
         }
 
     .badge-status {
+        display: inline-block;
+        min-width: 110px;
         padding: 8px 12px;
         border-radius: 50px;
         font-weight: 600;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
+        text-align: center;
     }
 
-    /* Tùy chỉnh màu sắc Badge */
     .bg-status-success {
         background-color: #e6f9f1;
         color: #1cc88a;
@@ -61,21 +87,44 @@
         font-weight: 600;
         padding: 8px 16px;
         transition: all 0.3s;
+        min-width: 120px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .order-id {
-        font-family: 'Courier New', monospace;
-        color: #858796;
-        font-weight: bold;
+    /* Phân trang */
+    .pagination .page-link {
+        border: none;
+        margin: 0 5px;
+        border-radius: 8px !important;
+        font-weight: 600;
+        color: #4e73df;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
-    .container.py-5 {
-        margin-top: 80px; /* Điều chỉnh con số này (ví dụ 80px hoặc 100px) sao cho vừa mắt */
+    .pagination .page-item.active .page-link {
+        background-color: #4e73df;
+        color: white;
+    }
+
+    .star-rating {
+        color: #f6c23e;
+        font-size: 0.9rem;
     }
 </style>
 
 <div class="container py-5">
-    <div class="page-header d-flex justify-content-between align-items-center">
+    @* Thông báo *@
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+            <i class="fas fa-check-circle mr-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="font-weight-bold text-dark">Chuyến đi của tôi</h2>
             <p class="text-muted">Quản lý và theo dõi lịch sử đặt vé của bạn</p>
@@ -83,12 +132,50 @@
         <i class="fas fa-ship fa-3x text-gray-200"></i>
     </div>
 
+    @* --- KHỐI BỘ LỌC (FILTER) --- *@
+    <div class="filter-section shadow-sm mb-4">
+        <form method="get" asp-action="MyOrders" id="filterForm">
+            <div class="row align-items-end">
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                    <label class="small font-weight-bold text-uppercase text-muted">Tìm kiếm</label>
+                    <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control form-control-custom" placeholder="Mã đơn hoặc tuyến đường...">
+                </div>
+                <div class="col-lg-2 col-md-6 mb-3 mb-lg-0">
+                    <label class="small font-weight-bold text-uppercase text-muted">Trạng thái</label>
+                    <select name="status" class="form-control form-control-custom">
+                        <option value="">Tất cả</option>
+                        <option value="Đã thanh toán" selected="@(ViewBag.Status == "Đã thanh toán")">Đã hoàn tất</option>
+                        <option value="Chờ thanh toán" selected="@(ViewBag.Status == "Chờ thanh toán")">Chờ thanh toán</option>
+                        <option value="Đã hủy" selected="@(ViewBag.Status == "Đã hủy")">Đã hủy</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-3 mb-lg-0">
+                    <label class="small font-weight-bold text-uppercase text-muted">Từ ngày</label>
+                    <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control form-control-custom">
+                </div>
+                <div class="col-lg-2 col-md-6 mb-3 mb-lg-0">
+                    <label class="small font-weight-bold text-uppercase text-muted">Đến ngày</label>
+                    <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control form-control-custom">
+                </div>
+                <div class="col-lg-3 col-md-12 d-flex">
+                    <button type="submit" class="btn btn-primary font-weight-bold flex-grow-1 border-radius-10 mr-2" style="border-radius:10px" id="btnFilter">
+                        <i class="fas fa-filter mr-1"></i> Lọc kết quả
+                    </button>
+                    <a href="@Url.Action("MyOrders")" class="btn btn-outline-secondary" style="border-radius:10px" title="Xóa bộ lọc">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     @if (!Model.Any())
     {
-        <div class="text-center py-5">
-            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="150" class="mb-3" style="opacity: 0.5">
-            <h4 class="text-muted">Bạn chưa có chuyến đi nào</h4>
-            <a href="/" class="btn btn-primary mt-3">Đặt vé ngay bây giờ</a>
+        <div class="text-center py-5 shadow-sm bg-white" style="border-radius:15px">
+            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="120" class="mb-3" style="opacity: 0.5">
+            <h4 class="text-muted">Không tìm thấy chuyến đi nào</h4>
+            <p class="text-secondary small">Thử thay đổi bộ lọc hoặc đặt vé mới ngay</p>
+            <a href="/" class="btn btn-primary mt-2 px-4 shadow-sm" style="border-radius:10px">Đặt vé ngay</a>
         </div>
     }
     else
@@ -96,26 +183,42 @@
         <div class="row">
             @foreach (var item in Model)
             {
+                var danhGia = item.DanhGias?.FirstOrDefault();
+                var veDauTien = item.Ves.FirstOrDefault();
+
                 <div class="col-12">
                     <div class="card order-card shadow-sm">
                         <div class="card-body p-4">
                             <div class="row align-items-center">
+                                @* Thông tin chuyến đi *@
                                 <div class="col-md-4 mb-3 mb-md-0">
-                                    <span class="order-id small">MÃ ĐƠN: #@item.MaHoaDon</span>
+                                    <span class="text-xs font-weight-bold text-uppercase text-secondary">MÃ ĐƠN: #@item.MaHoaDon</span>
                                     <div class="route-name mt-1">
-                                        <i class="fas fa-map-marker-alt mr-2"></i>
-                                        @item.Ves.FirstOrDefault()?.LichTrinh?.TuyenDuong?.TenTuyen
+                                        <i class="fas fa-anchor mr-2 text-primary"></i>
+                                        @(veDauTien?.LichTrinh?.TuyenDuong?.TenTuyen ?? "Tuyến đường không xác định")
                                     </div>
                                     <div class="text-muted small mt-2">
-                                        <i class="far fa-calendar-alt mr-1"></i> Ngày đặt: @item.NgayLap.ToString("dd/MM/yyyy HH:mm")
+                                        <i class="far fa-calendar-alt mr-1"></i> @item.NgayLap.ToString("dd/MM/yyyy HH:mm")
                                     </div>
                                 </div>
 
-                                <div class="col-md-3 text-md-center mb-3 mb-md-0">
-                                    <div class="h5 mb-1 font-weight-bold text-dark">@item.TongTien.ToString("N0") VND</div>
+                                @* Trạng thái và Giá *@
+                                <div class="col-md-3 text-md-center mb-3 mb-md-0 border-left border-right">
+                                    <div class="h5 mb-2 font-weight-bold text-dark">@item.TongTien.ToString("N0") <small>VND</small></div>
+
                                     @if (item.TrangThai == "Đã thanh toán")
                                     {
-                                        <span class="badge badge-status bg-status-success">Đã hoàn tất</span>
+                                        <span class="badge badge-status bg-status-success mb-2">Đã hoàn tất</span>
+                                        @if (danhGia != null)
+                                        {
+                                            <div class="star-rating">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="@(i <= danhGia.SoSao ? "fas" : "far") fa-star"></i>
+                                                }
+                                                <div class="small text-info font-weight-bold mt-1">Đã đánh giá</div>
+                                            </div>
+                                        }
                                     }
                                     else if (item.TrangThai == "Chờ thanh toán")
                                     {
@@ -127,23 +230,34 @@
                                     }
                                 </div>
 
-                                <div class="col-md-5 text-md-right">
+                                @* Nút hành động *@
+                                <div class="col-md-5 text-md-right d-flex flex-wrap justify-content-md-end gap-2">
                                     @if (item.TrangThai == "Chờ thanh toán")
                                     {
-                                        <a asp-action="Payment" asp-route-id="@item.MaHoaDon" class="btn btn-warning btn-action mr-2">
+                                        <a asp-action="Payment" asp-route-id="@item.MaHoaDon" class="btn btn-warning btn-action m-1">
                                             <i class="fas fa-credit-card mr-1"></i> Thanh toán
                                         </a>
                                     }
-                                    else
-                                    {
-                                        <a asp-action="Details" asp-route-id="@item.MaHoaDon" class="btn btn-info btn-action mr-2">
-                                            <i class="fas fa-info-circle mr-1"></i> Chi tiết
-                                        </a>
-                                    }
+
+                                    <a asp-action="Details" asp-route-id="@item.MaHoaDon" class="btn btn-info btn-action m-1 text-white">
+                                        <i class="fas fa-info-circle mr-1"></i> Chi tiết
+                                    </a>
 
                                     @if (item.TrangThai == "Đã thanh toán")
                                     {
-                                        <a asp-action="ExportPdf" asp-route-id="@item.MaHoaDon" class="btn btn-outline-danger btn-action">
+                                        if (danhGia == null)
+                                        {
+                                            <a asp-action="Evaluate" asp-route-id="@item.MaHoaDon" class="btn btn-primary btn-action m-1">
+                                                <i class="fas fa-star mr-1"></i> Đánh giá
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-outline-secondary btn-action m-1" disabled>
+                                                <i class="fas fa-check mr-1"></i> Đã đánh giá
+                                            </button>
+                                        }
+                                        <a asp-action="ExportPdf" asp-route-id="@item.MaHoaDon" class="btn btn-outline-danger btn-action m-1">
                                             <i class="fas fa-file-pdf mr-1"></i> Tải vé
                                         </a>
                                     }
@@ -154,17 +268,60 @@
                 </div>
             }
         </div>
+
+        @* --- THANH PHÂN TRANG (PAGINATION) --- *@
+        if (ViewBag.TotalPages > 1)
+        {
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link shadow-sm" href="@Url.Action("MyOrders", new { page = ViewBag.CurrentPage - 1, searchTerm = ViewBag.SearchTerm, status = ViewBag.Status, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate })">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link shadow-sm" href="@Url.Action("MyOrders", new { page = i, searchTerm = ViewBag.SearchTerm, status = ViewBag.Status, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate })">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link shadow-sm" href="@Url.Action("MyOrders", new { page = ViewBag.CurrentPage + 1, searchTerm = ViewBag.SearchTerm, status = ViewBag.Status, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate })">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
     }
 </div>
 
 @section Scripts {
     <script>
-        // Hiệu ứng Fade In cho các card khi load
         $(document).ready(function() {
+            // 1. Tự động ẩn thông báo sau 5 giây
+            setTimeout(function() {
+                $(".alert").fadeOut('slow');
+            }, 5000);
+
+            // 2. Hiệu ứng load card mượt mà dùng CSS Class
             $('.order-card').each(function(i) {
-                $(this).css({'opacity': '0', 'margin-top': '20px'});
-                $(this).delay(100 * i).animate({'opacity': '1', 'margin-top': '0'}, 400);
+                setTimeout(() => {
+                    $(this).addClass('visible');
+                }, 100 * i);
             });
+
+            // 3. Hiệu ứng Loading khi bấm lọc
+            $('#filterForm').on('submit', function() {
+                const btn = $('#btnFilter');
+                btn.html('<i class="fas fa-spinner fa-spin mr-1"></i> Đang lọc...');
+                btn.prop('disabled', true);
+            });
+
+            // 4. Tooltip (nếu có dùng Bootstrap tooltip)
+            $('[title]').tooltip();
         });
     </script>
 }

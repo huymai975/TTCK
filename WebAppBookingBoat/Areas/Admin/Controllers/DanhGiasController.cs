@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using WebAppBookingBoat.Repository;
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class DanhGiasController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -44,7 +46,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             var applicationDbContext = _context.DanhGias
                 .Include(d => d.HoaDon)
-                    .ThenInclude(h => h.KhachHang);
+                    .ThenInclude(h => h!.KhachHang);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -55,7 +57,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             var danhGia = await _context.DanhGias
                 .Include(d => d.HoaDon)
-                    .ThenInclude(h => h.KhachHang)
+                    .ThenInclude(h => h!.KhachHang)
                 .FirstOrDefaultAsync(m => m.MaDanhGia == id);
 
             if (danhGia == null) return NotFound();
@@ -83,11 +85,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 _context.Add(danhGia);
                 await _context.SaveChangesAsync();
-
                 await GhiLogHeThong("Tạo đánh giá", $"Tạo thủ công đánh giá cho Hóa đơn #{danhGia.MaHoaDon}");
 
+                TempData["SuccessMessage"] = "Tạo đánh giá mới thành công!"; // Thêm dòng này
                 return RedirectToAction(nameof(Index));
             }
+
+            // Thêm dòng này để hiện lỗi Popup nếu Validation fail
+            TempData["ErrorMessage"] = string.Join("<br/>", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
             return View(danhGia);
         }
 
@@ -112,8 +117,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != model.MaDanhGia) return NotFound();
 
-            var danhGiaInDb = await _context.DanhGias.FindAsync(id);
+            var danhGiaInDb = await _context.DanhGias.FirstOrDefaultAsync(d => d.MaDanhGia == id);
             if (danhGiaInDb == null) return NotFound();
+
+            ModelState.Remove("HoaDon");
+            ModelState.Remove("MaHoaDon");
+            ModelState.Remove("SoSao");
 
             if (ModelState.IsValid)
             {
@@ -130,13 +139,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         danhGiaInDb.NgayPhanHoi = DateTime.Now;
                     }
 
-                    _context.Update(danhGiaInDb);
                     await _context.SaveChangesAsync();
 
-                    // Ghi Log: Cập nhật trạng thái hoặc Phản hồi
                     string actionNote = isNewReply ? "Phản hồi đánh giá" : "Cập nhật đánh giá";
                     await GhiLogHeThong(actionNote, $"ID: {id}. Trạng thái: {oldStatus} -> {model.TrangThai}");
 
+                    TempData["SuccessMessage"] = "Cập nhật đánh giá và phản hồi thành công!"; // Thêm dòng này
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -145,7 +153,10 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     else throw;
                 }
             }
-            return View(model);
+
+            // Thêm dòng này để hiện lỗi Popup
+            TempData["ErrorMessage"] = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại!";
+            return View(danhGiaInDb);
         }
 
         // POST: Admin/DanhGias/Delete/5 (Ẩn đánh giá)

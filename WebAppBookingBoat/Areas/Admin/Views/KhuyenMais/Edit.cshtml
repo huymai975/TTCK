@@ -90,15 +90,16 @@
                             <div class="form-group mb-3 text-center">
                                 <div class="preview-container mb-3 shadow-sm">
                                     @{
+                                        // Sửa logic đường dẫn: Trỏ vào folder khuyen-mai thay vì promotions
                                         var imgSrc = string.IsNullOrEmpty(Model.HinhAnh) ? "/images/no-image.png" :
-                                        (Model.HinhAnh.StartsWith("http") ? Model.HinhAnh : "/images/promotions/" + Model.HinhAnh);
+                                        (Model.HinhAnh.StartsWith("http") ? Model.HinhAnh : "/images/khuyen-mai/" + Model.HinhAnh);
                                     }
                                     <img id="imgPreview" src="@imgSrc" class="preview-img" alt="Preview" />
                                 </div>
 
                                 <div class="custom-file mb-2">
-                                    @* Đổi input text thành input file *@
-                                    <input type="file" name="fHinhAnh" class="custom-file-input" id="HinhAnhInput" accept="image/*">
+                                    @* QUAN TRỌNG: Đổi name từ "fHinhAnh" thành "ImageFile" để khớp với tham số ở Controller *@
+                                    <input type="file" name="ImageFile" class="custom-file-input" id="HinhAnhInput" accept="image/*">
                                     <label class="custom-file-label text-left shadow-sm" for="HinhAnhInput">Chọn file mới...</label>
                                 </div>
                                 <small class="text-muted italic">Để trống nếu muốn giữ ảnh cũ</small>
@@ -209,6 +210,26 @@
 
     <script>
         $(document).ready(function () {
+            // Xử lý xem trước ảnh (Preview)
+            $("#HinhAnhInput").change(function () {
+                const file = this.files[0];
+                if (file) {
+                    // Cập nhật tên file vào nhãn label
+                    $(this).next('.custom-file-label').html(file.name);
+
+                    // Đọc file để hiển thị preview
+                    let reader = new FileReader();
+                    reader.onload = function (event) {
+                        $("#imgPreview").attr("src", event.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
             const displayInput = $('#SoTienDisplay');
             const realInput = $('#SoTienReal');
             const hinhAnhInput = $('#HinhAnhInput');
@@ -257,3 +278,4 @@
         });
     </script>
 }
+

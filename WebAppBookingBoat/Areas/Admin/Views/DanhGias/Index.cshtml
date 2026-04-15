@@ -225,16 +225,27 @@
                                     <span class="badge badge-status shadow-sm @sClass">@item.TrangThai</span>
                                 </td>
                                 <td class="text-center">
-                                    <a asp-action="Details" asp-route-id="@item.MaDanhGia" class="btn-modern btn-view"><i class="fas fa-eye"></i></a>
+                                    <a asp-action="Details" asp-route-id="@item.MaDanhGia" class="btn-modern btn-view" title="Chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.MaDanhGia" class="btn-modern btn-edit" title="Phản hồi">
+                                        <i class="fas fa-reply"></i>
+                                    </a>
                                     @if (item.TrangThai == "Đã ẩn")
                                     {
-                                        <button class="btn-modern btn-edit disabled-btn"><i class="fas fa-reply"></i></button>
-                                        <button class="btn-modern btn-delete disabled-btn"><i class="fas fa-trash"></i></button>
+                                        @* <button class="btn-modern btn-edit disabled-btn" title="Đã ẩn - Không thể phản hồi">
+                                            <i class="fas fa-reply"></i>
+                                        </button> *@
+                                        <button class="btn-modern btn-delete disabled-btn">
+                                            <i class="fas fa-eye-slash"></i>
+                                        </button>
                                     }
                                     else
                                     {
-                                        <a asp-action="Edit" asp-route-id="@item.MaDanhGia" class="btn-modern btn-edit"><i class="fas fa-reply"></i></a>
-                                        <button type="button" class="btn-modern btn-delete" onclick="deleteDanhGiaAjax('@item.MaDanhGia')"><i class="fa-rectangle-xmark"></i></button>
+                                        <button type="button" class="btn-modern btn-delete"
+                                                onclick="deleteDanhGiaAjax('@item.MaDanhGia', this)" title="Ẩn đánh giá">
+                                            <i class="fas fa-eye-slash"></i>
+                                        </button>
                                     }
                                 </td>
                             </tr>
@@ -265,27 +276,50 @@
             }
         }
 
-        // 2. Hàm xóa Ajax
-        function deleteDanhGiaAjax(id) {
+               function deleteDanhGiaAjax(id, btn) {
             Swal.fire({
-                title: 'Xóa đánh giá?',
-                text: "Chuyển trạng thái sang 'Đã ẩn'!",
+                title: 'Ẩn đánh giá?',
+                text: "Hệ thống sẽ chuyển trạng thái đánh giá này sang 'Đã ẩn'!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74a3b',
-                confirmButtonText: 'Đồng ý',
+                confirmButtonText: 'Đồng ý ẩn',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: '@Url.Action("Delete", "DanhGias")',
                         type: 'POST',
-                        data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                        data: {
+                            id: id,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
                         success: function (res) {
                             if (res.success) {
-                                Swal.fire('Thành công', res.message, 'success').then(() => {
-                                    table.row($(`button[onclick*='deleteGheAjax(${id})']`).parents('tr')).remove().draw();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Đã ẩn',
+                                    text: res.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
                                 });
+
+                                // Tìm dòng hiện tại
+                                var row = $(btn).closest('tr');
+
+                                // 1. Cập nhật Badge Trạng thái (Cột số 6)
+                                var badgeHtml = '<span class="badge badge-status shadow-sm badge-danger">Đã ẩn</span>';
+                                table.cell(row, 6).data(badgeHtml).draw(false);
+
+                                // 2. Cập nhật các Nút Thao tác (Cột số 7)
+                                // Biến các nút thành màu xám và vô hiệu hóa
+                                var actionHtml = `
+                                    <a href="/Admin/DanhGias/Details/${id}" class="btn-modern btn-view"><i class="fas fa-eye"></i></a>
+                                    <button class="btn-modern btn-edit"><i class="fas fa-reply"></i></button>
+                                    <button class="btn-modern btn-delete disabled-btn"><i class="fas fa-eye-slash"></i></button>
+                                `;
+                                table.cell(row, 7).data(actionHtml).draw(false);
+
                             } else {
                                 Swal.fire('Lỗi', res.message, 'error');
                             }

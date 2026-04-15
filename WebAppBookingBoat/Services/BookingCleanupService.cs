@@ -18,13 +18,14 @@ public class BookingCleanupService : BackgroundService
 
                 var expiredOrders = await context.HoaDons
                     .Include(h => h.Ves) // Load danh sách vé để xử lý
-                    .Where(h => h.TrangThai == "Chờ thanh toán" && h.NgayLap <= expirationTime)
+                    .Where(h => h.TrangThai == "Chưa thanh toán" && h.NgayLap <= expirationTime)
                     .ToListAsync();
 
                 foreach (var hoaDon in expiredOrders)
                 {
                     // 1. Cập nhật trạng thái Hóa đơn
                     hoaDon.TrangThai = "Đã hủy";
+                    hoaDon.PhuongThucTT = "N/A";
 
                     // 2. Cập nhật trạng thái tất cả Vé thuộc hóa đơn này
                     foreach (var ve in hoaDon.Ves)

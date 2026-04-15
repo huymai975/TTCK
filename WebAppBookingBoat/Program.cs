@@ -42,8 +42,14 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Error/403"; // Trang báo lỗi khi không có quyền
     options.Cookie.Name = "BoatBookingCookie";
     options.ExpireTimeSpan = TimeSpan.FromDays(30); // Ghi nhớ đăng nhập 30 ngày
+    options.SlidingExpiration = true; // Tự động gia hạn khi người dùng truy cập lại
 });
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Lưu cookie trong 30 ngày
+
+});
 
 builder.Services.AddHostedService<BookingCleanupService>();
 

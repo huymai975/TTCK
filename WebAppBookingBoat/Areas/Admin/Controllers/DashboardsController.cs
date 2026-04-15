@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rotativa.AspNetCore;
@@ -9,6 +10,7 @@ using WebAppBookingBoat.Repository;
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class DashboardsController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAppBookingBoat.Models;
@@ -8,6 +9,7 @@ using WebAppBookingBoat.ViewModels;
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class TausController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -46,36 +48,37 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var error = await CheckBusinessLogic(vm.TenTau);
-                if (error == null)
+                if (error != null)
                 {
-                    try
-                    {
-                        var tau = new Tau
-                        {
-                            TenTau = vm.TenTau,
-                            TongSoGhe = vm.TongSoGhe,
-                            TrangThai = vm.TrangThai,
-                            HinhAnh = "default-boat.jpg"
-                        };
-                        if (vm.ImageFile != null) tau.HinhAnh = await SaveImage(vm.ImageFile);
-
-                        _context.Add(tau);
-                        await _context.SaveChangesAsync();
-
-                        // Log thành công
-                        await GhiLogHeThong("Thêm mới", "Tàu", $"Thêm tàu mới: {tau.TenTau} (Mã: {tau.MaTau})");
-
-                        TempData["SuccessMessage"] = "Thêm tàu thành công!";
-                        return RedirectToAction(nameof(Index));
-                    }
-                    catch (Exception ex)
-                    {
-                        error = "Lỗi hệ thống khi lưu dữ liệu.";
-                        // Log lỗi hệ thống
-                        await GhiLogHeThong("Lỗi Thêm mới", "Tàu", $"Lỗi: {ex.Message}", "Error");
-                    }
+                    // THÊM DÒNG NÀY: Đẩy lỗi vào ModelState để View hiển thị
+                    ModelState.AddModelError("TenTau", error);
+                    //TempData["ErrorMessage"] = error;
+                    return View(vm);
                 }
-                TempData["ErrorMessage"] = error;
+
+                try
+                {
+                    var tau = new Tau
+                    {
+                        TenTau = vm.TenTau,
+                        TongSoGhe = vm.TongSoGhe,
+                        TrangThai = vm.TrangThai,
+                        HinhAnh = "default-boat.jpg"
+                    };
+                    if (vm.ImageFile != null) tau.HinhAnh = await SaveImage(vm.ImageFile);
+
+                    _context.Add(tau);
+                    await _context.SaveChangesAsync();
+
+                    await GhiLogHeThong("Thêm mới", "Tàu", $"Thêm tàu mới: {tau.TenTau}");
+                    TempData["SuccessMessage"] = "Thêm tàu thành công!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    //TempData["ErrorMessage"] = "Lỗi hệ thống khi lưu dữ liệu.";
+                    await GhiLogHeThong("Lỗi Thêm mới", "Tàu", ex.Message, "Error");
+                }
             }
             return View(vm);
         }
@@ -101,44 +104,46 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id, TauViewModel vm)
         {
             if (id != vm.MaTau) return NotFound();
+
             if (ModelState.IsValid)
             {
                 var error = await CheckBusinessLogic(vm.TenTau, id);
-                if (error == null)
+                if (error != null)
                 {
-                    try
-                    {
-                        var tau = await _context.Taus.FindAsync(id);
-                        if (tau == null) return NotFound();
-
-                        string tenCu = tau.TenTau; // Lưu lại để ghi log
-                        tau.TenTau = vm.TenTau;
-                        tau.TongSoGhe = vm.TongSoGhe;
-                        tau.TrangThai = vm.TrangThai;
-
-                        if (vm.ImageFile != null)
-                        {
-                            DeleteOldImage(tau.HinhAnh);
-                            tau.HinhAnh = await SaveImage(vm.ImageFile);
-                        }
-
-                        _context.Update(tau);
-                        await _context.SaveChangesAsync();
-
-                        // Log thành công
-                        await GhiLogHeThong("Cập nhật", "Tàu", $"Chỉnh sửa tàu ID {id}: '{tenCu}' -> '{tau.TenTau}'");
-
-                        TempData["SuccessMessage"] = "Cập nhật thành công!";
-                        return RedirectToAction(nameof(Index));
-                    }
-                    catch (Exception ex)
-                    {
-                        error = "Lỗi khi cập nhật.";
-                        // Log lỗi hệ thống
-                        await GhiLogHeThong("Lỗi Cập nhật", "Tàu", $"ID: {id}. Lỗi: {ex.Message}", "Error");
-                    }
+                    // THÊM DÒNG NÀY: Đẩy lỗi vào ModelState
+                    ModelState.AddModelError("TenTau", error);
+                    //TempData["ErrorMessage"] = error;
+                    return View(vm);
                 }
-                TempData["ErrorMessage"] = error;
+
+                try
+                {
+                    var tau = await _context.Taus.FindAsync(id);
+                    if (tau == null) return NotFound();
+
+                    string tenCu = tau.TenTau;
+                    tau.TenTau = vm.TenTau;
+                    tau.TongSoGhe = vm.TongSoGhe;
+                    tau.TrangThai = vm.TrangThai;
+
+                    if (vm.ImageFile != null)
+                    {
+                        DeleteOldImage(tau.HinhAnh);
+                        tau.HinhAnh = await SaveImage(vm.ImageFile);
+                    }
+
+                    _context.Update(tau);
+                    await _context.SaveChangesAsync();
+
+                    await GhiLogHeThong("Cập nhật", "Tàu", $"Chỉnh sửa tàu ID {id}: '{tenCu}' -> '{tau.TenTau}'");
+                    TempData["SuccessMessage"] = "Cập nhật thành công!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    //TempData["ErrorMessage"] = "Lỗi khi cập nhật.";
+                    await GhiLogHeThong("Lỗi Cập nhật", "Tàu", ex.Message, "Error");
+                }
             }
             return View(vm);
         }
