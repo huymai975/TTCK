@@ -54,7 +54,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (string.IsNullOrWhiteSpace(username))
             {
-                ModelState.AddModelError("", "Tên đăng nhập (Username) không được để trống.");
+                ModelState.AddModelError("", "Tên đăng nhập không được để trống.");
             }
 
             if (ModelState.IsValid)
@@ -72,6 +72,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 if (result.Succeeded)
                 {
                     await GhiLogHeThong("Tạo người dùng", $"Tạo tài khoản mới: {username}");
+                    // Thông báo thành công
+                    TempData["SuccessMessage"] = "Tạo tài khoản người dùng thành công!";
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -80,6 +82,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     ModelState.AddModelError("", error.Description);
                 }
             }
+
+            // Nếu có lỗi ModelState, gộp lỗi thành chuỗi để hiện Popup
+            TempData["ErrorMessage"] = string.Join("<br/>", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
             return View(model);
         }
 
@@ -112,6 +117,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 if (result.Succeeded)
                 {
                     await GhiLogHeThong("Cập nhật người dùng", $"Sửa tài khoản: {user.UserName}");
+                    TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -120,6 +126,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                     ModelState.AddModelError("", error.Description);
                 }
             }
+
+            TempData["ErrorMessage"] = "Cập nhật thất bại. Vui lòng kiểm tra lại dữ liệu.";
             return View(model);
         }
 

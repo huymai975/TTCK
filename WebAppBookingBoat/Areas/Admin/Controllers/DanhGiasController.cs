@@ -83,11 +83,14 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 _context.Add(danhGia);
                 await _context.SaveChangesAsync();
-
                 await GhiLogHeThong("Tạo đánh giá", $"Tạo thủ công đánh giá cho Hóa đơn #{danhGia.MaHoaDon}");
 
+                TempData["SuccessMessage"] = "Tạo đánh giá mới thành công!"; // Thêm dòng này
                 return RedirectToAction(nameof(Index));
             }
+
+            // Thêm dòng này để hiện lỗi Popup nếu Validation fail
+            TempData["ErrorMessage"] = string.Join("<br/>", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
             return View(danhGia);
         }
 
@@ -112,25 +115,20 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != model.MaDanhGia) return NotFound();
 
-            // 1. Lấy bản ghi gốc từ Database
             var danhGiaInDb = await _context.DanhGias.FirstOrDefaultAsync(d => d.MaDanhGia == id);
             if (danhGiaInDb == null) return NotFound();
 
-            // 2. Loại bỏ kiểm tra các trường mà Admin không sửa (MaHoaDon, SoSao, NoiDung, v.v.)
-            // Vì các trường này có [Required] trong Model nhưng Admin chỉ chỉnh Status/Reply
             ModelState.Remove("HoaDon");
             ModelState.Remove("MaHoaDon");
-            ModelState.Remove("SoSao"); // Nếu trên View không cho sửa SoSao
+            ModelState.Remove("SoSao");
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     string oldStatus = danhGiaInDb.TrangThai;
-                    // Kiểm tra xem có phải lần đầu phản hồi không để ghi Log
                     bool isNewReply = string.IsNullOrEmpty(danhGiaInDb.PhanHoiAdmin) && !string.IsNullOrEmpty(model.PhanHoiAdmin);
 
-                    // 3. GÁN TRỰC TIẾP GIÁ TRỊ TỪ MODEL VÀO BẢN GHI ĐANG ĐƯỢC TRACKING
                     danhGiaInDb.TrangThai = model.TrangThai;
                     danhGiaInDb.PhanHoiAdmin = model.PhanHoiAdmin;
 
@@ -139,12 +137,12 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         danhGiaInDb.NgayPhanHoi = DateTime.Now;
                     }
 
-                    // 4. LƯU THAY ĐỔI (Không cần gọi _context.Update vì EF đang tracking danhGiaInDb)
                     await _context.SaveChangesAsync();
 
                     string actionNote = isNewReply ? "Phản hồi đánh giá" : "Cập nhật đánh giá";
                     await GhiLogHeThong(actionNote, $"ID: {id}. Trạng thái: {oldStatus} -> {model.TrangThai}");
 
+                    TempData["SuccessMessage"] = "Cập nhật đánh giá và phản hồi thành công!"; // Thêm dòng này
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -154,13 +152,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 }
             }
 
-            // Nếu lỗi Validation, log lỗi ra Console để bạn dễ debug
-            var errors = ModelState.Values.SelectMany(v => v.Errors);
-            foreach (var error in errors)
-            {
-                Console.WriteLine(error.ErrorMessage);
-            }
-
+            // Thêm dòng này để hiện lỗi Popup
+            TempData["ErrorMessage"] = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại!";
             return View(danhGiaInDb);
         }
 

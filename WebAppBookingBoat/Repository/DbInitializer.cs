@@ -17,38 +17,38 @@ namespace WebAppBookingBoat.Repository
                 {
                     MaKM = "KM10",
                     TenChuongTrinh = "Giảm giá khai trương",
-                    HinhAnh = "khai-truong.jpg", // Tên file ảnh mẫu trong wwwroot/images/khuyen-mai/
-                    MoTa = "Chào mừng hệ thống WebAppBookingBoat đi vào hoạt động. Giảm ngay 10% cho tất cả các tuyến tàu cao tốc.",
-                    PhanTramGiam = 10,
-                    SoTienToiDaGiam = 50000,
+                    HinhAnh = "322b0521-7bf6-40e5-aeea-b28fcfb0c5fd.jpg", // Tên file ảnh mẫu trong wwwroot/images/khuyen-mai/
+                    MoTa = "Chào mừng hệ thống WebAppBookingBoat đi vào hoạt động. Giảm ngay 50% cho tất cả các tuyến tàu cao tốc.",
+                    PhanTramGiam = 50,
+                    SoTienToiDaGiam = 200000,
                     NgayBatDau = new DateTime(2026, 1, 1),
                     NgayKetThuc = new DateTime(2026, 12, 31),
                     TrangThai = "Chưa diễn ra"
                 },
-    new KhuyenMai
-    {
-        MaKM = "SUMMER26",
-        TenChuongTrinh = "Ưu đãi mùa hè rực rỡ",
-        HinhAnh = "summer-sale.jpg",
-        MoTa = "Tận hưởng kỳ nghỉ hè tại Phú Quốc và Vũng Tàu với ưu đãi cực khủng lên đến 15% khi đặt vé trước 7 ngày.",
-        PhanTramGiam = 15,
-        SoTienToiDaGiam = 100000,
-        NgayBatDau = new DateTime(2026, 6, 1),
-        NgayKetThuc = new DateTime(2026, 8, 31),
-        TrangThai = "Chưa diễn ra"
-    },
-    new KhuyenMai
-    {
-        MaKM = "TET2026",
-        TenChuongTrinh = "Vui Tết sum vầy",
-        HinhAnh = "tet-holiday.jpg",
-        MoTa = "Chương trình khuyến mãi đặc biệt dành cho khách hàng về quê ăn Tết hoặc du xuân cùng gia đình.",
-        PhanTramGiam = 20,
-        SoTienToiDaGiam = 200000,
-        NgayBatDau = new DateTime(2026, 1, 15),
-        NgayKetThuc = new DateTime(2026, 2, 15),
-        TrangThai = "Chưa diễn ra"
-    }
+                new KhuyenMai
+                {
+                    MaKM = "SUMMER26",
+                    TenChuongTrinh = "Ưu đãi mùa hè rực rỡ",
+                    HinhAnh = "summer-sale.jpg",
+                    MoTa = "Tận hưởng kỳ nghỉ hè với ưu đãi cực khủng lên đến 30% khi đặt vé.",
+                    PhanTramGiam = 15,
+                    SoTienToiDaGiam = 100000,
+                    NgayBatDau = new DateTime(2026, 6, 1),
+                    NgayKetThuc = new DateTime(2026, 8, 31),
+                    TrangThai = "Chưa diễn ra"
+                },
+                new KhuyenMai
+                {
+                    MaKM = "TET2026",
+                    TenChuongTrinh = "Vui Tết sum vầy",
+                    HinhAnh = "0b00c585-fb35-4462-9b5d-8e1aee28b429.jpg",
+                    MoTa = "Chương trình khuyến mãi đặc biệt dành cho khách hàng về quê ăn Tết hoặc du xuân cùng gia đình.",
+                    PhanTramGiam = 30,
+                    SoTienToiDaGiam = 300000,
+                    NgayBatDau = new DateTime(2026, 1, 15),
+                    NgayKetThuc = new DateTime(2026, 2, 15),
+                    TrangThai = "Chưa diễn ra"
+                }
             );
 
 
