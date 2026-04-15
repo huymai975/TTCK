@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using WebAppBookingBoat.Repository;
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class GhesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -118,7 +120,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             int tongHienTai = tau.Ghes.Count();
             if (tongHienTai + SoLuong > tau.TongSoGhe)
             {
-                TempData["Error"] = $"Không thể thêm! Tàu {tau.TenTau} chỉ còn trống {tau.TongSoGhe - tongHienTai} chỗ.";
+                TempData["ErrorMessage"] = $"Không thể thêm! Tàu {tau.TenTau} chỉ còn trống {tau.TongSoGhe - tongHienTai} chỗ.";
                 return RedirectToAction(nameof(Index), new { maTau = MaTau });
             }
 
@@ -144,7 +146,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             // Ghi Log: Sinh ghế tự động
             await GhiLogHeThong("Sinh ghế tự động", $"Đã tạo {SoLuong} ghế {LoaiGhe} cho tàu {tau.TenTau} (ID: {MaTau}).");
 
-            TempData["Success"] = $"Đã sinh thành công {SoLuong} ghế {LoaiGhe} cho tàu {tau.TenTau}.";
+            TempData["SuccessMessage"] = $"Đã sinh thành công {SoLuong} ghế {LoaiGhe} cho tàu {tau.TenTau}.";
             return RedirectToAction(nameof(Index), new { maTau = MaTau });
         }
 

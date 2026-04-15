@@ -47,7 +47,11 @@ wwwroot\images\default.jpg
 wwwroot\images\hero_1.jpg
 wwwroot\images\hero_2.jpg
 wwwroot\images\khuyen-mai\0b00c585-fb35-4462-9b5d-8e1aee28b429.jpg
+wwwroot\images\khuyen-mai\0c511c20-d2f2-43ed-a142-34a8744d6046.jpg
 wwwroot\images\khuyen-mai\322b0521-7bf6-40e5-aeea-b28fcfb0c5fd.jpg
+wwwroot\images\khuyen-mai\8b779b59-820c-48bd-bc11-b85e27021424.jpg
+wwwroot\images\khuyen-mai\cc3aba14-1afd-41e7-956c-2f04111616d3.jpg
+wwwroot\images\khuyen-mai\d1e37b62-d51a-472c-ad16-d3685a2240e5.jpg
 wwwroot\images\logo.png
 wwwroot\images\person_1.jpg
 wwwroot\images\person_2.jpg
@@ -65,6 +69,7 @@ wwwroot\images\tau\0ed53f9a-2e39-46ab-897c-856e7cde576d.jpg
 wwwroot\images\tau\2073e0cb-cf50-45b1-aa5e-9d40af4b7477.jpg
 wwwroot\images\tau\4bbb7de1-f9ff-4280-9133-605d04826b5e.jpg
 wwwroot\images\tau\68002807-83b2-43e5-a103-34f769fee016.jpg
+wwwroot\images\tau\7bec3675-4192-4c82-9f0f-fe856d2c7e57.jpg
 wwwroot\images\tau\872b8a7a-79ae-4f8b-96da-53c7e3caa5e3.jpg
 wwwroot\images\tuyen-duong\0c8444d3-2eb8-4766-8fc3-d8d7ceab3a09_phu-quoc.jfif
 wwwroot\images\tuyen-duong\4e80d1ba-86e3-4c44-91b0-d779306460b8_phu-quoc.jfif

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using WebAppBookingBoat.ViewModels;
 namespace WebAppBookingBoat.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class HoaDonsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -68,8 +70,16 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 .Include(h => h.KhachHang)
                 .Include(h => h.NhanVien)
                 .Include(h => h.KhuyenMai)
+                .Include(h => h.Ves).ThenInclude(v => v.LichTrinh).ThenInclude(lt => lt!.TuyenDuong)
                 .OrderByDescending(h => h.NgayLap)
                 .ToListAsync();
+
+            ViewBag.DanhSachTuyen = hoadons
+        .SelectMany(h => h.Ves)
+        .Select(v => v.LichTrinh?.TuyenDuong?.TenTuyen)
+        .Where(t => t != null)
+        .Distinct()
+        .ToList();
             return View(hoadons);
         }
 
@@ -300,8 +310,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         if (lichTrinh.TrangThai == "Hoàn thành")
                             return Json(new { success = false, message = "Hành trình đã kết thúc, không thể hủy." });
 
-                        if ((lichTrinh.NgayGioKhoiHanh - DateTime.Now).TotalHours < 1)
-                            return Json(new { success = false, message = "Quá hạn hủy vé (Yêu cầu trước 1 giờ khởi hành)." });
 
                         if (oldStatus != "Đã hủy")
                         {
