@@ -24,7 +24,7 @@ namespace WebAppBookingBoat.Controllers
             _configuration = configuration;
         }
 
-        // --- HÀM GHI LOG HỆ THỐNG (Đã sửa linh hoạt) ---
+        // --- HÀM GHI LOG HỆ THỐNG ---
         private async Task GhiLogHeThong(string hanhDong, string bangTacDong, string chiTiet, string loai = "Info")
         {
             var log = new Log
@@ -253,13 +253,21 @@ namespace WebAppBookingBoat.Controllers
                 if (!string.IsNullOrEmpty(vm.MaKM))
                 {
                     var khuyenMai = await _context.KhuyenMais
-                        .FirstOrDefaultAsync(km => km.MaKM.Equals(vm.MaKM) &&
-                                                   km.NgayKetThuc >= DateTime.Now &&
-                                                   km.TrangThai == "Đang diễn ra");
+    .FirstOrDefaultAsync(km => km.MaKM == vm.MaKM &&
+                               km.TrangThai == "Đang diễn ra" &&
+                               km.NgayBatDau <= DateTime.Now && // Phải bắt đầu rồi
+                               km.NgayKetThuc >= DateTime.Now);  // Và chưa kết thúc
 
                     if (khuyenMai != null)
                     {
+                        // Tính số tiền giảm theo phần trăm
                         soTienGiam = tongTienGoc * ((decimal)khuyenMai.PhanTramGiam / 100m);
+
+                        // CHẶN TRẦN: Nếu vượt quá số tiền tối đa cho phép thì chỉ giảm bằng số tiền tối đa
+                        if (soTienGiam > khuyenMai.SoTienToiDaGiam)
+                        {
+                            soTienGiam = khuyenMai.SoTienToiDaGiam;
+                        }
                     }
                     else
                     {
@@ -290,6 +298,36 @@ namespace WebAppBookingBoat.Controllers
                 TempData["ErrorMessage"] = "Có lỗi xảy ra trong quá trình đặt vé. Vui lòng thử lại.";
                 return RedirectToAction("Index", "Home");
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CheckCoupon(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return Json(new { success = false, message = "Vui lòng nhập mã khuyến mãi!" });
+            }
+
+            var bayGio = DateTime.Now;
+            var khuyenMai = await _context.KhuyenMais
+                .FirstOrDefaultAsync(km => km.MaKM == code &&
+                                           km.TrangThai == "Đang diễn ra" &&
+                                           km.NgayBatDau <= bayGio &&
+                                           km.NgayKetThuc >= bayGio);
+
+            if (khuyenMai == null)
+            {
+                return Json(new { success = false, message = "Mã giảm giá không hợp lệ, đã hết hạn hoặc chưa đến thời gian sử dụng." });
+            }
+
+            // Trả về thông tin cần thiết để JavaScript tính toán UI
+            return Json(new
+            {
+                success = true,
+                message = $"Áp dụng thành công mã {khuyenMai.TenChuongTrinh}",
+                phanTram = khuyenMai.PhanTramGiam,
+                soTienToiDa = khuyenMai.SoTienToiDaGiam
+            });
         }
 
         public async Task<IActionResult> Payment(int id)
@@ -473,9 +511,22 @@ namespace WebAppBookingBoat.Controllers
         public async Task<IActionResult> MyOrders(string searchTerm, string status, DateTime? fromDate, DateTime? toDate, int page = 1)
         {
             var userId = _userManager.GetUserId(User);
+
+            // Kiểm tra xem User này có phải là Khách hàng không
             var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaTK == userId);
 
-            if (khachHang == null) return NotFound();
+            if (khachHang == null)
+            {
+                // Kiểm tra xem có phải Admin/Nhân viên không để đưa ra thông báo đúng
+                if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                {
+                    TempData["ErrorMessage"] = "Tài khoản quản trị không có lịch sử đặt vé cá nhân. Vui lòng sử dụng trang Quản lý hóa đơn.";
+                    return RedirectToAction("Index", "HoaDons", new { area = "Admin" });
+                }
+
+                // Nếu là tài khoản mới chưa có hồ sơ khách hàng
+                return NotFound("Không tìm thấy thông tin khách hàng cho tài khoản này.");
+            }
 
             // 1. Khởi tạo Query ban đầu
             var query = _context.HoaDons

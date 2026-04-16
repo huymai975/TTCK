@@ -75,14 +75,70 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
 
             if (lichTrinh == null) return NotFound();
 
-            // Tính toán số liệu thực tế để NV tư vấn khách
-            ViewBag.TongSoGheThucTe = await _context.Ghes.CountAsync(g => g.MaTau == lichTrinh.MaTau);
-            var soVeDaDat = await _context.Ves.CountAsync(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy");
-            ViewBag.SoGheTrongThucTe = (int)ViewBag.TongSoGheThucTe - soVeDaDat;
+            // Lấy danh sách hành khách
+            var passengers = await _context.Ves
+                .Where(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy")
+                .Include(v => v.Ghe)
+                .Include(v => v.HoaDon).ThenInclude(h => h.KhachHang)
+                .Select(v => new
+                {
+                    MaVe = v.MaVe,
+                    TenHanhKhach = v.HoaDon.KhachHang.HoTen,
+                    SoDienThoai = v.HoaDon.KhachHang.Sdt,
+                    Email = v.HoaDon.KhachHang.Email,
+                    TenGhe = v.Ghe.TenGhe,
+                    LoaiGhe = v.Ghe.LoaiGhe,
+                    TrangThaiVe = v.TrangThai
+                })
+                .OrderBy(v => v.TenGhe)
+                .ToListAsync();
+
+            ViewBag.DanhSachHanhKhach = passengers;
+
+            // Giả sử bạn đã tính toán các ViewBag này trước đó
+            ViewBag.TongSoGheThucTe = lichTrinh.Tau.Ghes?.Count ?? 0;
+            ViewBag.SoGheTrongThucTe = lichTrinh.SoGheTrong;
 
             return View(lichTrinh);
         }
 
+
+        public async Task<IActionResult> Passengers(int id)
+        {
+            var lichTrinh = await _context.LichTrinhs
+                .Include(lt => lt.Tau)
+                .Include(lt => lt.TuyenDuong)
+                .FirstOrDefaultAsync(lt => lt.MaLichTrinh == id);
+
+            if (lichTrinh == null) return NotFound();
+
+            var model = new PassengerListViewModel
+            {
+                MaLichTrinh = lichTrinh.MaLichTrinh,
+                TenTau = lichTrinh.Tau.TenTau,
+                TuyenDuong = $"{lichTrinh.TuyenDuong.DiemDi} - {lichTrinh.TuyenDuong.DiemDen}",
+                NgayKhoiHanh = lichTrinh.NgayGioKhoiHanh,
+                Passengers = await _context.Ves
+                    .Where(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy")
+                    .Include(v => v.HoaDon).ThenInclude(h => h.KhachHang)
+                    .Include(v => v.Ghe)
+                    .Select(v => new PassengerItem
+                    {
+                        MaVe = v.MaVe,
+                        TenHanhKhach = v.HoaDon.KhachHang.HoTen, // Dữ liệu từ bảng Khách Hàng bạn vừa đưa
+                        SoDienThoai = v.HoaDon.KhachHang.Sdt,
+                        Email = v.HoaDon.KhachHang.Email,
+                        TenGhe = v.Ghe.TenGhe,
+                        LoaiGhe = v.Ghe.LoaiGhe,
+                        TrangThaiVe = v.TrangThai,
+                        GiaVe = v.GiaVe
+                    })
+                    .OrderBy(v => v.TenGhe)
+                    .ToListAsync()
+            };
+
+            return View(model);
+        }
         /* Lưu ý: Các hàm Create, Edit, Delete đã được loại bỏ 
            vì Nhân viên thường không có quyền thay đổi cấu trúc lịch trình của công ty.
            Nếu bạn muốn nhân viên vẫn được sửa, hãy copy lại các hàm đó và đổi ViewModel tương ứng.

@@ -90,15 +90,29 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (lichTrinh == null) return NotFound();
 
-            // --- TÍNH TOÁN CON SỐ THỰC TẾ TẠI ĐÂY ---
-            // 1. Tổng số ghế thực tế có trong bảng Ghes của con tàu này
-            ViewBag.TongSoGheThucTe = await _context.Ghes.CountAsync(g => g.MaTau == lichTrinh.MaTau);
+            // Lấy danh sách hành khách
+            var passengers = await _context.Ves
+                .Where(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy")
+                .Include(v => v.Ghe)
+                .Include(v => v.HoaDon).ThenInclude(h => h!.KhachHang)
+                .Select(v => new
+                {
+                    MaVe = v.MaVe,
+                    TenHanhKhach = v.HoaDon!.KhachHang!.HoTen,
+                    SoDienThoai = v.HoaDon.KhachHang.Sdt,
+                    Email = v.HoaDon.KhachHang.Email,
+                    TenGhe = v.Ghe!.TenGhe,
+                    LoaiGhe = v.Ghe.LoaiGhe,
+                    TrangThaiVe = v.TrangThai
+                })
+                .OrderBy(v => v.TenGhe)
+                .ToListAsync();
 
-            // 2. Số vé thực tế đã đặt (chưa hủy) cho lịch trình này
-            var soVeDaDat = await _context.Ves.CountAsync(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy");
+            ViewBag.DanhSachHanhKhach = passengers;
 
-            // 3. Số ghế trống thực tế = Tổng ghế thực tế - Vé đã đặt
-            ViewBag.SoGheTrongThucTe = (int)ViewBag.TongSoGheThucTe - soVeDaDat;
+            // Giả sử bạn đã tính toán các ViewBag này trước đó
+            ViewBag.TongSoGheThucTe = lichTrinh.Tau.Ghes?.Count ?? 0;
+            ViewBag.SoGheTrongThucTe = lichTrinh.SoGheTrong;
 
             return View(lichTrinh);
         }
@@ -343,6 +357,43 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 return Json(new { success = false, message = "Lỗi hệ thống: Không thể xóa lịch trình lúc này." });
             }
+        }
+
+        public async Task<IActionResult> Passengers(int id)
+        {
+            var lichTrinh = await _context.LichTrinhs
+                .Include(lt => lt.Tau)
+                .Include(lt => lt.TuyenDuong)
+                .FirstOrDefaultAsync(lt => lt.MaLichTrinh == id);
+
+            if (lichTrinh == null) return NotFound();
+
+            var model = new PassengerListViewModel
+            {
+                MaLichTrinh = lichTrinh.MaLichTrinh,
+                TenTau = lichTrinh.Tau.TenTau,
+                TuyenDuong = $"{lichTrinh.TuyenDuong.TenTuyen}",
+                NgayKhoiHanh = lichTrinh.NgayGioKhoiHanh,
+                Passengers = await _context.Ves
+                    .Where(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy")
+                    .Include(v => v.HoaDon).ThenInclude(h => h!.KhachHang)
+                    .Include(v => v.Ghe)
+                    .Select(v => new PassengerItem
+                    {
+                        MaVe = v.MaVe,
+                        TenHanhKhach = v.HoaDon!.KhachHang!.HoTen, // Dữ liệu từ bảng Khách Hàng bạn vừa đưa
+                        SoDienThoai = v.HoaDon.KhachHang.Sdt,
+                        Email = v.HoaDon.KhachHang.Email,
+                        TenGhe = v.Ghe!.TenGhe,
+                        LoaiGhe = v.Ghe.LoaiGhe,
+                        TrangThaiVe = v.TrangThai,
+                        GiaVe = v.GiaVe
+                    })
+                    .OrderBy(v => v.TenGhe)
+                    .ToListAsync()
+            };
+
+            return View(model);
         }
 
         #endregion

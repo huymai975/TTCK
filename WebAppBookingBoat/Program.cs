@@ -77,7 +77,7 @@ app.UseAuthorization();  // PHÂN QUYỀN: Họ có quyền làm gì?
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area:exists}/{controller=Dashboards}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
       name: "areas",

@@ -47,6 +47,23 @@ namespace WebAppBookingBoat.Controllers
             return View(model);
         }
 
+        public IActionResult About()
+        {
+            ViewBag.Title = "Về chúng tôi - Water Boat Booking";
+            return View();
+        }
+        public IActionResult Service()
+        {
+            ViewBag.Title = "Dịch vụ của chúng tôi - Water Boat Booking";
+            return View();
+        }
+
+        public IActionResult Contact()
+        {
+            ViewBag.Title = "Liên hệ với chúng tôi - Water Boat Booking";
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

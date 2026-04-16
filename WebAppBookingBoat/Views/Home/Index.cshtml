@@ -1,8 +1,6 @@
 ﻿@model WebAppBookingBoat.Models.ViewModels.HomeViewModel
 @{
-    ViewData["Title"] = "Trang chủ - Đặt vé tàu";
-    // Đường dẫn ảnh thực tế từ Model TuyenDuong sẽ là /images/tuyen-duong/
-    // Biến dẫn để bạn dễ quản lý
+    ViewData["Title"] = "Trang chủ - Water Boat";
     var imagePath = "/images/tuyen-duong/";
 }
 
@@ -11,25 +9,79 @@
 </head>
 
 <style>
-    .testimonial-section {
-        background-color: #ffffff;
+    /* 1. HERO & SEARCH GLASSMORPHISM */
+    .hero-search-wrap {
+        position: relative;
+        margin-top: -80px; /* Đè lên slider */
+        z-index: 100;
     }
 
-    /* Hiệu ứng đổ bóng và bo góc cho thẻ đánh giá */
-    .testimonial-card {
-        border-radius: 15px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    .glass-form {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
     }
 
-        .testimonial-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important;
+    .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: none;
+    }
+
+    /* 2. ROUTE CARDS */
+    .route-card {
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        transition: all 0.4s ease;
+        background: #fff;
+    }
+
+        .route-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
         }
 
-    /* Tạo Avatar tròn từ tên chữ cái đầu */
+    .route-img-wrapper {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+    }
+
+        .route-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+
+    .route-card:hover .route-img-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .badge-time {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(78, 115, 223, 0.9);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+
+    /* 3. TESTIMONIALS */
+    .testimonial-card {
+        border-radius: 20px;
+        border: none;
+        transition: 0.3s;
+    }
+
     .avatar-circle {
-        width: 45px;
-        height: 45px;
+        width: 48px;
+        height: 48px;
         background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
         color: white;
         border-radius: 50%;
@@ -37,141 +89,107 @@
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        box-shadow: 0 3px 6px rgba(78,115,223,0.2);
     }
 
-    /* Khối phản hồi của Admin */
-    .admin-reply-box {
-        background-color: #f8f9fc;
-        padding: 10px 15px;
-        border-radius: 10px;
-        border-left: 3px solid #4e73df;
-        color: #5a5c69;
+    /* 4. TABLE SCHEDULE */
+    .schedule-table thead th {
+        background: #4e73df;
+        color: white;
+        border: none;
+        font-size: 0.85rem;
     }
 
-    /* Định dạng icon sao */
-    .text-warning {
-        color: #f6c23e !important;
+    .schedule-table tbody tr:hover {
+        background: #f8f9ff;
     }
 </style>
 
-@* 1. Slider chính - Có thể giữ nguyên hoặc lấy ảnh từ các tuyến đường nổi bật *@
+@* --- 1. SLIDER CHÍNH --- *@
 <div class="hero-slide owl-carousel site-blocks-cover">
     <div class="intro-section" style="background-image: url('@Url.Content("~/images/hero_1.jpg")');">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-7 ml-auto text-right" data-aos="fade-up">
-                    <h1>Khám phá đại dương xanh</h1>
-                    <p>Trải nghiệm dịch vụ đặt vé tàu cao tốc nhanh chóng, an toàn và hiện đại nhất hiện nay.</p>
-                    <p><a href="#booking-section" class="btn btn-primary py-3 px-5">Đặt Vé Ngay</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="intro-section" style="background-image: url('@Url.Content("~/images/hero_2.jpg")');">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-7 mx-auto text-center" data-aos="fade-up">
-                    <h1>Tận hưởng kỳ nghỉ cùng gia đình</h1>
-                    <p>Hành trình kết nối những địa danh du lịch nổi tiếng với mức giá ưu đãi nhất.</p>
-                    <p><a href="#destination-section" class="btn btn-primary py-3 px-5">Xem Tuyến Đường</a></p>
+                <div class="col-lg-8 ml-auto text-right" data-aos="fade-up">
+                    <h1 class="font-weight-bold">Khám phá đại dương xanh</h1>
+                    <p class="lead text-white">Trải nghiệm dịch vụ đặt vé tàu cao tốc nhanh chóng, an toàn và hiện đại.</p>
+                    <p><a href="#booking-section" class="btn btn-primary py-3 px-5 rounded-pill font-weight-bold">Đặt Vé Ngay</a></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-@* 2. Section: Tìm kiếm & Đặt vé (Thay thế phần form cũ) *@
-<div class="site-section" id="booking-section">
+@* --- 2. SECTION TÌM KIẾM (Đã thêm ID để gọi) --- *@
+<div class="site-section pt-0 hero-search-wrap" id="booking-section">
     <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <img src="~/images/hero_2.jpg" alt="Image" class="img-fluid rounded shadow">
-            </div>
-            <div class="col-md-5 ml-auto">
-                <span class="text-serif text-primary">Đặt chuyến đi</span>
-                <h3 class="heading-92913 text-black">Tìm Chuyến Tàu</h3>
-                <form asp-controller="Booking" asp-action="Search" method="get" class="row">
-                    <div class="form-group col-md-12">
-                        <label for="maTuyen">Chọn Tuyến Đường (Địa danh):</label>
-                        <select name="maTuyen" id="maTuyen" class="form-control" required>
-                            <option value="">-- Chọn điểm đi - điểm đến --</option>
-                            @foreach (var tuyen in Model.TuyenDuongs)
-                            {
-                                <option value="@tuyen.MaTuyen">@tuyen.TenTuyen</option>
-                            }
-                        </select>
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                <div class="glass-form p-4 p-lg-5">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h4 class="font-weight-bold text-dark"><i class="fas fa-search-location mr-2 text-primary"></i>Tìm Chuyến Tàu</h4>
+                        </div>
                     </div>
-
-                    <div class="form-group col-md-12">
-                        <label for="ngayGioKhoiHanh">Ngày Khởi Hành:</label>
-                        <input type="date" name="ngayGioKhoiHanh" class="form-control" id="ngayGioKhoiHanh">
-                    </div>
-
-                    <div class="form-group col-md-12">
-                        <input type="submit" class="btn btn-primary py-3 px-5 btn-block" value="Tìm Kiếm Chuyến Tàu">
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-@* 3. Section: Ưu điểm dịch vụ (Giữ nguyên icon flaticon) *@
-<div class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 col-lg-4">
-                <div class="service-29283">
-                    <span class="wrap-icon-39293"><span class="flaticon-yacht"></span></span>
-                    <h3>Tàu Cao Tốc Hiện Đại</h3>
-                    <p>Hệ thống tàu đạt chuẩn quốc tế, trang bị đầy đủ thiết bị an toàn và tiện nghi cao cấp.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="service-29283">
-                    <span class="wrap-icon-39293"><span class="flaticon-shield"></span></span>
-                    <h3>An Toàn Tuyệt Đối</h3>
-                    <p>Đội ngũ kỹ thuật kiểm tra nghiêm ngặt trước mỗi chuyến đi, bảo hiểm đầy đủ cho hành khách.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="service-29283">
-                    <span class="wrap-icon-39293"><span class="flaticon-captain"></span></span>
-                    <h3>Thuyền Trưởng Giỏi</h3>
-                    <p>Các thuyền trưởng dày dạn kinh nghiệm, am hiểu hải trình và luôn đặt sự an toàn lên hàng đầu.</p>
+                    <form asp-controller="Booking" asp-action="Search" method="get" class="row align-items-end">
+                        <div class="form-group col-lg-5">
+                            <label class="small font-weight-bold text-uppercase">Tuyến đường khởi hành</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-light border-0"><i class="fa fa-ship text-primary"></i></span>
+                                </div>
+                                <select name="maTuyen" class="form-control bg-light border-0 shadow-none" required style="height: 50px;">
+                                    <option value="">Chọn điểm đi - điểm đến</option>
+                                    @foreach (var tuyen in Model.TuyenDuongs)
+                                    {
+                                        <option value="@tuyen.MaTuyen">@tuyen.TenTuyen</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-4">
+                            <label class="small font-weight-bold text-uppercase">Ngày đi</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-light border-0"><i class="fa fa-calendar-alt text-primary"></i></span>
+                                </div>
+                                <input type="date" name="ngayGioKhoiHanh" class="form-control bg-light border-0 shadow-none" style="height: 50px;">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 form-group">
+                            <button type="submit" class="btn btn-primary btn-block shadow font-weight-bold" style="height: 50px; border-radius: 12px;">
+                                TÌM KIẾM NGAY
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-@* 4. Section: Tuyến đường nổi bật (Dữ liệu từ TuyenDuong) *@
+@* --- 3. TUYẾN ĐƯỜNG NỔI BẬT --- *@
 <div class="site-section" id="destination-section">
     <div class="container">
         <div class="row justify-content-center mb-5">
-            <div class="col-md-7 text-center">
-                <span class="text-serif text-primary">Địa danh</span>
-                <h3 class="heading-92913 text-black text-center">Tuyến Đường Nổi Bật</h3>
+            <div class="col-md-7 text-center" data-aos="fade-up">
+                <span class="text-primary font-weight-bold">EXPLORE</span>
+                <h2 class="font-weight-bold text-dark">Tuyến Đường Nổi Bật</h2>
+                <div class="mx-auto mt-2" style="width: 60px; height: 3px; background: #4e73df;"></div>
             </div>
         </div>
         <div class="row">
             @foreach (var tuyen in Model.TuyenDuongs)
             {
                 <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up">
-                    <div class="service-39381">
-                        @* Nếu HinhAnh null sẽ dùng ảnh mặc định *@
-                        <img src="@(string.IsNullOrEmpty(tuyen.HinhAnh) ? "/images/default.jpg" : imagePath + tuyen.HinhAnh)" alt="@tuyen.TenTuyen" class="img-fluid">
-                        <div class="p-4">
-                            <h3><a href="#"><span class="icon-room mr-1 text-primary"></span> @tuyen.TenTuyen</a></h3>
-                            <div class="d-flex">
-                                <div class="mr-auto">
-                                    <span class="icon-map"></span> @tuyen.KhoangCach km
-                                </div>
-                                <div class="ml-auto price">
-                                    <span class="bg-primary">@tuyen.ThoiGianDuKien.ToString(@"hh\:mm") h</span>
-                                </div>
-                            </div>
+                    <div class="card route-card shadow-sm h-100">
+                        <div class="route-img-wrapper">
+                            <img src="@(string.IsNullOrEmpty(tuyen.HinhAnh) ? "/images/default.jpg" : imagePath + tuyen.HinhAnh)" alt="@tuyen.TenTuyen">
+                            <div class="badge-time">@tuyen.ThoiGianDuKien.ToString(@"hh\:mm") h</div>
+                        </div>
+                        <div class="card-body p-4 text-center">
+                            <h5 class="font-weight-bold">@tuyen.TenTuyen</h5>
+                            <p class="text-muted small"><i class="fa fa-map-marked-alt mr-2"></i>Khoảng cách: @tuyen.KhoangCach km</p>
+                            <a href="#booking-section" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
                         </div>
                     </div>
                 </div>
@@ -180,118 +198,75 @@
     </div>
 </div>
 
-@* 5. Section: Lịch trình chuyến tàu sắp khởi hành (Dữ liệu từ LichTrinh) *@
+@* --- 4. LỊCH TRÌNH --- *@
 <div class="site-section bg-light">
     <div class="container">
-        <div class="row justify-content-center mb-5">
+        <div class="row mb-5 justify-content-center">
             <div class="col-md-7 text-center">
-                <span class="text-serif text-primary">Chuyến tàu</span>
-                <h3 class="heading-92913 text-black text-center">Lịch Trình Sắp Khởi Hành</h3>
+                <h2 class="font-weight-bold text-dark">Lịch Trình Sắp Khởi Hành</h2>
+                <p class="text-muted">Cập nhật thời gian thực các chuyến tàu trong ngày</p>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="table-responsive">
-                    <table class="table table-white shadow-sm">
-                        <thead class="bg-primary text-white">
-                            <tr>
-                                <th>Chuyến Tàu</th>
-                                <th>Tên Tàu</th>
-                                <th>Khởi Hành</th>
-                                <th>Giá Vé</th>
-                                <th>Còn Trống</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var lt in Model.LichTrinhs)
-                            {
-                                <tr>
-                                    <td><strong>@lt.TuyenDuong.TenTuyen</strong></td>
-                                    <td>@lt.Tau.TenTau</td>
-                                    <td>@lt.NgayGioKhoiHanh.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td class="text-danger font-weight-bold">@lt.GiaVeCoBan.ToString("N0")đ</td>
-                                    <td>@lt.SoGheTrong ghế</td>
-                                    <td>
-                                        <a asp-controller="Booking" asp-action="Search" asp-route-id="@lt.MaLichTrinh" class="btn btn-warning btn-sm">Đặt vé</a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="table-responsive glass-form p-3">
+            <table class="table schedule-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Tuyến Đường</th>
+                        <th>Tàu</th>
+                        <th>Giờ Khởi Hành</th>
+                        <th>Giá Vé</th>
+                        <th>Trống</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lt in Model.LichTrinhs)
+                    {
+                        <tr>
+                            <td class="font-weight-bold text-dark">@lt.TuyenDuong.TenTuyen</td>
+                            <td><i class="fa fa-ship mr-2 text-primary small"></i>@lt.Tau.TenTau</td>
+                            <td>@lt.NgayGioKhoiHanh.ToString("dd/MM HH:mm")</td>
+                            <td class="text-danger font-weight-bold">@lt.GiaVeCoBan.ToString("N0")đ</td>
+                            <td><span class="badge badge-success">@lt.SoGheTrong ghế</span></td>
+                            <td>
+                                <a asp-controller="Booking" asp-action="Search" asp-route-id="@lt.MaLichTrinh" class="btn btn-warning btn-sm font-weight-bold px-3 shadow-sm">Đặt vé</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-
-<section class="testimonial-section py-5">
+@* --- 5. ĐÁNH GIÁ KHÁCH HÀNG --- *@
+<section class="site-section bg-white">
     <div class="container">
-        @* Tiêu đề phần đánh giá *@
-        <div class="text-center mb-5" data-aos="fade-up">
-            <h6 class="text-primary font-weight-bold text-uppercase" style="letter-spacing: 2px;">Phản hồi</h6>
-            <h2 class="font-weight-bold text-dark">Khách hàng nói gì về chúng tôi</h2>
-            <div class="mx-auto mt-3" style="width: 50px; height: 3px; background: #4e73df; border-radius: 2px;"></div>
+        <div class="text-center mb-5">
+            <h2 class="font-weight-bold text-dark">Khách Hàng Nói Gì</h2>
         </div>
-
         <div class="row">
-            @if (Model != null && Model.DanhGias!.Any())
+            @foreach (var item in Model.DanhGias!.Take(3))
             {
-                foreach (var item in Model.DanhGias!.Take(3)) // Chỉ lấy 3 cái đẹp nhất ra trang chủ
-                {
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100 border-0 shadow-sm testimonial-card">
-                            <div class="card-body p-4">
-                                @* Phần sao đánh giá *@
-                                <div class="mb-3">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        <i class="@(i <= item.SoSao ? "fas" : "far") fa-star text-warning small"></i>
-                                    }
-                                </div>
-
-                                @* Nội dung đánh giá *@
-                                <p class="text-secondary mb-4 italic" style="font-style: italic; min-height: 70px;">
-                                    "@item.NoiDung"
-                                </p>
-
-                                @* Thông tin khách hàng *@
-                                <div class="d-flex align-items-center mt-auto border-top pt-3">
-                                    <div class="avatar-circle mr-3">
-                                        @(item.HoaDon?.KhachHang?.HoTen?.Substring(0, 1).ToUpper() ?? "K")
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 font-weight-bold text-dark">@(item.HoaDon?.KhachHang?.HoTen ?? "Khách hàng")</h6>
-                                        <small class="text-muted">Hành khách đi tuyến @(item.HoaDon?.Ves?.FirstOrDefault()?.LichTrinh?.TuyenDuong?.TenTuyen ?? "Tàu cao tốc")</small>
-                                    </div>
-                                </div>
-
-                                @* Phản hồi của Admin nếu có *@
-                                @if (!string.IsNullOrEmpty(item.PhanHoiAdmin))
-                                {
-                                    <div class="admin-reply-box mt-3 small">
-                                        <strong class="text-primary"><i class="fas fa-reply mr-1"></i> Admin:</strong> @item.PhanHoiAdmin
-                                    </div>
-                                }
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm testimonial-card p-4">
+                        <div class="mb-3 text-warning">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="@(i <= item.SoSao ? "fas" : "far") fa-star small"></i>
+                            }
+                        </div>
+                        <p class="text-secondary italic mb-4">"@item.NoiDung"</p>
+                        <div class="d-flex align-items-center mt-auto">
+                            <div class="avatar-circle mr-3">@item.HoaDon?.KhachHang?.HoTen?[0]</div>
+                            <div>
+                                <h6 class="mb-0 font-weight-bold">@item.HoaDon?.KhachHang?.HoTen</h6>
+                                <small class="text-muted">Hành khách</small>
                             </div>
                         </div>
                     </div>
-                }
-            }
-            else
-            {
-                <div class="col-12 text-center">
-                    <p class="text-muted italic">Chưa có đánh giá nào được hiển thị.</p>
                 </div>
             }
-        </div>
-
-        @* Nút xem thêm *@
-        <div class="text-center mt-4">
-            <a href="/DanhGia" class="btn btn-link text-primary font-weight-bold text-decoration-none">
-                Xem tất cả đánh giá <i class="fas fa-arrow-right ml-1"></i>
-            </a>
         </div>
     </div>
 </section>

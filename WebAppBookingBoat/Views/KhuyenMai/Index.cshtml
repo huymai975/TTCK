@@ -195,7 +195,7 @@
                             <div class="promo-img-wrapper" onclick="location.href='@Url.Action("Details", new { id = item.MaKM })'">
                                 <div class="glass-badge">- @item.PhanTramGiam%</div>
                                 @{
-                                    var imgUrl = string.IsNullOrEmpty(item.HinhAnh) ? "/images/khuyen-mai/default-promo.jpg" : "/images/khuyen-mai/" + item.HinhAnh;
+                                    var imgUrl = string.IsNullOrEmpty(item.HinhAnh) ? "/images/default.jpg" : "/images/khuyen-mai/" + item.HinhAnh;
                                 }
                                 <img src="@imgUrl" alt="@item.TenChuongTrinh">
                             </div>

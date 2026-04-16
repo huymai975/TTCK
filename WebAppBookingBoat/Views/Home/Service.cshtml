@@ -1,0 +1,219 @@
+﻿@{
+    ViewData["Title"] = "Dịch vụ";
+}
+
+    <style >
+    /* --- Header Styles (Đồng bộ trang Contact) --- */
+    .page-header-inner {
+        background: rgba(15, 23, 43, .7); /* Màu tối sang trọng hơn */
+        backdrop-filter: blur(4px);
+    }
+
+    .breadcrumb {
+        background: rgba(255, 255, 255, 0.1);
+        display: inline-flex;
+        padding: 10px 25px;
+        border-radius: 50px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* --- Service Card Styles --- */
+    .service-item {
+        background: #ffffff;
+        transition: all .5s ease;
+    }
+
+        .service-item:hover {
+            background: #ffffff;
+            transform: translateY(-12px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+
+    .service-icon {
+        transition: .5s;
+    }
+
+    .service-item:hover .service-icon {
+        transform: rotateY(180deg);
+        background-color: #1cc88a; /* Đổi màu xanh lá khi hover cho sinh động */
+    }
+
+    .border-left-primary {
+        border-left: 5px solid #4e73df !important;
+        transition: 0.3s;
+    }
+
+        .border-left-primary:hover {
+            background-color: #f8f9fc !important;
+            transform: translateX(5px);
+        }
+
+    .section-title::before {
+        position: absolute;
+        content: "";
+        width: 45px;
+        height: 2px;
+        top: 50%;
+        left: -55px;
+        background: #4e73df;
+    }
+
+    .section-title::after {
+        position: absolute;
+        content: "";
+        width: 45px;
+        height: 2px;
+        top: 50%;
+        right: -55px;
+        background: #4e73df;
+    }
+</style>
+
+<div class="container-fluid page-header mb-5 p-0" style="background-image: url('/images/ishan-seefromthesky-BMJWpck6eQA-unsplash.jpg'); background-size: cover; background-position: center;">
+    <div class="container-fluid page-header-inner py-5">
+        <div class="container text-center py-5">
+            <h1 class="display-3 text-white mb-3 animated slideInDown font-weight-bold">DỊCH VỤ</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center text-uppercase shadow-sm">
+                    <li class="breadcrumb-item"><a class="text-white" asp-action="Index">Trang chủ</a></li>
+                    <li class="breadcrumb-item text-white-50 active" aria-current="page">Dịch vụ</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+            <h5 class="section-title ff-secondary text-center text-primary fw-normal">Tiện ích vượt trội</h5>
+            <h1 class="mb-5">Khám Phá Các Dịch Vụ Của Water Boat</h1>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="service-item rounded h-100 shadow-sm border-top border-primary border-5">
+                    <div class="p-4 text-center">
+                        <div class="service-icon bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fa fa-ticket-alt fa-2x text-white"></i>
+                        </div>
+                        <h5 class="mb-3">Đặt vé nhanh chóng</h5>
+                        <p class="text-muted small mb-0">Hệ thống giữ chỗ trực tuyến 24/7, xác nhận vé và nhận mã QR tức thì.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="service-item rounded h-100 shadow-sm border-top border-success border-5">
+                    <div class="p-4 text-center">
+                        <div class="service-icon bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fa fa-ship fa-2x text-white"></i>
+                        </div>
+                        <h5 class="mb-3">Đội tàu cao tốc</h5>
+                        <p class="text-muted small mb-0">Trang bị động cơ đời mới, vận hành êm ái, đạt chuẩn an toàn hàng hải quốc tế.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="service-item rounded h-100 shadow-sm border-top border-info border-5">
+                    <div class="p-4 text-center">
+                        <div class="service-icon bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fa fa-credit-card fa-2x text-white"></i>
+                        </div>
+                        <h5 class="mb-3">Thanh toán an toàn</h5>
+                        <p class="text-muted small mb-0">Tích hợp VNPay, MoMo và chuyển khoản ngân hàng với tính bảo mật tuyệt đối.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
+                <div class="service-item rounded h-100 shadow-sm border-top border-warning border-5">
+                    <div class="p-4 text-center">
+                        <div class="service-icon bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fa fa-headset fa-2x text-white"></i>
+                        </div>
+                        <h5 class="mb-3">Hỗ trợ tận tâm</h5>
+                        <p class="text-muted small mb-0">Đội ngũ CSKH trực tuyến luôn sẵn sàng giải đáp và xử lý yêu cầu hoàn/đổi vé 24/7.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid bg-light py-5 my-5">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+                <h5 class="section-title ff-secondary text-start text-primary fw-normal">Trải nghiệm khách hàng</h5>
+                <h1 class="mb-4">Tiện nghi trên mỗi chuyến đi</h1>
+                <p class="mb-4 text-muted">Chúng tôi không chỉ bán vé, chúng tôi mang đến một hành trình thoải mái và trọn vẹn nhất cho hành khách.</p>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center bg-white rounded p-3 shadow-sm border-left-primary">
+                            <i class="fa fa-wifi text-primary mr-3"></i>
+                            <span>Wifi miễn phí</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center bg-white rounded p-3 shadow-sm border-left-primary">
+                            <i class="fa fa-snowflake text-primary mr-3"></i>
+                            <span>Điều hòa công suất lớn</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center bg-white rounded p-3 shadow-sm border-left-primary">
+                            <i class="fa fa-mug-hot text-primary mr-3"></i>
+                            <span>Nước uống & Khăn lạnh</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center bg-white rounded p-3 shadow-sm border-left-primary">
+                            <i class="fa fa-tv text-primary mr-3"></i>
+                            <span>Hệ thống giải trí</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img class="img-fluid rounded shadow-lg" src="~/images/service-img.jpg" style="max-height: 400px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .service-item {
+        background: #ffffff;
+        transition: .5s;
+        border-bottom: 4px solid transparent;
+    }
+
+        .service-item:hover {
+            background: #4e73df;
+            border-bottom: 4px solid #224abe;
+            transform: translateY(-10px);
+        }
+
+            .service-item:hover h5,
+            .service-item:hover p,
+            .service-item:hover i {
+                color: #ffffff !important;
+            }
+
+    .section-title {
+        position: relative;
+        display: inline-block;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .border-left-primary {
+        border-left: 4px solid #4e73df !important;
+    }
+
+    .ff-secondary {
+        font-family: 'Nunito', sans-serif;
+    }
+</style>
