@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\NhanVien\Data\**" />
+    <Content Remove="Areas\NhanVien\Data\**" />
+    <EmbeddedResource Remove="Areas\NhanVien\Data\**" />
+    <None Remove="Areas\NhanVien\Data\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\css\.DS_Store" />
     <None Include="wwwroot\fonts\.DS_Store" />
     <None Include="wwwroot\images\.DS_Store" />
@@ -33,8 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\NhanVienArea\Data\" />
-    <Folder Include="Areas\NhanVienArea\Models\" />
     <Folder Include="wwwroot\images\tuyen-duong\" />
   </ItemGroup>
 

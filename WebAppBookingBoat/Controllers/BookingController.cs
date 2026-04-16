@@ -220,7 +220,7 @@ namespace WebAppBookingBoat.Controllers
                 {
                     MaKH = khachHang.MaKH,
                     NgayLap = DateTime.Now,
-                    TrangThai = "Chờ thanh toán",
+                    TrangThai = "Chưa thanh toán",
                     PhuongThucTT = "VNPay", // Mặc định hoặc theo vm
                     SoLuongVe = vm.SelectedGheIds.Count,
                     MaKM = vm.MaKM
@@ -244,7 +244,7 @@ namespace WebAppBookingBoat.Controllers
                         MaLichTrinh = vm.MaLichTrinh,
                         MaGhe = maGhe,
                         GiaVe = giaThucTe,
-                        TrangThai = "Chờ thanh toán"
+                        TrangThai = "Đang chờ"
                     });
                 }
 
@@ -253,7 +253,7 @@ namespace WebAppBookingBoat.Controllers
                 if (!string.IsNullOrEmpty(vm.MaKM))
                 {
                     var khuyenMai = await _context.KhuyenMais
-                        .FirstOrDefaultAsync(km => km.MaKM == vm.MaKM &&
+                        .FirstOrDefaultAsync(km => km.MaKM.Equals(vm.MaKM) &&
                                                    km.NgayKetThuc >= DateTime.Now &&
                                                    km.TrangThai == "Đang diễn ra");
 
@@ -367,7 +367,7 @@ namespace WebAppBookingBoat.Controllers
                     hoaDon.NgayThanhToan = DateTime.Now;
                     if (hoaDon.Ves != null)
                     {
-                        foreach (var ve in hoaDon.Ves) ve.TrangThai = "Đã thanh toán";
+                        foreach (var ve in hoaDon.Ves) ve.TrangThai = "Hợp lệ";
                     }
                     await _context.SaveChangesAsync();
 

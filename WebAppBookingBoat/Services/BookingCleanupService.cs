@@ -25,23 +25,17 @@ public class BookingCleanupService : BackgroundService
                 {
                     // 1. Cập nhật trạng thái Hóa đơn
                     hoaDon.TrangThai = "Đã hủy";
-                    hoaDon.PhuongThucTT = "N/A";
 
                     // 2. Cập nhật trạng thái tất cả Vé thuộc hóa đơn này
                     foreach (var ve in hoaDon.Ves)
                     {
                         ve.TrangThai = "Đã hủy"; // Giả định thuộc tính này là TrangThai hoặc tương đương trong Model Ve
-                    }
 
-                    // 3. Hoàn trả số lượng ghế cho Lịch trình
-                    var maLichTrinh = hoaDon.Ves.FirstOrDefault()?.MaLichTrinh;
-                    if (maLichTrinh != null)
-                    {
-                        var lichTrinh = await context.LichTrinhs.FindAsync(maLichTrinh);
+                        // 3. Hoàn trả số lượng ghế cho Lịch trình
+                        var lichTrinh = await context.LichTrinhs.FindAsync(ve.MaLichTrinh);
                         if (lichTrinh != null)
                         {
-                            // Cộng lại số ghế dựa trên số lượng vé thực tế trong hóa đơn
-                            lichTrinh.SoGheTrong += hoaDon.Ves.Count;
+                            lichTrinh.SoGheTrong += 1;
                         }
                     }
                 }
