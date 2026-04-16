@@ -11,7 +11,7 @@ using WebAppBookingBoat.ViewModels;
 namespace WebAppBookingBoat.Areas.NhanVien.Controllers
 {
     [Area("NhanVien")]
-    [Authorize(Roles = "NhanVien,Admin")]
+    [Authorize(Roles = "NhanVien,Admin")] // 3. Cho phép cả Nhân viên và Admin truy cập
     public class HoaDonsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -173,7 +173,7 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
 
                     if (nhanVien == null)
                     {
-                        ModelState.AddModelError("", "Lỗi: Tài khoản chưa được liên kết với hồ sơ Nhân viên.");
+                        ModelState.AddModelError("", "Lỗi: Tài khoản của bạn chưa được liên kết với hồ sơ Nhân viên.");
                         await PopulateListsAsync(vm);
                         return View(vm);
                     }
@@ -209,6 +209,17 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
                         var ghe = await _context.Ghes.FindAsync(maGhe);
                         decimal giaThucTe = (ghe?.LoaiGhe == "VIP") ? (checkLichTrinh!.GiaVeCoBan * 1.2m) : (checkLichTrinh!.GiaVeCoBan);
 
+                        // Kiểm tra xem ghế đã bị ai đặt nhanh tay hơn chưa
+                        var gheDaTonTai = await _context.Ves.AnyAsync(v =>
+                            v.MaLichTrinh == vm.MaLichTrinh &&
+                            v.MaGhe == maGhe &&
+                            v.TrangThai != "Đã hủy");
+
+                        if (gheDaTonTai)
+                        {
+                            throw new Exception($"Ghế số {maGhe} đã được đặt bởi người khác trong lúc bạn đang thao tác.");
+                        }
+
                         _context.Ves.Add(new Ve
                         {
                             MaHoaDon = hoaDon.MaHoaDon,
@@ -225,17 +236,15 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    // GHI LOG THEO DÕI NHÂN VIÊN LẬP HÓA ĐƠN
-                    await GhiLogHeThong("Lập hóa đơn", $"Nhân viên lập HD #{hoaDon.MaHoaDon} - Tổng tiền: {hoaDon.TongTien:N0}đ");
-
+                    await GhiLogHeThong("Lập hóa đơn", $"Nhân viên tạo HD #{hoaDon.MaHoaDon}");
                     TempData["SuccessMessage"] = $"Lập hóa đơn #{hoaDon.MaHoaDon} thành công!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    await GhiLogHeThong("Lỗi lập hóa đơn", ex.Message, "Error");
-                    ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu dữ liệu: " + ex.Message);
+                    await GhiLogHeThong("Lỗi nghiệp vụ", ex.Message, "Error");
+                    ModelState.AddModelError("", "Đã xảy ra lỗi: " + ex.Message);
                 }
             }
 
@@ -331,8 +340,6 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
                 hoaDon.PhuongThucTT = method;
 
                 await _context.SaveChangesAsync();
-
-                // GHI LOG KHI NHÂN VIÊN THAY ĐỔI TRẠNG THÁI THANH TOÁN
                 await GhiLogHeThong("Cập nhật thanh toán", $"HD #{id}: {oldStatus} -> {status}");
 
                 return Json(new { success = true, message = "Cập nhật thành công!" });
@@ -342,6 +349,9 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
+
+        // Lưu ý: Thường nhân viên không nên có quyền xóa vĩnh viễn hóa đơn (DeleteConfirmed)
+        // Bạn có thể cân nhắc gỡ bỏ action Delete nếu chỉ muốn Admin mới có quyền xóa.
 
         #endregion
 

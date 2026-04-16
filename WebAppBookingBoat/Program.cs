@@ -51,7 +51,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 });
 
-builder.Services.AddHostedService<BookingCleanupService>();
+//builder.Services.AddHostedService<BookingCleanupService>();
 
 var app = builder.Build();
 

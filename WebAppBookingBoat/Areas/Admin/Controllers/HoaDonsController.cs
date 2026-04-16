@@ -209,6 +209,17 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         var ghe = await _context.Ghes.FindAsync(maGhe);
                         decimal giaThucTe = (ghe?.LoaiGhe == "VIP") ? (checkLichTrinh!.GiaVeCoBan * 1.2m) : (checkLichTrinh!.GiaVeCoBan);
 
+                        // Kiểm tra xem ghế đã bị ai đặt nhanh tay hơn chưa
+                        var gheDaTonTai = await _context.Ves.AnyAsync(v =>
+                            v.MaLichTrinh == vm.MaLichTrinh &&
+                            v.MaGhe == maGhe &&
+                            v.TrangThai != "Đã hủy");
+
+                        if (gheDaTonTai)
+                        {
+                            throw new Exception($"Ghế số {maGhe} đã được đặt bởi người khác trong lúc bạn đang thao tác.");
+                        }
+
                         _context.Ves.Add(new Ve
                         {
                             MaHoaDon = hoaDon.MaHoaDon,
