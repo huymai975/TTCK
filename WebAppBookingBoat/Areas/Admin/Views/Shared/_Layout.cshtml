@@ -109,7 +109,7 @@
 
 			<!-- Sidebar - Brand -->
 			<li>
-				<a class="sidebar-brand d-flex align-items-center justify-content-center" asp-area="" asp-controller="Home">
+				<a class="sidebar-brand d-flex align-items-center justify-content-center" asp-area="" asp-controller="Home" asp-action="Index">
 					<div class="sidebar-brand-icon rotate-n-15">
 						<i class="fas fa-laugh-wink"></i>
 					</div>
@@ -131,46 +131,51 @@
 			</li>
 
 			<!-- Divider -->
-			<li><hr class="sidebar-divider"></li>
+			<hr class="sidebar-divider">
 
-			<!-- Heading -->
-			<li>
-				<div class="sidebar-heading">
-					Interface
-				</div>
+			<div class="sidebar-heading">
+				Hệ thống
+			</div>
+
+			<li class="nav-item">
+				<a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+					<i class="fas fa-fw fa-home"></i>
+					<span>Quay về Trang chủ</span>
+				</a>
 			</li>
 
-			<!-- Nav Item - Pages Collapse Menu -->
 			<li class="nav-item">
-				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-				   aria-expanded="true" aria-controls="collapseTwo">
-					<i class="fas fa-fw fa-cog"></i>
-					<span>Components</span>
+				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAdmin"
+				   aria-expanded="true" aria-controls="collapseAdmin">
+					<i class="fas fa-fw fa-user-shield"></i>
+					<span>Quản trị Hệ thống</span>
 				</a>
-				<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+				<div id="collapseAdmin" class="collapse" aria-labelledby="headingAdmin" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
-						<h6 class="collapse-header">Custom Components:</h6>
-						<a class="collapse-item" href="buttons.html">Buttons</a>
-						<a class="collapse-item" href="cards.html">Cards</a>
-					</div>
-				</div>
-			</li>
+						<h6 class="collapse-header">Phân quyền & Bảo mật:</h6>
 
-			<!-- Nav Item - Utilities Collapse Menu -->
-			<li class="nav-item">
-				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-				   aria-expanded="true" aria-controls="collapseUtilities">
-					<i class="fas fa-fw fa-wrench"></i>
-					<span>Utilities</span>
-				</a>
-				<div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
-					 data-parent="#accordionSidebar">
-					<div class="bg-white py-2 collapse-inner rounded">
-						<h6 class="collapse-header">Custom Utilities:</h6>
-						<a class="collapse-item" href="utilities-color.html">Colors</a>
-						<a class="collapse-item" href="utilities-border.html">Borders</a>
-						<a class="collapse-item" href="utilities-animation.html">Animations</a>
-						<a class="collapse-item" href="utilities-other.html">Other</a>
+						@* 1. Quản lý các nhóm quyền (Role) *@
+						<a class="collapse-item" asp-area="Admin" asp-controller="Roles" asp-action="Index">
+							<i class="fas fa-key fa-sm fa-fw mr-2 text-gray-400"></i> Nhóm quyền
+						</a>
+
+						@* 2. Gán quyền cho người dùng (Phân quyền) *@
+						<a class="collapse-item" asp-area="Admin" asp-controller="Roles" asp-action="UserRoles">
+							<i class="fas fa-user-tag fa-sm fa-fw mr-2 text-gray-400"></i> Phân quyền User
+						</a>
+
+						@* 3. Quản lý tài khoản *@
+						<a class="collapse-item" asp-area="Admin" asp-controller="Users" asp-action="Index">
+							<i class="fas fa-users fa-sm fa-fw mr-2 text-gray-400"></i> Danh sách tài khoản
+						</a>
+
+						<div class="collapse-divider"></div>
+						<h6 class="collapse-header">Giám sát:</h6>
+
+						@* 4. Nhật ký hệ thống (Logs) *@
+						<a class="collapse-item d-flex align-items-center" asp-area="Admin" asp-controller="Logs" asp-action="Index">
+							<i class="fas fa-history fa-sm fa-fw mr-2 text-gray-400"></i> Nhật ký hoạt động
+						</a>
 					</div>
 				</div>
 			</li>

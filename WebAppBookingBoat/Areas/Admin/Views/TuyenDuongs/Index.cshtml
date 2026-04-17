@@ -176,7 +176,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#dataTableRoutes').DataTable({
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
@@ -189,17 +189,18 @@
                 },
                 "pageLength": 10,
                 "order": [[0, "desc"]],
-                "columnDefs": [ { "orderable": false, "targets": [2, 5] } ],
+                "columnDefs": [{ "orderable": false, "targets": [2, 5] }],
                 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                       "<'row'<'col-sm-12'tr>>" +
-                       "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-                "drawCallback": function() {
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "drawCallback": function () {
                     $('.dataTables_paginate > .pagination').addClass('pagination-sm');
                 }
             });
-        });
+        }); // Đóng document.ready đúng chỗ
 
-                function deleteTuyenDuongAjax(id, name) {
+        // Hàm này phải nằm NGOÀI document.ready để nút HTML có thể gọi được
+        function deleteTuyenDuongAjax(id, name) {
             Swal.fire({
                 title: 'Xác nhận xóa?',
                 text: `Bạn có chắc muốn xóa tuyến "${name}"?`,
@@ -212,7 +213,6 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        // Đảm bảo gọi đúng Controller TuyenDuongs thay vì KhachHangs
                         url: '@Url.Action("DeleteConfirmedAjax", "TuyenDuongs")',
                         type: 'POST',
                         data: {
@@ -231,7 +231,6 @@
                                     location.reload();
                                 });
                             } else {
-                                // Thông báo lỗi nếu tuyến đường đang có lịch trình/vé gắn liền
                                 Swal.fire('Không thể xóa!', response.message, 'error');
                             }
                         },

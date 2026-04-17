@@ -292,35 +292,70 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != vm.MaLichTrinh) return NotFound();
 
-            // Lấy dữ liệu gốc từ DB để so sánh
+            // 1. Lấy dữ liệu gốc từ DB (AsNoTracking để không bị track khi cập nhật sau này)
             var lichTrinhDb = await _context.LichTrinhs.AsNoTracking().FirstOrDefaultAsync(l => l.MaLichTrinh == id);
             if (lichTrinhDb == null) return NotFound();
 
-            // GỌI VALIDATE TẠI ĐÂY
+            // 2. Gọi logic kiểm tra nghiệp vụ (Validate trùng lịch, tàu sẵn sàng, đã bán vé chưa...)
             await ValidateLichTrinhBusiness(vm, isEdit: true, lichTrinhDb: lichTrinhDb);
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // 3. Lấy thực thể cần cập nhật từ DB
                     var lichTrinh = await _context.LichTrinhs.FindAsync(id);
-                    // ... (gán dữ liệu từ vm sang lichTrinh như code cũ của bạn) ...
+                    if (lichTrinh == null) return NotFound();
 
-                    _context.Update(lichTrinh!);
+                    // 4. Cập nhật các thông tin từ ViewModel
+                    lichTrinh.MaTuyen = vm.MaTuyen;
+                    lichTrinh.MaTau = vm.MaTau;
+                    lichTrinh.NgayGioKhoiHanh = vm.NgayGioKhoiHanh;
+                    lichTrinh.NgayGioCapBenDuKien = vm.NgayGioCapBenDuKien;
+                    lichTrinh.GiaVeCoBan = vm.GiaVeCoBan;
+                    lichTrinh.TrangThai = vm.TrangThai;
 
-                    await GhiLogHeThong("Thay đổi giờ chạy", "LichTrinhs",
-                            $"ID: {id}. Giờ cũ: {lichTrinhDb.NgayGioKhoiHanh} -> Giờ mới: {vm.NgayGioKhoiHanh}. Cảnh báo: Lịch này đã có khách đặt vé!", "Warning");
+                    // 5. Tính toán lại số ghế trống nếu có thay đổi tàu (Phòng trường hợp Admin đổi tàu chưa bán vé)
+                    if (lichTrinhDb.MaTau != vm.MaTau)
+                    {
+                        lichTrinh.SoGheTrong = await _context.Ghes.CountAsync(g => g.MaTau == vm.MaTau);
+                    }
 
+                    // 6. Ghi Log hệ thống
+                    string logNoiDung = $"Cập nhật lịch trình ID: {id}.";
+                    if (lichTrinhDb.NgayGioKhoiHanh != vm.NgayGioKhoiHanh)
+                        logNoiDung += $" Đổi giờ: {lichTrinhDb.NgayGioKhoiHanh:HH:mm dd/MM} -> {vm.NgayGioKhoiHanh:HH:mm dd/MM}.";
+
+                    await GhiLogHeThong("Chỉnh sửa lịch trình", "LichTrinhs", logNoiDung,
+                        lichTrinhDb.NgayGioKhoiHanh != vm.NgayGioKhoiHanh ? "Warning" : "Info");
+
+                    // 7. Lưu thay đổi
+                    _context.Update(lichTrinh);
                     await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Cập nhật lịch trình thành công!";
                     return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException) { /* ... */ }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!LichTrinhExists(vm.MaLichTrinh)) return NotFound();
+                    else throw;
+                }
+                catch (Exception)
+                {
+                    ModelState.AddModelError("", "Lỗi hệ thống khi lưu chỉnh sửa. Vui lòng thử lại.");
+                }
             }
 
+            // Nếu có lỗi, load lại dữ liệu Dropdown để hiển thị lại View Edit
             LoadDropdownData(vm);
             return View(vm);
         }
 
+        private bool LichTrinhExists(int id)
+        {
+            return _context.LichTrinhs.Any(e => e.MaLichTrinh == id);
+        }
         #endregion
 
         #region DELETE

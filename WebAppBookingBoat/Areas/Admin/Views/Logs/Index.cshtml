@@ -75,21 +75,32 @@
 
     <div class="card shadow-sm mb-4 border-0">
         <div class="card-body p-3" style="background-color: #f8f9fc;">
-            <div class="d-flex align-items-center flex-wrap">
-                <div class="input-group input-group-sm shadow-sm mr-2" style="width: 250px;">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text bg-info text-white border-0"><i class="fas fa-filter"></i></span>
-                    </div>
-                    <select id="typeFilter" class="form-control border-0 font-weight-bold text-info">
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <label class="small font-weight-bold text-muted">Loại Log</label>
+                    <select id="typeFilter" class="form-control form-control-sm border-0 shadow-sm font-weight-bold text-info">
                         <option value="">Tất cả loại Log</option>
                         <option value="Info">Info</option>
                         <option value="Warning">Warning</option>
                         <option value="Error">Error</option>
                     </select>
                 </div>
-                <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white" title="Làm mới">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
+                <div class="col-md-3">
+                    <label class="small font-weight-bold text-muted">Từ ngày</label>
+                    <input type="date" id="fromDate" class="form-control form-control-sm border-0 shadow-sm">
+                </div>
+                <div class="col-md-3">
+                    <label class="small font-weight-bold text-muted">Đến ngày</label>
+                    <input type="date" id="toDate" class="form-control form-control-sm border-0 shadow-sm">
+                </div>
+                <div class="col-md-3 text-right">
+                    <button id="btnResetFilter" class="btn btn-sm btn-light shadow-sm mr-2" title="Làm mới">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button type="button" onclick="deleteLogsByDate()" class="btn btn-sm btn-danger shadow-sm font-weight-bold">
+                        <i class="fas fa-eraser mr-1"></i> Xóa theo ngày
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -155,53 +166,130 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         var table;
+
+        // 1. Logic lọc ngày tùy chỉnh cho DataTable (Global)
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            var from = $('#fromDate').val();
+            var to = $('#toDate').val();
+
+            // Lấy cột ngày (cột 0), cắt bỏ phần giờ để so sánh ngày
+            var dateStr = data[0].split(' ')[0];
+            var parts = dateStr.split('/');
+            var rowDate = new Date(parts[2], parts[1] - 1, parts[0]);
+
+            var min = from ? new Date(from) : null;
+            var max = to ? new Date(to) : null;
+
+            if (min) min.setHours(0,0,0,0);
+            if (max) max.setHours(23,59,59,999);
+
+            if ((min === null && max === null) ||
+                (min === null && rowDate <= max) ||
+                (min <= rowDate && max === null) ||
+                (min <= rowDate && rowDate <= max)) {
+                return true;
+            }
+            return false;
+        });
+
         $(document).ready(function() {
+            // 2. Khử lỗi "Cannot reinitialise"
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                $('#dataTable').DataTable().destroy();
+            }
+
+            // 3. Khởi tạo DataTable duy nhất một lần
             table = $('#dataTable').DataTable({
+                "processing": true,
+                "deferRender": true,
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
                     "searchPlaceholder": "Tìm tài khoản, hành động...",
                     "paginate": {
                         "previous": "<i class='fas fa-angle-left'></i>",
-                        "next": "<i class='fas fa-angle-right'></i>",
-                        "first": "<i class='fas fa-angle-double-left'></i>",
-                        "last": "<i class='fas fa-angle-double-right'></i>"
+                        "next": "<i class='fas fa-angle-right'></i>"
                     }
                 },
                 "pageLength": 10,
-                "order": [[0, "desc"]],
-                 "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                "order": [[0, "desc"]], // Mới nhất lên đầu
+                "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                        "<'row'<'col-sm-12'tr>>" +
                        "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             });
 
-            $('#typeFilter').on('change', function() {
-                var val = $(this).val();
-                table.column(2).search(val ? '^' + val + '$' : '', true, false).draw();
+            // 4. Sự kiện khi thay đổi các bộ lọc (Type, FromDate, ToDate)
+            $('#typeFilter, #fromDate, #toDate').on('change', function() {
+                var type = $('#typeFilter').val();
+                // Lọc chính xác ở cột Loại (cột 2)
+                table.column(2).search(type ? '^' + type + '$' : '', true, false);
+                table.draw();
             });
 
+            // 5. Nút Làm mới (Reset)
             $('#btnResetFilter').on('click', function() {
-                $('#typeFilter').val('');
+                $('#typeFilter, #fromDate, #toDate').val('');
                 table.search('').column(2).search('').draw();
             });
         });
 
-                function deleteLogAjax(id) {
+        // 6. Hàm xóa hàng loạt theo ngày
+        function deleteLogsByDate() {
+            var from = $('#fromDate').val();
+            var to = $('#toDate').val();
+
+            if (!from || !to) {
+                Swal.fire('Chú ý', 'Vui lòng chọn cả "Từ ngày" và "Đến ngày" để thực hiện!', 'info');
+                return;
+            }
+
             Swal.fire({
-                title: 'Xác nhận xóa Log?',
-                text: `Bản ghi nhật ký #${id} sẽ bị xóa vĩnh viễn khỏi hệ thống!`,
+                title: 'Xóa nhật ký hàng loạt?',
+                text: `Tất cả dữ liệu từ ${from} đến ${to} sẽ bị xóa vĩnh viễn!`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#e74a3b', // Màu đỏ giống trang Lịch trình
-                cancelButtonColor: '#858796',
-                confirmButtonText: 'Đồng ý xóa',
+                confirmButtonColor: '#e74a3b',
+                confirmButtonText: 'Xác nhận xóa sạch',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '@Url.Action("Delete", "Logs")', // Đảm bảo tên Controller là Logs
+                        url: '@Url.Action("DeleteByRange", "Logs")',
+                        type: 'POST',
+                        data: {
+                            fromDate: from,
+                            toDate: to,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Thành công!', response.message, 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Lỗi!', response.message, 'error');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // 7. Hàm xóa đơn lẻ (Ajax)
+        function deleteLogAjax(id) {
+            Swal.fire({
+                title: 'Xác nhận xóa?',
+                text: `Xóa bản ghi nhật ký #${id}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Logs")',
                         type: 'POST',
                         data: {
                             id: id,
@@ -210,23 +298,16 @@
                         success: function (response) {
                             if (response.success) {
                                 Swal.fire({
-                                    title: 'Thành công!',
-                                    text: response.message,
+                                    title: 'Đã xóa!',
                                     icon: 'success',
-                                    timer: 1500,
+                                    timer: 1000,
                                     showConfirmButton: false
                                 }).then(() => {
-                                    // location.reload();
-
-                                    // Cách 2: xóa dòng đó trên DataTable mà không load lại trang:
                                     table.row($(`button[onclick*='deleteLogAjax(${id})']`).parents('tr')).remove().draw();
                                 });
                             } else {
                                 Swal.fire('Lỗi!', response.message, 'error');
                             }
-                        },
-                        error: function () {
-                            Swal.fire('Thất bại!', 'Không thể kết nối tới máy chủ.', 'error');
                         }
                     });
                 }

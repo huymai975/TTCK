@@ -33,7 +33,7 @@ namespace WebAppBookingBoat.Models
         [Required]
         [StringLength(50)]
         [Display(Name = "Trạng thái")]
-        public string TrangThai { get; set; } = "Chưa thanh toán"; // Ví dụ: Chưa thanh toán, Hợp lệ, Đã sử dụng, Đã hủy
+        public string TrangThai { get; set; } = "Chưa thanh toán"; // Ví dụ: Đang chờ, Hợp lệ, Đã hủy
 
 
         // --- LIÊN KẾT VỚI GHẾ ---
@@ -43,10 +43,5 @@ namespace WebAppBookingBoat.Models
 
         [ForeignKey("MaGhe")]
         public virtual Ghe? Ghe { get; set; }
-
-        // --- Navigation Property ---
-
-        // Một vé chỉ có tối đa một đánh giá (1-1 hoặc 1-0)
-        public virtual DanhGia? DanhGia { get; set; }
     }
 }

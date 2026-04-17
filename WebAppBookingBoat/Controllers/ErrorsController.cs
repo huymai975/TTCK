@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebAppBookingBoat.Models;
 using WebAppBookingBoat.Repository;
@@ -19,42 +20,51 @@ namespace WebAppBookingBoat.Controllers // Không có .Areas.Admin
         [Route("Error/{statusCode}")]
         public async Task<IActionResult> HttpStatusCodeHandler(int statusCode)
         {
-            var originalPath = HttpContext.Items["OriginalPath"]?.ToString() ?? Request.Path.ToString();
+            // Lấy thông tin về yêu cầu gốc bị lỗi
+            var statusCodeReExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+
+            string originalPath = "";
+            string queryString = "";
+
+            if (statusCodeReExecuteFeature != null)
+            {
+                // Đây chính là URL dẫn đến lỗi (Ví dụ: /Admin/Tau/Details/999)
+                originalPath = statusCodeReExecuteFeature.OriginalPath;
+                queryString = statusCodeReExecuteFeature.OriginalQueryString;
+            }
+            else
+            {
+                originalPath = HttpContext.Items["OriginalPath"]?.ToString() ?? Request.Path.ToString();
+            }
+
             var userId = _userManager.GetUserId(User);
 
-            // --- LOGIC GHI LOG VẪN GIỮ NGUYÊN ---
+            // Ghi Log chi tiết hơn
             var log = new Log
             {
                 MaTK = userId,
-                HanhDong = "Lỗi hệ thống",
-                BangTacDong = "HTTP " + statusCode,
-                NoiDungChiTiet = $"Lỗi {statusCode} tại {originalPath}",
-                LoaiLog = statusCode == 403 ? "Critical" : "Warning",
+                HanhDong = "Lỗi HTTP " + statusCode,
+                BangTacDong = "SystemError",
+                // Ghi rõ Path và QueryString để bạn dễ debug
+                NoiDungChiTiet = $"Lỗi tại: {originalPath}{queryString}. Trạng thái: {statusCode}",
+                LoaiLog = statusCode >= 500 ? "Critical" : "Warning",
                 ThoiGian = DateTime.Now,
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
             };
+
             _context.Logs.Add(log);
             await _context.SaveChangesAsync();
-            // ------------------------------------
 
             ViewBag.StatusCode = statusCode;
+            ViewBag.OriginalPath = originalPath; // Truyền ra View để hiện cho user nếu cần
 
-            ViewBag.ErrorMessage = statusCode switch
-            {
-                404 => "Trang bạn tìm kiếm không tồn tại.",
-                403 => "Bạn không có quyền truy cập chức năng này.",
-                500 => "Hệ thống đang bảo trì, vui lòng thử lại sau.",
-                _ => "Đã xảy ra lỗi không xác định."
-            };
-
-            // TỰ ĐỘNG CHỌN LAYOUT
-            // Nếu URL chứa chữ "/Admin", nó sẽ tìm View kèm Layout Admin (nếu bạn cấu hình View chuẩn)
+            // Logic chọn View và Layout của bạn giữ nguyên
             if (originalPath.Contains("/Admin", StringComparison.OrdinalIgnoreCase))
             {
-                return View("NotFound"); // Tạo file AdminError.cshtml trong Views/Errors
+                return View("NotFound");
             }
 
-            return View("GenericError"); // Tạo file GenericError.cshtml trong Views/Errors
+            return View("GenericError");
         }
     }
 }

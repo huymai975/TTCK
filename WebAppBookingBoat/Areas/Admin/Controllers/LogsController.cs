@@ -23,27 +23,31 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         // GET: Admin/Logs
         public async Task<IActionResult> Index(string searchString, string loaiLog)
         {
-            // Lấy danh sách log và nạp thông tin User liên quan
+            // Sử dụng AsNoTracking để tăng tốc truy vấn đọc
             var logsQuery = _context.Logs
+                .AsNoTracking()
                 .Include(l => l.AppUser)
-                .OrderByDescending(l => l.ThoiGian) // Log mới nhất hiện lên đầu
+                .OrderByDescending(l => l.ThoiGian)
                 .AsQueryable();
 
-            // Bộ lọc theo loại (Info/Warning/Error)
+            // Bộ lọc theo loại
             if (!string.IsNullOrEmpty(loaiLog))
             {
                 logsQuery = logsQuery.Where(l => l.LoaiLog == loaiLog);
             }
 
-            // Bộ lọc tìm kiếm theo hành động hoặc nội dung
+            // Bộ lọc tìm kiếm
             if (!string.IsNullOrEmpty(searchString))
             {
-                // Sử dụng toán tử ?. hoặc kiểm tra null như trên
                 logsQuery = logsQuery.Where(l => (l.HanhDong != null && l.HanhDong.Contains(searchString))
-                                              || (l.NoiDungChiTiet != null && l.NoiDungChiTiet.Contains(searchString)));
+                                              || (l.NoiDungChiTiet != null && l.NoiDungChiTiet.Contains(searchString))
+                                              || (l.AppUser!.UserName != null && l.AppUser.UserName.Contains(searchString)));
             }
 
-            return View(await logsQuery.ToListAsync());
+            // QUAN TRỌNG: Chỉ lấy 300 bản ghi mới nhất để Index luôn mượt
+            var result = await logsQuery.Take(300).ToListAsync();
+
+            return View(result);
         }
 
         // GET: Admin/Logs/Details/5
@@ -81,6 +85,32 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteByRange(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                // Đảm bảo lấy hết dữ liệu trong ngày toDate bằng cách so sánh đến 23:59:59
+                var logsToDelete = _context.Logs
+                    .Where(l => l.ThoiGian.Date >= fromDate.Date && l.ThoiGian.Date <= toDate.Date);
+
+                int count = await logsToDelete.CountAsync(); // Lấy số lượng trước khi xóa
+
+                if (count > 0)
+                {
+                    _context.Logs.RemoveRange(logsToDelete);
+                    await _context.SaveChangesAsync();
+                }
+
+                return Json(new { success = true, message = $"Đã dọn dẹp thành công {count} bản ghi nhật ký." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi xóa: " + ex.Message });
             }
         }
 

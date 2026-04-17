@@ -1,0 +1,69 @@
+﻿@model WebAppBookingBoat.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Chi tiết Khách hàng";
+}
+
+<div class="container-fluid">
+    <div class="card shadow border-0 overflow-hidden">
+        <div class="card-header bg-primary py-3">
+            <h6 class="m-0 font-weight-bold text-white"><i class="fas fa-id-card mr-2"></i>Thông tin chi tiết: @Model.HoTen</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 text-center border-right">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-7x text-gray-300"></i>
+                    </div>
+                    <h5 class="font-weight-bold text-dark mb-1">#@Model.MaKH</h5>
+                    <div class="badge badge-primary px-3 py-2 mb-3">Khách hàng hệ thống</div>
+                </div>
+                <div class="col-md-8">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="pl-0 text-muted small w-25">Họ và tên:</th>
+                                <td class="font-weight-bold text-dark">@Model.HoTen</td>
+                            </tr>
+                            <tr>
+                                <th class="pl-0 text-muted small">Điện thoại:</th>
+                                <td class="text-success font-weight-bold">@Model.Sdt</td>
+                            </tr>
+                            <tr>
+                                <th class="pl-0 text-muted small">Email:</th>
+                                <td class="text-primary">@Model.Email</td>
+                            </tr>
+                            <tr>
+                                <th class="pl-0 text-muted small">Ngày sinh:</th>
+                                <td>@(Model.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</td>
+                            </tr>
+                            <tr>
+                                <th class="pl-0 text-muted small">Địa chỉ:</th>
+                                <td>@Model.DiaChi</td>
+                            </tr>
+                            <tr>
+                                <th class="pl-0 text-muted small">Tài khoản liên kết:</th>
+                                <td>
+                                    @if (Model.AppUser != null)
+                                    {
+                                        <span class="text-info font-weight-bold"><i class="fas fa-link mr-1"></i> @Model.AppUser.UserName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted italic">Chưa liên kết</span>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-end">
+                <a asp-action="Index" class="btn btn-secondary btn-sm px-4">
+                    <i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

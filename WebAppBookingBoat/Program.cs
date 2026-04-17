@@ -55,6 +55,20 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var roles = new[] { "Admin", "Staff", "Customer" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -74,10 +88,6 @@ app.UseRouting();
 app.UseAuthentication(); // XÁC THỰC: Ai đang truy cập? 
 app.UseAuthorization();  // PHÂN QUYỀN: Họ có quyền làm gì?
 
-
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Dashboards}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
       name: "areas",

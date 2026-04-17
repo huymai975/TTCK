@@ -1,0 +1,78 @@
+﻿@model WebAppBookingBoat.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Thêm Khách hàng mới";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 mb-4">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-user-plus mr-2"></i>TIẾP NHẬN HỒ SƠ KHÁCH HÀNG</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="small font-weight-bold text-dark">Họ và tên <span class="text-danger">*</span></label>
+                                    <input asp-for="HoTen" class="form-control form-control-user shadow-sm" placeholder="Nhập họ tên..." />
+                                    <span asp-validation-for="HoTen" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="small font-weight-bold text-dark">Số điện thoại <span class="text-danger">*</span></label>
+                                    <input asp-for="Sdt" class="form-control shadow-sm" placeholder="Ví dụ: 0987..." />
+                                    <span asp-validation-for="Sdt" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="small font-weight-bold text-dark">Email <span class="text-danger">*</span></label>
+                                    <input asp-for="Email" class="form-control shadow-sm" placeholder="customer@example.com" />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="small font-weight-bold text-dark">Ngày sinh</label>
+                                    <input asp-for="NgaySinh" type="date" class="form-control shadow-sm" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label class="small font-weight-bold text-dark">Địa chỉ</label>
+                            <textarea asp-for="DiaChi" class="form-control shadow-sm" rows="2" placeholder="Nhập địa chỉ tạm trú/thường trú..."></textarea>
+                        </div>
+
+                        <div class="form-group mt-3 bg-light p-3 rounded">
+                            <label class="small font-weight-bold text-primary">Liên kết tài khoản hệ thống (Nếu có)</label>
+                            <select asp-for="MaTK" class="form-control select2 shadow-sm" asp-items="ViewBag.MaTK">
+                                <option value="">-- Khách vãng lai (Chưa có tài khoản) --</option>
+                            </select>
+                            <small class="text-muted">Chỉ hiển thị các tài khoản chưa được gán cho ai.</small>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-light btn-sm px-4 shadow-sm border">
+                                <i class="fas fa-chevron-left mr-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-sm px-5 shadow">
+                                <i class="fas fa-save mr-1"></i> Lưu hồ sơ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

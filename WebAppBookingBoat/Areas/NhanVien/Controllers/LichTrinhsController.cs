@@ -7,7 +7,7 @@ using WebAppBookingBoat.ViewModels;
 namespace WebAppBookingBoat.Areas.NhanVien.Controllers
 {
     [Area("NhanVien")]
-    [Authorize(Roles = "NhanVien,Admin")] // Cho phép cả NV và Admin truy cập
+    [Authorize(Roles = "Staff,Admin, Nhân viên")] // Cho phép cả NV và Admin truy cập
     public class LichTrinhsController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -66,13 +66,28 @@
 		}
 	}
 
+	.auth-dropdown .dropdown-menu::before {
+		content: "";
+		position: absolute;
+		top: -20px; /* Độ cao lấp đầy khoảng trống giữa nút và menu */
+		left: 0;
+		right: 0;
+		height: 20px;
+		background: transparent;
+	}
+
+	/* Đảm bảo menu hiển thị ngay sát phía dưới avatar */
+	.auth-dropdown .dropdown-menu {
+		margin-top: 5px !important; /* Giảm khoảng cách này lại */
+		transition: all 0.2s ease-in-out;
+	}
 </style>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-	<title>WaterBoat &mdash; Website Template by Colorlib</title>
+	<title>WaterBoat &mdash; Website Booking</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -270,6 +285,53 @@
 			text-decoration: none !important;
 			color: #4e73df !important;
 		}
+
+		/* Container chứa dropdown */
+.auth-dropdown {
+    position: relative;
+}
+
+/* Tùy chỉnh menu Dropdown */
+.auth-dropdown .dropdown-menu {
+    display: block; /* Luôn để block để CSS Transition có tác dụng */
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(15px); /* Đẩy xuống một chút để tạo hiệu ứng trượt lên */
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Hiệu ứng đàn hồi */
+    pointer-events: none; /* Tránh click nhầm khi đang ẩn */
+    
+    /* Căn chỉnh để không bị lệch */
+    top: 100%;
+    right: 0 !important; 
+    left: auto !important;
+}
+
+/* Khi menu được mở (Bootstrap thêm class .show) */
+.auth-dropdown .dropdown-menu.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Hiệu ứng Hover cho các Item bên trong */
+.auth-dropdown .dropdown-item {
+    transition: background 0.2s, padding-left 0.2s;
+}
+
+.auth-dropdown .dropdown-item:hover {
+    background-color: #f8f9fc;
+    padding-left: 1.75rem; /* Nhích nhẹ sang phải khi hover */
+}
+
+/* Avatar hover nhẹ */
+.avatar-wrapper {
+    transition: transform 0.2s;
+}
+
+.auth-dropdown:hover .avatar-wrapper {
+    transform: scale(1.05);
+}
 	</style>
 
 </head>
@@ -354,7 +416,7 @@
 										@* Thêm position-relative ở đây *@
 										<a class="nav-link dropdown-toggle p-0 d-flex align-items-center" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 											<div class="text-right mr-3 d-none d-lg-block">
-												<span class="d-block text-dark font-weight-bold" style="font-size: 0.8rem; line-height: 1.2;">Xin chào,</span>
+												<span class="d-block text-dark font-weight-bold" style="font-size: 0.8rem; line-height: 1.2;">Xin chào</span>
 												<small class="text-primary font-weight-bold">@UserManager.GetUserName(User)</small>
 											</div>
 											<div class="avatar-wrapper">
@@ -376,14 +438,24 @@
 											</div>
 
 											<div class="bg-white rounded-bottom overflow-hidden">
-												<a class="dropdown-item py-3 border-bottom" asp-controller="Account" asp-action="Profile">
+												<a class="dropdown-item py-3 border-bottom" asp-area="" asp-controller="Account" asp-action="Index">
 													<i class="fas fa-user-cog fa-sm fa-fw mr-3 text-gray-400"></i> Hồ sơ của tôi
 												</a>
-
-												@if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+												@if (User.IsInRole("Admin"))
 												{
 													<a class="dropdown-item py-3 border-bottom text-primary font-weight-bold" asp-area="Admin" asp-controller="Dashboards" asp-action="Index">
 														<i class="fas fa-user-shield fa-sm fa-fw mr-3"></i> Quản trị hệ thống
+													</a>
+												}
+												else if (User.IsInRole("Staff"))
+												{
+													<a class="dropdown-item py-3 border-bottom text-primary font-weight-bold" asp-area="NhanVien" asp-controller="HoaDons" asp-action="Index">
+														<i class="fas fa-user-shield fa-sm fa-fw mr-3"></i> Nghiệp vụ bán hàng
+													</a>
+												}else if (User.IsInRole("Customer"))
+												{
+													<a class="dropdown-item py-3 border-bottom" asp-area="" asp-controller="Booking" asp-action="MyOrders">
+														<i class="fas fa-history fa-sm fa-fw mr-3 text-gray-400"></i> Lịch sử đơn hàng
 													</a>
 												}
 
@@ -512,7 +584,7 @@
 					<div class="mt-4 pt-2">
 						<p class="small text-muted mb-2">Đối tác thanh toán:</p>
 						<img src="~/images/vnpay-logo.jpg" alt="VNPay" class="img-fluid shadow-sm border p-1 rounded bg-white" style="width: 50px;">
-						<img src="~/images/momo-logo.png" alt="Momo" class="img-fluid shadow-sm border p-1 rounded bg-white ml-2" style="width: 30px;">
+						@* <img src="~/images/momo-logo.png" alt="Momo" class="img-fluid shadow-sm border p-1 rounded bg-white ml-2" style="width: 30px;"> *@
 					</div>
 				</div>
 			</div>
