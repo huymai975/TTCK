@@ -1,0 +1,289 @@
+﻿@model IEnumerable<WebAppBookingBoat.Models.ViewModels.KhuyenMaiViewModel>
+
+@{
+    ViewData["Title"] = "Ưu đãi đặc biệt";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .details-wrapper {
+        padding-top: 160px;
+        background: #ffffff;
+        min-height: 100vh;
+    }
+
+    /* Header */
+    .promo-header {
+        max-width: 700px;
+        margin: 0 auto 70px;
+    }
+
+        .promo-header h1 {
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: #1a1d23;
+            font-size: 2.8rem;
+        }
+
+        .promo-header .accent-line {
+            width: 50px;
+            height: 5px;
+            background: #007bff;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+
+    /* Card Design */
+    .promo-info-card {
+        border: 1px solid #f0f0f0;
+        border-radius: 24px;
+        background: #fff;
+        transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+        cursor: pointer;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .promo-info-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        }
+
+    .promo-img-wrapper {
+        height: 240px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .promo-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+    .promo-info-card:hover .promo-img-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .glass-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 123, 255, 0.85);
+        backdrop-filter: blur(12px);
+        color: #fff;
+        padding: 8px 20px;
+        border-radius: 100px;
+        font-weight: 700;
+        z-index: 2;
+    }
+
+    .card-body-premium {
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .promo-category {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #007bff;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .promo-title {
+        font-weight: 700;
+        font-size: 1.35rem;
+        color: #1a1d23;
+        margin-bottom: 15px;
+    }
+
+    /* Copy Code Box */
+    .promo-code-box {
+        background: #f8faff;
+        border-radius: 16px;
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 20px 0;
+        border: 1px dashed #007bff;
+        transition: 0.3s;
+    }
+
+        .promo-code-box:hover {
+            background: #eef6ff;
+        }
+
+    .code-value {
+        font-family: 'Monaco', monospace;
+        font-weight: 800;
+        color: #1a1d23;
+        font-size: 1.1rem;
+    }
+
+    .copy-btn {
+        background: none;
+        border: none;
+        color: #007bff;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .footer-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        color: #8c949d;
+        margin-top: auto;
+    }
+
+    /* Phân trang bo tròn */
+    .pagination .page-link {
+        border: none;
+        margin: 0 5px;
+        border-radius: 50% !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1a1d23;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #007bff;
+        color: #fff;
+    }
+
+    .promo-info-card {
+        margin-bottom: 30px; /* Ép khoảng cách dưới mỗi card */
+    }
+</style>
+
+<div class="details-wrapper pb-5">
+    <div class="container">
+        <div class="promo-header text-center">
+            <span class="text-primary fw-bold text-uppercase small" style="letter-spacing: 3px;">Exclusive Offers</span>
+            <h1 class="mt-2">Đặc Quyền WaterBoat</h1>
+            <div class="accent-line"></div>
+            <p class="text-muted fs-5">Tận hưởng hành trình sang trọng với những ưu đãi dành riêng cho bạn.</p>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row gx-4 gy-5 justify-content-center">
+                @foreach (var item in Model)
+                {
+                    <div class="col-xl-4 col-lg-6 col-md-6 d-flex align-items-stretch">
+                        <div class="promo-info-card shadow-sm w-100">
+                            <div class="promo-img-wrapper" onclick="location.href='@Url.Action("Details", new { id = item.MaKM })'">
+                                <div class="glass-badge">- @item.PhanTramGiam%</div>
+                                @{
+                                    var imgUrl = string.IsNullOrEmpty(item.HinhAnh) ? "/images/default.jpg" : "/images/khuyen-mai/" + item.HinhAnh;
+                                }
+                                <img src="@imgUrl" alt="@item.TenChuongTrinh">
+                            </div>
+
+                            <div class="card-body-premium">
+                                <span class="promo-category"><i class="bi bi-tag-fill me-1"></i> Ưu đãi chuyến đi</span>
+                                <h3 class="promo-title" onclick="location.href='@Url.Action("Details", new { id = item.MaKM })'">@item.TenChuongTrinh</h3>
+
+                                <p class="text-muted small">
+                                    "@(item.MoTa?.Length > 90 ? item.MoTa.Substring(0, 90) + "..." : item.MoTa)"
+                                </p>
+
+                                <div class="promo-code-box" title="Click để sao chép mã">
+                                    <div class="d-flex flex-column">
+                                        <span style="font-size: 0.65rem; color: #007bff; font-weight: 700; text-transform: uppercase;">Mã của bạn</span>
+                                        <span class="code-value" id="code-@item.MaKM">@item.MaKM</span>
+                                    </div>
+                                    <button class="copy-btn" onclick="copyCode('@item.MaKM')">
+                                        <i class="bi bi-clipboard-plus" id="icon-@item.MaKM"></i>
+                                    </button>
+                                </div>
+
+                                <div class="footer-meta">
+                                    <div class="d-flex align-items-center @( (item.NgayKetThuc - DateTime.Now).TotalDays < 3 ? "text-danger fw-bold" : "" )">
+                                        <i class="bi bi-calendar-event me-2"></i>
+                                        <span>Đến @item.NgayKetThuc.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <a href="@Url.Action("Details", new { id = item.MaKM })" class="text-primary fs-4">
+                                        <i class="bi bi-arrow-right-circle-fill"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-center mt-5">
+                    <ul class="pagination">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-ticket-perforated text-muted" style="font-size: 4rem; opacity: 0.2;"></i>
+                <p class="text-muted mt-3">Hiện chưa có ưu đãi nào khả dụng.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="copyToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle-fill me-2"></i> Đã sao chép mã thành công!
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyCode(code) {
+        navigator.clipboard.writeText(code).then(() => {
+            // Đổi icon tạm thời
+            const icon = document.getElementById('icon-' + code);
+            icon.classList.replace('bi-clipboard-plus', 'bi-check-lg');
+
+            // Hiện Toast (nếu dùng Bootstrap 5)
+            const toastEl = document.getElementById('copyToast');
+            if (toastEl) {
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            }
+
+            setTimeout(() => {
+                icon.classList.replace('bi-check-lg', 'bi-clipboard-plus');
+            }, 2000);
+        });
+    }
+</script>

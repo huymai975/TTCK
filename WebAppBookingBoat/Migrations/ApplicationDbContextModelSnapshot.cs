@@ -58,14 +58,14 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             Id = "2",
-                            Name = "Nhân viên",
-                            NormalizedName = "NHÂN VIÊN"
+                            Name = "Staff",
+                            NormalizedName = "STAFF"
                         },
                         new
                         {
                             Id = "3",
-                            Name = "Khách hàng",
-                            NormalizedName = "KHÁCH HÀNG"
+                            Name = "Customer",
+                            NormalizedName = "CUSTOMER"
                         });
                 });
 
@@ -158,12 +158,12 @@ namespace WebAppBookingBoat.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "8b723ad0-b8ec-4a0f-80fe-651b03e1a53b",
+                            UserId = "c4b3adc5-a6a7-4f7e-bd1c-2806c328191b",
                             RoleId = "1"
                         },
                         new
                         {
-                            UserId = "0ae2743c-fcfa-4b50-92f6-129aa8352a4a",
+                            UserId = "7667fed0-c6f2-4dff-a12b-f4c5b064f9f2",
                             RoleId = "2"
                         });
                 });
@@ -257,85 +257,85 @@ namespace WebAppBookingBoat.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "8b723ad0-b8ec-4a0f-80fe-651b03e1a53b",
+                            Id = "c4b3adc5-a6a7-4f7e-bd1c-2806c328191b",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ef43d128-e6e8-4c7c-822b-3ec3621532f8",
+                            ConcurrencyStamp = "d384f5bf-81ff-4ec0-a2aa-4377f3d94e92",
                             Email = "admin@booking.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@BOOKING.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKsp7Gmq1QdUe0CyciI5U8KHwSTFYbQRC7sTMmgsfPSvzjL7t35k5k/qTBUPprjgOg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHJXYAQhZDUNBWTNcgkCaOtc0r/eWeEjYGwJuD+g6pA9VwSNbM2RdpuZGFyJEIKi4g==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "46512a09-9054-4f0b-8d18-48b971cae82c",
+                            SecurityStamp = "dbabf772-6b59-46e1-b9b9-fa8cdb51540c",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
                         new
                         {
-                            Id = "0ae2743c-fcfa-4b50-92f6-129aa8352a4a",
+                            Id = "7667fed0-c6f2-4dff-a12b-f4c5b064f9f2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "71bd63cc-4f8d-4a81-911c-16668e768743",
+                            ConcurrencyStamp = "ce5f96d5-d52f-4039-823c-03cc9bdf85e1",
                             Email = "nhanvien1@booking.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "NHANVIEN1@BOOKING.COM",
                             NormalizedUserName = "NHANVIEN1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMPhWTAPBrB7pDV6BwgbzL0b3C2fgJ8Onb3Vx0lNul1RG+1wD6zGJThLEyLWWZ8ymg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECayK2xNLqsc1zsvb73kbhS/nDkAY1I3PdRbh3pzXXBAD/mxGz0KgYsBd6AkyhQA3Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "bb4e943b-5e33-45d3-8178-a3c36eec1b28",
+                            SecurityStamp = "a652bf4d-9407-4c99-8465-b148e2e74f8d",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "nhanvien1"
                         },
                         new
                         {
-                            Id = "daa09660-485a-48b6-a193-dd3159d0ad7f",
+                            Id = "711c81c5-997b-4ad1-824d-00a0e4237029",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2623463c-5b60-45b7-a5dd-928a5edfdcc0",
+                            ConcurrencyStamp = "fb1a1ad1-1e26-4922-bb49-a681fc01ed30",
                             Email = "khachhang1@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "KHACHHANG1@GMAIL.COM",
                             NormalizedUserName = "KHACHHANG1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEO5bR9cKdeVq5KBoYSOQT8fa3//q/T4lBNmG+eAaZy0tFU2hjcO6OLL1Zs6Fa8Hp6A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM9+bYZRzcU+dnCRpUQHItrpsS1gk9yELh79T+ZFRcVCnVMr8MTCBKU+ocW6YW8yWw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2a700aec-c70c-4cc5-b39a-222d978b718f",
+                            SecurityStamp = "bcf47bd2-8b4b-448b-b00c-600b43bbfc35",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "khachhang1"
                         },
                         new
                         {
-                            Id = "befcdc74-a8ec-4cb6-b282-125292bede20",
+                            Id = "7d328812-88db-422a-b83e-14d56dd91dde",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6e8de378-961b-4265-9dfb-d85e96401b50",
+                            ConcurrencyStamp = "a3a1c257-08d9-4465-ab34-9f8d35edcf54",
                             Email = "khachhang2@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "KHACHHANG2@GMAIL.COM",
                             NormalizedUserName = "KHACHHANG2",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPAXAPqZyrmIIEFZm1Lh0bRCVzXzdl/llBqnVJFkySPBdvDPQmMc0T98PeBAghhlZw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHYWSeke9O9rJZSsYcx6+eOZ4RVuYO+Un1UODBRIE57gLfTk79Iiuu6yP7zbeY2CNA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "cea23eb4-7462-4aa4-bc59-4655273aeeac",
+                            SecurityStamp = "4d08d3d4-341d-40d2-8a7c-ecf6e93a2430",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "khachhang2"
                         },
                         new
                         {
-                            Id = "a72122c2-1421-4b9a-9759-ca33578591ce",
+                            Id = "8e3ade7b-c691-4276-abd5-3e1fb0f02a05",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "373498ac-a6f6-4fc5-977e-c5dbc11430d5",
+                            ConcurrencyStamp = "b4835b6a-3669-48ce-8496-69ede6e1aa1e",
                             Email = "testuser@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "TESTUSER@GMAIL.COM",
                             NormalizedUserName = "TESTUSER",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDVPAaIcT60H68barzi52hwYl8YDCTX1irvLYAXSXELpVzec/fnHCt/5+QyJn5X0Fg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDsoNw73Xg+hXDD1Fm8EMpLANvMCkU6oXJj+37wryxCNKpl6mpzJZC9oRUnizM2qgQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "60ce01e5-d1bc-482e-8cb1-19d8b2f6538b",
+                            SecurityStamp = "10249c4c-755a-48e9-92b9-46b4cf9fcd3a",
                             TrangThai = true,
                             TwoFactorEnabled = false,
                             UserName = "testuser"
@@ -353,6 +353,9 @@ namespace WebAppBookingBoat.Migrations
                     b.Property<string>("HinhAnh")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<int?>("HoaDonMaHoaDon")
+                        .HasColumnType("int");
 
                     b.Property<int?>("LichTrinhMaLichTrinh")
                         .HasColumnType("int");
@@ -384,6 +387,8 @@ namespace WebAppBookingBoat.Migrations
 
                     b.HasKey("MaDanhGia");
 
+                    b.HasIndex("HoaDonMaHoaDon");
+
                     b.HasIndex("LichTrinhMaLichTrinh");
 
                     b.HasIndex("MaHoaDon")
@@ -402,7 +407,7 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaDanhGia = 1,
-                            HinhAnh = "review-tau-01.jpg",
+                            HinhAnh = "6a4b2c8d-1e5f-4a3b-9c2d-8e7f6a5b4c3d_review-phu-quoc.jpg",
                             MaHoaDon = 1,
                             NgayDanhGia = new DateTime(2026, 4, 10, 8, 30, 0, 0, DateTimeKind.Unspecified),
                             NgayPhanHoi = new DateTime(2026, 4, 10, 14, 0, 0, 0, DateTimeKind.Unspecified),
@@ -414,7 +419,7 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaDanhGia = 2,
-                            HinhAnh = "review-ghe-vip.jpg",
+                            HinhAnh = "8e7d6c5b-4a3f-4e2d-9c1b-0a9b8c7d6e5f_review-thang-long.jpg",
                             MaHoaDon = 2,
                             NgayDanhGia = new DateTime(2026, 4, 11, 15, 20, 0, 0, DateTimeKind.Unspecified),
                             NgayPhanHoi = new DateTime(2026, 4, 12, 9, 15, 0, 0, DateTimeKind.Unspecified),
@@ -426,9 +431,20 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaDanhGia = 3,
+                            HinhAnh = "2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f_view-bien.jpg",
                             MaHoaDon = 3,
-                            NgayDanhGia = new DateTime(2026, 4, 13, 19, 39, 37, 722, DateTimeKind.Local).AddTicks(2459),
+                            NgayDanhGia = new DateTime(2026, 4, 17, 20, 11, 39, 554, DateTimeKind.Local).AddTicks(6008),
                             NoiDung = "Đặt vé cực nhanh, thanh toán tiện lợi. Sẽ quay lại!",
+                            SoSao = 5,
+                            TrangThai = "Chờ duyệt"
+                        },
+                        new
+                        {
+                            MaDanhGia = 4,
+                            HinhAnh = "5f4e3d2c-1b0a-4c9d-8e7f-6a5b4c3d2e1f_tau-phu-quy.jpg",
+                            MaHoaDon = 4,
+                            NgayDanhGia = new DateTime(2026, 4, 17, 22, 11, 39, 554, DateTimeKind.Local).AddTicks(6014),
+                            NoiDung = "Gia đình mình đi tuyến Hà Tiên - Phú Quốc rất hài lòng...",
                             SoSao = 5,
                             TrangThai = "Chờ duyệt"
                         });
@@ -745,6 +761,286 @@ namespace WebAppBookingBoat.Migrations
                             LoaiGhe = "VIP",
                             MaTau = 2,
                             TenGhe = "V-20"
+                        },
+                        new
+                        {
+                            MaGhe = 41,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-01"
+                        },
+                        new
+                        {
+                            MaGhe = 42,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-02"
+                        },
+                        new
+                        {
+                            MaGhe = 43,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-03"
+                        },
+                        new
+                        {
+                            MaGhe = 44,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-04"
+                        },
+                        new
+                        {
+                            MaGhe = 45,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-05"
+                        },
+                        new
+                        {
+                            MaGhe = 46,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-06"
+                        },
+                        new
+                        {
+                            MaGhe = 47,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-07"
+                        },
+                        new
+                        {
+                            MaGhe = 48,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-08"
+                        },
+                        new
+                        {
+                            MaGhe = 49,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-09"
+                        },
+                        new
+                        {
+                            MaGhe = 50,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-10"
+                        },
+                        new
+                        {
+                            MaGhe = 51,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-11"
+                        },
+                        new
+                        {
+                            MaGhe = 52,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-12"
+                        },
+                        new
+                        {
+                            MaGhe = 53,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-13"
+                        },
+                        new
+                        {
+                            MaGhe = 54,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-14"
+                        },
+                        new
+                        {
+                            MaGhe = 55,
+                            LoaiGhe = "Thường",
+                            MaTau = 3,
+                            TenGhe = "T-15"
+                        },
+                        new
+                        {
+                            MaGhe = 56,
+                            LoaiGhe = "VIP",
+                            MaTau = 3,
+                            TenGhe = "V-16"
+                        },
+                        new
+                        {
+                            MaGhe = 57,
+                            LoaiGhe = "VIP",
+                            MaTau = 3,
+                            TenGhe = "V-17"
+                        },
+                        new
+                        {
+                            MaGhe = 58,
+                            LoaiGhe = "VIP",
+                            MaTau = 3,
+                            TenGhe = "V-18"
+                        },
+                        new
+                        {
+                            MaGhe = 59,
+                            LoaiGhe = "VIP",
+                            MaTau = 3,
+                            TenGhe = "V-19"
+                        },
+                        new
+                        {
+                            MaGhe = 60,
+                            LoaiGhe = "VIP",
+                            MaTau = 3,
+                            TenGhe = "V-20"
+                        },
+                        new
+                        {
+                            MaGhe = 61,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-01"
+                        },
+                        new
+                        {
+                            MaGhe = 62,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-02"
+                        },
+                        new
+                        {
+                            MaGhe = 63,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-03"
+                        },
+                        new
+                        {
+                            MaGhe = 64,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-04"
+                        },
+                        new
+                        {
+                            MaGhe = 65,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-05"
+                        },
+                        new
+                        {
+                            MaGhe = 66,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-06"
+                        },
+                        new
+                        {
+                            MaGhe = 67,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-07"
+                        },
+                        new
+                        {
+                            MaGhe = 68,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-08"
+                        },
+                        new
+                        {
+                            MaGhe = 69,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-09"
+                        },
+                        new
+                        {
+                            MaGhe = 70,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-10"
+                        },
+                        new
+                        {
+                            MaGhe = 71,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-11"
+                        },
+                        new
+                        {
+                            MaGhe = 72,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-12"
+                        },
+                        new
+                        {
+                            MaGhe = 73,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-13"
+                        },
+                        new
+                        {
+                            MaGhe = 74,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-14"
+                        },
+                        new
+                        {
+                            MaGhe = 75,
+                            LoaiGhe = "Thường",
+                            MaTau = 4,
+                            TenGhe = "T-15"
+                        },
+                        new
+                        {
+                            MaGhe = 76,
+                            LoaiGhe = "VIP",
+                            MaTau = 4,
+                            TenGhe = "V-16"
+                        },
+                        new
+                        {
+                            MaGhe = 77,
+                            LoaiGhe = "VIP",
+                            MaTau = 4,
+                            TenGhe = "V-17"
+                        },
+                        new
+                        {
+                            MaGhe = 78,
+                            LoaiGhe = "VIP",
+                            MaTau = 4,
+                            TenGhe = "V-18"
+                        },
+                        new
+                        {
+                            MaGhe = 79,
+                            LoaiGhe = "VIP",
+                            MaTau = 4,
+                            TenGhe = "V-19"
+                        },
+                        new
+                        {
+                            MaGhe = 80,
+                            LoaiGhe = "VIP",
+                            MaTau = 4,
+                            TenGhe = "V-20"
                         });
                 });
 
@@ -821,7 +1117,7 @@ namespace WebAppBookingBoat.Migrations
                             MaKH = 1,
                             MaKM = "KM10",
                             MaNV = 1,
-                            NgayLap = new DateTime(2026, 4, 13, 21, 39, 37, 722, DateTimeKind.Local).AddTicks(2007),
+                            NgayLap = new DateTime(2026, 4, 17, 22, 11, 39, 554, DateTimeKind.Local).AddTicks(5477),
                             PhuongThucTT = "Tiền mặt",
                             SoLuongVe = 1,
                             SoTienGiam = 20000m,
@@ -836,7 +1132,22 @@ namespace WebAppBookingBoat.Migrations
                             MaKH = 1,
                             MaKM = "KM10",
                             MaNV = 1,
-                            NgayLap = new DateTime(2026, 4, 13, 21, 39, 37, 722, DateTimeKind.Local).AddTicks(2072),
+                            NgayLap = new DateTime(2026, 4, 17, 22, 11, 39, 554, DateTimeKind.Local).AddTicks(5614),
+                            PhuongThucTT = "Tiền mặt",
+                            SoLuongVe = 1,
+                            SoTienGiam = 20000m,
+                            TamTinh = 200000m,
+                            TongTien = 180000m,
+                            TrangThai = "Đã thanh toán"
+                        },
+                        new
+                        {
+                            MaHoaDon = 4,
+                            GhiChu = "",
+                            MaKH = 1,
+                            MaKM = "KM10",
+                            MaNV = 1,
+                            NgayLap = new DateTime(2026, 4, 17, 22, 11, 39, 554, DateTimeKind.Local).AddTicks(5619),
                             PhuongThucTT = "Tiền mặt",
                             SoLuongVe = 1,
                             SoTienGiam = 20000m,
@@ -851,7 +1162,7 @@ namespace WebAppBookingBoat.Migrations
                             MaKH = 1,
                             MaKM = "KM10",
                             MaNV = 1,
-                            NgayLap = new DateTime(2026, 4, 13, 21, 39, 37, 722, DateTimeKind.Local).AddTicks(2109),
+                            NgayLap = new DateTime(2026, 4, 17, 22, 11, 39, 554, DateTimeKind.Local).AddTicks(5667),
                             PhuongThucTT = "Tiền mặt",
                             SoLuongVe = 1,
                             SoTienGiam = 20000m,
@@ -919,7 +1230,7 @@ namespace WebAppBookingBoat.Migrations
                             MaKH = 1,
                             Email = "khach.tran@gmail.com",
                             HoTen = "Trần Thị Khách",
-                            MaTK = "a72122c2-1421-4b9a-9759-ca33578591ce",
+                            MaTK = "8e3ade7b-c691-4276-abd5-3e1fb0f02a05",
                             NgaySinh = new DateTime(1995, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Sdt = "0912345678"
                         });
@@ -975,37 +1286,73 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaKM = "KM10",
-                            HinhAnh = "khai-truong.jpg",
-                            MoTa = "Chào mừng hệ thống WebAppBookingBoat đi vào hoạt động. Giảm ngay 10% cho tất cả các tuyến tàu cao tốc.",
+                            HinhAnh = "322b0521-7bf6-40e5-aeea-b28fcfb0c5fd.jpg",
+                            MoTa = "Chào mừng hệ thống WebAppBookingBoat đi vào hoạt động. Giảm ngay 50% cho tất cả các tuyến tàu cao tốc.",
                             NgayBatDau = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NgayKetThuc = new DateTime(2026, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PhanTramGiam = 10.0,
-                            SoTienToiDaGiam = 50000m,
+                            PhanTramGiam = 50.0,
+                            SoTienToiDaGiam = 200000m,
                             TenChuongTrinh = "Giảm giá khai trương",
                             TrangThai = "Chưa diễn ra"
                         },
                         new
                         {
                             MaKM = "SUMMER26",
-                            HinhAnh = "summer-sale.jpg",
-                            MoTa = "Tận hưởng kỳ nghỉ hè tại Phú Quốc và Vũng Tàu với ưu đãi cực khủng lên đến 15% khi đặt vé trước 7 ngày.",
+                            HinhAnh = "9c2fb5b6-9d1e-4a2c-91be-51c61d3d10d9.jpg",
+                            MoTa = "Tận hưởng kỳ nghỉ hè với ưu đãi cực khủng lên đến 10% khi đặt vé.",
                             NgayBatDau = new DateTime(2026, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NgayKetThuc = new DateTime(2026, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PhanTramGiam = 15.0,
+                            PhanTramGiam = 10.0,
                             SoTienToiDaGiam = 100000m,
                             TenChuongTrinh = "Ưu đãi mùa hè rực rỡ",
                             TrangThai = "Chưa diễn ra"
                         },
                         new
                         {
+                            MaKM = "SUMMER27",
+                            HinhAnh = "8b779b59-820c-48bd-bc11-b85e27021424.jpg",
+                            MoTa = "Tận hưởng kỳ nghỉ hè với ưu đãi cực khủng lên đến 30% khi đặt vé.",
+                            NgayBatDau = new DateTime(2026, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            NgayKetThuc = new DateTime(2026, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PhanTramGiam = 30.0,
+                            SoTienToiDaGiam = 100000m,
+                            TenChuongTrinh = "Ưu đãi mùa hè hết cỡ",
+                            TrangThai = "Chưa diễn ra"
+                        },
+                        new
+                        {
                             MaKM = "TET2026",
-                            HinhAnh = "tet-holiday.jpg",
+                            HinhAnh = "0b00c585-fb35-4462-9b5d-8e1aee28b429.jpg",
                             MoTa = "Chương trình khuyến mãi đặc biệt dành cho khách hàng về quê ăn Tết hoặc du xuân cùng gia đình.",
                             NgayBatDau = new DateTime(2026, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             NgayKetThuc = new DateTime(2026, 2, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PhanTramGiam = 20.0,
-                            SoTienToiDaGiam = 200000m,
+                            PhanTramGiam = 30.0,
+                            SoTienToiDaGiam = 300000m,
                             TenChuongTrinh = "Vui Tết sum vầy",
+                            TrangThai = "Chưa diễn ra"
+                        },
+                        new
+                        {
+                            MaKM = "GIADO304",
+                            HinhAnh = "a64e7e7d-4495-4950-b2ec-ec62db4cfdbb.jpg",
+                            MoTa = "Ưu đãi cực lớn dành cho các tuyến tàu cao tốc du lịch trong kỳ nghỉ lễ 30/4 và 1/5.",
+                            NgayBatDau = new DateTime(2026, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            NgayKetThuc = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PhanTramGiam = 30.0,
+                            SoTienToiDaGiam = 400000m,
+                            TenChuongTrinh = "Mừng Đại Lễ - Giảm Giá Mê",
+                            TrangThai = "Sắp diễn ra"
+                        },
+                        new
+                        {
+                            MaKM = "DONGAM2026",
+                            HinhAnh = "215b54dc-a2eb-4d82-8091-e4e885928754.jpg",
+                            MoTa = "Ưu đãi sưởi ấm những chuyến đi cuối năm. Giảm giá sâu cho các tuyến tàu ra đảo nghỉ dưỡng.",
+                            NgayBatDau = new DateTime(2026, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            NgayKetThuc = new DateTime(2026, 12, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PhanTramGiam = 25.0,
+                            SoTienToiDaGiam = 250000m,
+                            TenChuongTrinh = "Mùa Đông Ấm Áp",
                             TrangThai = "Chưa diễn ra"
                         });
                 });
@@ -1055,6 +1402,8 @@ namespace WebAppBookingBoat.Migrations
                             t.HasCheckConstraint("CK_LT_GiaVe", "[GiaVeCoBan] >= 0");
 
                             t.HasCheckConstraint("CK_LT_ThoiGian", "[NgayGioCapBenDuKien] > [NgayGioKhoiHanh]");
+
+                            t.HasCheckConstraint("CK_LT_TrangThai", "[TrangThai] IN (N'Sắp khởi hành', N'Đang vận hành', N'Hoàn thành', N'Đã hủy')");
                         });
 
                     b.HasData(
@@ -1064,8 +1413,107 @@ namespace WebAppBookingBoat.Migrations
                             GiaVeCoBan = 200000m,
                             MaTau = 1,
                             MaTuyen = 1,
-                            NgayGioCapBenDuKien = new DateTime(2026, 4, 14, 10, 30, 0, 0, DateTimeKind.Local),
-                            NgayGioKhoiHanh = new DateTime(2026, 4, 14, 8, 0, 0, 0, DateTimeKind.Local),
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 18, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 18, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 2,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 2,
+                            MaTuyen = 2,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 18, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 18, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 3,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 3,
+                            MaTuyen = 3,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 19, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 19, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 4,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 4,
+                            MaTuyen = 4,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 21, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 21, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 5,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 5,
+                            MaTuyen = 5,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 22, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 22, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 6,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 6,
+                            MaTuyen = 6,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 24, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 24, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 7,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 7,
+                            MaTuyen = 7,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 24, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 24, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 8,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 1,
+                            MaTuyen = 1,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 25, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 25, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 9,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 2,
+                            MaTuyen = 2,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 26, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 26, 8, 0, 0, 0, DateTimeKind.Local),
+                            SoGheTrong = 20,
+                            TrangThai = "Sắp khởi hành"
+                        },
+                        new
+                        {
+                            MaLichTrinh = 10,
+                            GiaVeCoBan = 200000m,
+                            MaTau = 3,
+                            MaTuyen = 3,
+                            NgayGioCapBenDuKien = new DateTime(2026, 4, 26, 10, 30, 0, 0, DateTimeKind.Local),
+                            NgayGioKhoiHanh = new DateTime(2026, 4, 26, 8, 0, 0, 0, DateTimeKind.Local),
                             SoGheTrong = 20,
                             TrangThai = "Sắp khởi hành"
                         });
@@ -1124,7 +1572,7 @@ namespace WebAppBookingBoat.Migrations
                             HanhDong = "Khởi tạo hệ thống",
                             IpAddress = "127.0.0.1",
                             LoaiLog = "Info",
-                            MaTK = "8b723ad0-b8ec-4a0f-80fe-651b03e1a53b",
+                            MaTK = "c4b3adc5-a6a7-4f7e-bd1c-2806c328191b",
                             NoiDungChiTiet = "Hệ thống đã khởi tạo dữ liệu mẫu (Seed Data) thành công.",
                             ThoiGian = new DateTime(2026, 4, 13, 9, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -1135,7 +1583,7 @@ namespace WebAppBookingBoat.Migrations
                             HanhDong = "Cấu hình bảo mật",
                             IpAddress = "127.0.0.1",
                             LoaiLog = "Info",
-                            MaTK = "8b723ad0-b8ec-4a0f-80fe-651b03e1a53b",
+                            MaTK = "c4b3adc5-a6a7-4f7e-bd1c-2806c328191b",
                             NoiDungChiTiet = "Thiết lập quyền Quản trị viên (Admin) cho hệ thống.",
                             ThoiGian = new DateTime(2026, 4, 13, 9, 0, 5, 0, DateTimeKind.Unspecified)
                         });
@@ -1200,12 +1648,12 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaNV = 1,
-                            ChucVu = "Bán vé",
-                            Email = "chay.nv@boat.com",
-                            HoTen = "Nguyễn Văn Chạy",
+                            ChucVu = "Admin",
+                            Email = "maihuy@booking.com",
+                            HoTen = "Mai Nhứt Huy",
                             Luong = 0m,
-                            MaTK = "8b723ad0-b8ec-4a0f-80fe-651b03e1a53b",
-                            Sdt = "0987654321",
+                            MaTK = "c4b3adc5-a6a7-4f7e-bd1c-2806c328191b",
+                            Sdt = "0386747090",
                             TrangThai = true
                         });
                 });
@@ -1244,32 +1692,80 @@ namespace WebAppBookingBoat.Migrations
                         new
                         {
                             MaTau = 1,
-                            HinhAnh = "0ed53f9a-2e39-46ab-897c-856e7cde576d.jpg",
-                            TenTau = "Tàu Cao Tốc 01",
+                            HinhAnh = "0885ba23-96cd-46c0-9cce-5b739d92c445_Tau-cao-toc-Phu-Quoc-Express-Vung-Tau-Con-Dao.jpg",
+                            TenTau = "Phú Quốc Express 1",
                             TongSoGhe = 20,
                             TrangThai = true
                         },
                         new
                         {
                             MaTau = 2,
-                            HinhAnh = "2073e0cb-cf50-45b1-aa5e-9d40af4b7477.jpg",
-                            TenTau = "Tàu Express 01",
+                            HinhAnh = "4f471677-b064-46f6-ba00-1840314b7226_tau-trung-trac-tren-tuyen-cao-toc-phan-thiet-phu-quy-1024x768-1.jpg",
+                            TenTau = "Phú Quốc Express 2",
                             TongSoGhe = 20,
                             TrangThai = true
                         },
                         new
                         {
                             MaTau = 3,
-                            HinhAnh = "872b8a7a-79ae-4f8b-96da-53c7e3caa5e3.jpg",
-                            TenTau = "Tàu Cao Tốc 02",
+                            HinhAnh = "ca4c374d-3d0c-48be-8b36-e79219a62796_Tau-cao-toc-Con-Dao-Express-36-1536x863.jpg",
+                            TenTau = "Phú Quốc Express 3",
                             TongSoGhe = 20,
                             TrangThai = true
                         },
                         new
                         {
                             MaTau = 4,
-                            HinhAnh = "d0c7cc56-fd6c-4750-8095-2c250c2c3eed.jpg",
-                            TenTau = "Tàu Express 02",
+                            HinhAnh = "dfa33889-692e-4f3a-84c2-491e2a402329_Tau-cao-toc-Trung-Nhi.jpg",
+                            TenTau = "Phú Quốc Express 4",
+                            TongSoGhe = 20,
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MaTau = 5,
+                            HinhAnh = "ca4c374d-3d0c-48be-8b36-e79219a62796_Tau-cao-toc-Con-Dao-Express-36-1536x863.jpg",
+                            TenTau = "Phú Quốc Express 5",
+                            TongSoGhe = 20,
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MaTau = 6,
+                            HinhAnh = "0885ba23-96cd-46c0-9cce-5b739d92c445_Tau-cao-toc-Phu-Quoc-Express-Vung-Tau-Con-Dao.jpg",
+                            TenTau = "Phú Quốc Express 6",
+                            TongSoGhe = 20,
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MaTau = 7,
+                            HinhAnh = "0885ba23-96cd-46c0-9cce-5b739d92c445_Tau-cao-toc-Phu-Quoc-Express-Vung-Tau-Con-Dao.jpg",
+                            TenTau = "Phú Quốc Express 7",
+                            TongSoGhe = 20,
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MaTau = 8,
+                            HinhAnh = "dfa33889-692e-4f3a-84c2-491e2a402329_Tau-cao-toc-Trung-Nhi.jpg",
+                            TenTau = "Phú Quốc Express 8",
+                            TongSoGhe = 20,
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MaTau = 9,
+                            HinhAnh = "4f471677-b064-46f6-ba00-1840314b7226_tau-trung-trac-tren-tuyen-cao-toc-phan-thiet-phu-quy-1024x768-1.jpg",
+                            TenTau = "Phú Quốc Express 9",
+                            TongSoGhe = 20,
+                            TrangThai = true
+                        },
+                        new
+                        {
+                            MaTau = 10,
+                            HinhAnh = "4f471677-b064-46f6-ba00-1840314b7226_tau-trung-trac-tren-tuyen-cao-toc-phan-thiet-phu-quy-1024x768-1.jpg",
+                            TenTau = "Phú Quốc Express 10",
                             TongSoGhe = 20,
                             TrangThai = true
                         });
@@ -1313,28 +1809,81 @@ namespace WebAppBookingBoat.Migrations
                     b.HasIndex("DiemDi", "DiemDen")
                         .IsUnique();
 
-                    b.ToTable("TuyenDuong");
+                    b.ToTable("TuyenDuong", t =>
+                        {
+                            t.HasCheckConstraint("CK_TD_DiemKhacNhau", "[DiemDi] <> [DiemDen]");
+                        });
 
                     b.HasData(
                         new
                         {
                             MaTuyen = 1,
-                            DiemDen = "Vũng Tàu",
-                            DiemDi = "Sài Gòn",
-                            HinhAnh = "80eec6b7-1650-400a-afda-eec7573a7f48.jfif",
-                            KhoangCach = 100.0,
-                            TenTuyen = "Sài Gòn - Vũng Tàu",
+                            DiemDen = "Phú Quý",
+                            DiemDi = "Phan Thiết",
+                            HinhAnh = "04e1440f-0c96-46c6-82b1-c10f63b4db23_phu-quy.jpg",
+                            KhoangCach = 105.0,
+                            TenTuyen = "Phan Thiết - Phú Quý",
                             ThoiGianDuKien = new TimeSpan(0, 2, 30, 0, 0)
                         },
                         new
                         {
                             MaTuyen = 2,
-                            DiemDen = "Phú Quốc",
+                            DiemDen = "Cát Bà",
+                            DiemDi = "Hải Phòng",
+                            HinhAnh = "c31132fa-0e14-4787-8d05-fd22a23a3411_cat-ba.jpg",
+                            KhoangCach = 30.0,
+                            TenTuyen = "Hải Phòng - Cát Bà",
+                            ThoiGianDuKien = new TimeSpan(0, 0, 45, 0, 0)
+                        },
+                        new
+                        {
+                            MaTuyen = 3,
+                            DiemDen = "Côn Đảo",
+                            DiemDi = "Vũng Tàu",
+                            HinhAnh = "7abf98e9-a440-4779-8a3a-529b3a400bbd_con-dao.jpg",
+                            KhoangCach = 180.0,
+                            TenTuyen = "Vũng Tàu - Côn Đảo",
+                            ThoiGianDuKien = new TimeSpan(0, 3, 45, 0, 0)
+                        },
+                        new
+                        {
+                            MaTuyen = 4,
+                            DiemDen = "Hòn Sơn",
                             DiemDi = "Rạch Giá",
-                            HinhAnh = "dcc6e003-7560-4d50-8933-98682d3da2ef.jfif",
-                            KhoangCach = 120.0,
-                            TenTuyen = "Rạch Giá - Phú Quốc",
-                            ThoiGianDuKien = new TimeSpan(0, 2, 45, 0, 0)
+                            HinhAnh = "c051024a-ca91-4835-8751-6a6b40f5c124_hon-son.jpg",
+                            KhoangCach = 65.0,
+                            TenTuyen = "Rạch Giá - Hòn Sơn",
+                            ThoiGianDuKien = new TimeSpan(0, 1, 30, 0, 0)
+                        },
+                        new
+                        {
+                            MaTuyen = 5,
+                            DiemDen = "Lý Sơn",
+                            DiemDi = "Sa Kỳ",
+                            HinhAnh = "a3c8c7b7-69df-4c73-9acd-11db5b8433e8_ly-son.jpg",
+                            KhoangCach = 30.0,
+                            TenTuyen = "Sa Kỳ - Lý Sơn",
+                            ThoiGianDuKien = new TimeSpan(0, 0, 45, 0, 0)
+                        },
+                        new
+                        {
+                            MaTuyen = 6,
+                            DiemDen = "Nam Du",
+                            DiemDi = "Rạch Giá",
+                            HinhAnh = "6f1e4c0e-2db1-4540-b7a0-bdafd5a151cd_nam-du.jpg",
+                            KhoangCach = 80.0,
+                            TenTuyen = "Rạch Giá - Nam Du",
+                            ThoiGianDuKien = new TimeSpan(0, 2, 15, 0, 0)
+                        },
+                        new
+                        {
+                            MaTuyen = 7,
+                            DiemDen = "Phú Quốc",
+                            DiemDi = "Hà Tiên",
+                            HinhAnh = "bcd3de60-2b13-4d14-95c5-37ca27af887d_phu-quoc.jpg",
+                            KhoangCach = 45.0,
+                            TenTuyen = "Hà Tiên - Phú Quốc",
+                            ThoiGianDuKien = new TimeSpan(0, 1, 15, 0, 0)
                         });
                 });
 
@@ -1345,9 +1894,6 @@ namespace WebAppBookingBoat.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaVe"));
-
-                    b.Property<int?>("DanhGiaMaDanhGia")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("GiaVe")
                         .HasColumnType("decimal(18,2)");
@@ -1369,8 +1915,6 @@ namespace WebAppBookingBoat.Migrations
 
                     b.HasKey("MaVe");
 
-                    b.HasIndex("DanhGiaMaDanhGia");
-
                     b.HasIndex("MaGhe");
 
                     b.HasIndex("MaHoaDon");
@@ -1378,7 +1922,12 @@ namespace WebAppBookingBoat.Migrations
                     b.HasIndex("MaLichTrinh", "MaGhe")
                         .IsUnique();
 
-                    b.ToTable("Ve");
+                    b.ToTable("Ve", t =>
+                        {
+                            t.HasCheckConstraint("CK_Ve_GiaVe", "[GiaVe] >= 0");
+
+                            t.HasCheckConstraint("CK_Ve_TrangThai", "[TrangThai] IN (N'Đang chờ', N'Hợp lệ', N'Đã hủy')");
+                        });
 
                     b.HasData(
                         new
@@ -1387,7 +1936,7 @@ namespace WebAppBookingBoat.Migrations
                             GiaVe = 180000m,
                             MaGhe = 2,
                             MaHoaDon = 1,
-                            MaLichTrinh = 1,
+                            MaLichTrinh = 2,
                             TrangThai = "Hợp lệ"
                         },
                         new
@@ -1406,6 +1955,15 @@ namespace WebAppBookingBoat.Migrations
                             MaGhe = 4,
                             MaHoaDon = 3,
                             MaLichTrinh = 1,
+                            TrangThai = "Hợp lệ"
+                        },
+                        new
+                        {
+                            MaVe = 4,
+                            GiaVe = 180000m,
+                            MaGhe = 5,
+                            MaHoaDon = 4,
+                            MaLichTrinh = 2,
                             TrangThai = "Hợp lệ"
                         });
                 });
@@ -1463,14 +2021,18 @@ namespace WebAppBookingBoat.Migrations
 
             modelBuilder.Entity("WebAppBookingBoat.Models.DanhGia", b =>
                 {
+                    b.HasOne("WebAppBookingBoat.Models.HoaDon", null)
+                        .WithMany("DanhGias")
+                        .HasForeignKey("HoaDonMaHoaDon");
+
                     b.HasOne("WebAppBookingBoat.Models.LichTrinh", null)
                         .WithMany("DanhGias")
                         .HasForeignKey("LichTrinhMaLichTrinh")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("WebAppBookingBoat.Models.HoaDon", "HoaDon")
-                        .WithMany()
-                        .HasForeignKey("MaHoaDon")
+                        .WithOne("DanhGia")
+                        .HasForeignKey("WebAppBookingBoat.Models.DanhGia", "MaHoaDon")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1516,8 +2078,8 @@ namespace WebAppBookingBoat.Migrations
             modelBuilder.Entity("WebAppBookingBoat.Models.KhachHang", b =>
                 {
                     b.HasOne("WebAppBookingBoat.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("MaTK")
+                        .WithOne()
+                        .HasForeignKey("WebAppBookingBoat.Models.KhachHang", "MaTK")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("AppUser");
@@ -1555,8 +2117,8 @@ namespace WebAppBookingBoat.Migrations
             modelBuilder.Entity("WebAppBookingBoat.Models.NhanVien", b =>
                 {
                     b.HasOne("WebAppBookingBoat.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("MaTK")
+                        .WithOne()
+                        .HasForeignKey("WebAppBookingBoat.Models.NhanVien", "MaTK")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("AppUser");
@@ -1564,11 +2126,6 @@ namespace WebAppBookingBoat.Migrations
 
             modelBuilder.Entity("WebAppBookingBoat.Models.Ve", b =>
                 {
-                    b.HasOne("WebAppBookingBoat.Models.DanhGia", "DanhGia")
-                        .WithMany()
-                        .HasForeignKey("DanhGiaMaDanhGia")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("WebAppBookingBoat.Models.Ghe", "Ghe")
                         .WithMany("Ves")
                         .HasForeignKey("MaGhe")
@@ -1587,8 +2144,6 @@ namespace WebAppBookingBoat.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("DanhGia");
-
                     b.Navigation("Ghe");
 
                     b.Navigation("HoaDon");
@@ -1603,6 +2158,10 @@ namespace WebAppBookingBoat.Migrations
 
             modelBuilder.Entity("WebAppBookingBoat.Models.HoaDon", b =>
                 {
+                    b.Navigation("DanhGia");
+
+                    b.Navigation("DanhGias");
+
                     b.Navigation("Ves");
                 });
 

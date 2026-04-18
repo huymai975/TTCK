@@ -181,7 +181,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         let selectedSeats = [];
-        let discount = 0;
+        let discount = 0; // Luôn khởi tạo là số 0
 
         function toggleSeat(el) {
             const seatId = $(el).data('id');
@@ -198,8 +198,8 @@
             updateSummary();
         }
 
-            async function applyCoupon() {
-            const code = $('#coupon-code').val();
+        async function applyCoupon() {
+            const code = $('#coupon-code').val().trim();
             const msg = $('#coupon-message');
 
             if (!code) {
@@ -207,29 +207,37 @@
                 return;
             }
 
-            // Gọi API kiểm tra mã (Bạn cần viết Action CheckCoupon trong Controller)
             try {
+                // Gọi đến Action CheckCoupon bạn vừa thêm vào Controller
                 const response = await fetch(`/Booking/CheckCoupon?code=${code}`);
+                if (!response.ok) throw new Error("Network response was not ok");
+
                 const result = await response.json();
 
                 if (result.success) {
-                    // Ví dụ result trả về: { success: true, discountAmount: 50000, message: 'Thành công' }
-                    discount = result.discountAmount;
-                    $('#hiddenMaKM').val(code); // Gán mã vào input ẩn để submit form
-                    msg.html(`<span class="text-success">${result.message} (-${discount.toLocaleString('vi-VN')}đ)</span>`);
-                    updateSummary();
+                    // Tính toán số tiền giảm dựa trên phần trăm và số tiền tối đa từ Server trả về
+                    let subtotal = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+                    let potentialDiscount = subtotal * (result.phanTram / 100);
+
+                    // Nếu vượt quá số tiền tối đa cho phép thì chặn lại
+                    discount = Math.min(potentialDiscount, result.soTienToiDa);
+
+                    $('#hiddenMaKM').val(code);
+                    msg.html(`<span class="text-success">${result.message} (Giảm ${result.phanTram}%)</span>`);
                 } else {
                     discount = 0;
                     $('#hiddenMaKM').val('');
                     msg.html(`<span class="text-danger">${result.message}</span>`);
-                    updateSummary();
                 }
             } catch (error) {
-                msg.html('<span class="text-danger">Lỗi kiểm tra mã!</span>');
+                console.error(error);
+                msg.html('<span class="text-danger">Lỗi kết nối máy chủ!</span>');
+                discount = 0;
             }
+            updateSummary();
         }
 
-            function updateSummary() {
+        function updateSummary() {
             const infoDiv = $('#selected-info');
             const hiddenDiv = $('#hidden-inputs');
             const totalSpan = $('#total-amount');
@@ -243,6 +251,9 @@
                 infoDiv.append('<p class="text-center text-muted small italic">Chưa có ghế nào được chọn</p>');
                 totalSpan.text('0đ');
                 btn.prop('disabled', true);
+                discount = 0; // Reset giảm giá nếu bỏ chọn hết ghế
+                $('#coupon-message').empty();
+                $('#coupon-code').val('');
                 return;
             }
 
@@ -257,19 +268,21 @@
                 hiddenDiv.append(`<input type="hidden" name="SelectedGheIds[${index}]" value="${s.id}" />`);
             });
 
-            // Hiển thị dòng giảm giá nếu có
-            if (discount > 0) {
-                html += `<li class="list-group-item d-flex justify-content-between px-0 py-2 bg-transparent text-danger">
+            // Đảm bảo discount là số hợp lệ trước khi tính toán
+            let validDiscount = parseFloat(discount) || 0;
+
+            if (validDiscount > 0) {
+                html += `<li class="list-group-item d-flex justify-content-between px-0 py-2 bg-transparent text-danger font-weight-bold">
                             <span>Giảm giá:</span>
-                            <span>-${discount.toLocaleString('vi-VN')}đ</span>
+                            <span>-${validDiscount.toLocaleString('vi-VN')}đ</span>
                          </li>`;
             }
             html += '</ul>';
 
             infoDiv.append(html);
 
-            // Tính tổng cuối cùng (Không được âm)
-            const finalTotal = Math.max(0, subtotal - discount);
+            // Tính tổng cuối (không để âm)
+            const finalTotal = Math.max(0, subtotal - validDiscount);
             totalSpan.text(finalTotal.toLocaleString('vi-VN') + 'đ');
             btn.prop('disabled', false);
         }

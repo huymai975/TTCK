@@ -1,0 +1,296 @@
+﻿@model IEnumerable<WebAppBookingBoat.ViewModels.nvLichTrinhViewModel>
+
+@{
+    ViewData["Title"] = "Tra cứu Lịch trình & Lập hóa đơn";
+}
+
+<style>
+    /* GIỮ NGUYÊN STYLE CỦA BẠN */
+    #dataTable {
+        table-layout: fixed;
+        width: 100% !important;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .col-id {
+        width: 30px;
+    }
+
+    .col-route {
+        width: auto;
+    }
+
+    .col-boat {
+        width: 120px;
+    }
+
+    .col-time {
+        width: 100px;
+    }
+
+    .col-price {
+        width: 80px;
+    }
+
+    .col-seats {
+        width: 80px;
+    }
+
+    .col-status {
+        width: 100px;
+    }
+
+    .col-action {
+        width: 100px;
+    }
+
+    .text-route-main {
+        display: block;
+        font-weight: 700;
+        color: #2c3e50;
+        line-height: 1.3;
+        font-size: 0.95rem;
+    }
+
+    .route-link {
+        text-decoration: none !important;
+        display: block;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+        .route-link:hover .text-route-main {
+            color: #4e73df;
+        }
+
+        .route-link:hover {
+            transform: translateX(5px);
+        }
+
+    .btn-modern {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        margin: 0 2px;
+        text-decoration: none !important;
+        border: none;
+    }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    .btn-view {
+        background-color: #e1f5fe;
+        color: #039be5;
+    }
+    /* Đổi màu và icon cho nút Lập hóa đơn */
+    .btn-invoice {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .btn-lock {
+        background-color: #f5f5f5;
+        color: #9e9e9e;
+        cursor: not-allowed;
+    }
+
+    .badge-status {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-ship text-primary mr-2"></i>Lịch trình chuyến tàu
+        </h1>
+        <div class="text-muted small">Hôm nay: @DateTime.Now.ToString("dd/MM/yyyy")</div>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header py-3 bg-white border-bottom d-flex align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary text-uppercase small">
+                <i class="fas fa-search mr-1"></i> Tra cứu & Lập hóa đơn
+            </h6>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="px-3 pt-3">
+                <div class="d-flex align-items-center flex-wrap mb-3">
+                    <div class="input-group input-group-sm shadow-sm mr-2" style="width: 250px;">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-primary text-white border-0"><i class="fas fa-filter"></i></span>
+                        </div>
+                        <select id="statusFilter" class="form-control border-0 font-weight-bold">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Sắp khởi hành">Sắp khởi hành</option>
+                            <option value="Đang vận hành">Đang vận hành</option>
+                            <option value="Hoàn thành">Hoàn thành</option>
+                        </select>
+                    </div>
+                    <button id="btnResetFilter" class="btn btn-sm btn-outline-secondary border-0 rounded-circle shadow-sm bg-white">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="dataTable">
+                    <thead class="bg-light text-muted small font-weight-bold">
+                        <tr>
+                            <th class="text-center col-id border-0">ID</th>
+                            <th class="col-route border-0">Tuyến đường</th>
+                            <th class="col-boat border-0">Tàu vận hành</th>
+                            <th class="col-time border-0">Khởi hành</th>
+                            <th class="text-center col-price border-0">Giá niêm yết</th>
+                            <th class="text-center col-seats border-0">Ghế trống</th>
+                            <th class="text-center col-status border-0">Trạng thái</th>
+                            <th class="text-center col-action border-0">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var canInvoice = (item.TrangThai == "Sắp khởi hành" && item.SoGheTrong > 0);
+                            var reason = "";
+                            if (item.SoGheTrong <= 0) reason = "Chuyến tàu này đã hết ghế trống!";
+                            else if (item.TrangThai != "Sắp khởi hành") reason = $"Chuyến tàu này đã {item.TrangThai.ToLower()}, không thể lập hóa đơn!";
+
+                            <tr>
+                                <td class="text-center font-weight-bold text-gray-500 small">#@item.MaLichTrinh</td>
+                                <td>
+                                    @if (canInvoice)
+                                    {
+                                        <a asp-area="NhanVien" asp-controller="HoaDons" asp-action="Create" asp-route-maLichTrinh="@item.MaLichTrinh" class="route-link">
+                                            <span class="text-route-main">@item.TenTuyen</span>
+                                            <small class="text-muted"><i class="fas fa-map-marker-alt mr-1"></i>@item.DiemDi → @item.DiemDen</small>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <div class="route-link btn-invalid-invoice" data-reason="@reason" data-id="@item.MaLichTrinh">
+                                            <span class="text-route-main">@item.TenTuyen</span>
+                                            <small class="text-muted"><i class="fas fa-map-marker-alt mr-1"></i>@item.DiemDi → @item.DiemDen</small>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="badge badge-light border text-dark p-2 shadow-sm w-100 text-left">
+                                        <i class="fas fa-ship mr-1 text-primary"></i> @item.TenTau
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-success font-weight-bold small">@item.NgayGioKhoiHanh.ToString("dd/MM HH:mm")</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Đến: @item.NgayGioCapBenDuKien.ToString("HH:mm")</div>
+                                </td>
+                                <td class="text-center font-weight-bold text-primary">@item.GiaVeCoBan.ToString("N0")đ</td>
+                                <td class="text-center">
+                                    @{
+                                        var badgeClass = "badge-success";
+                                        if (item.SoGheTrong == 0) badgeClass = "badge-danger";
+                                        else if (item.TongSoGhe > 0 && (item.SoGheTrong * 100 / item.TongSoGhe) < 20) badgeClass = "badge-warning text-dark";
+                                    }
+                                    <span class="badge @badgeClass shadow-sm" style="font-size: 0.85rem;">
+                                        @item.SoGheTrong / @item.TongSoGhe
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var sClass = item.TrangThai switch
+                                        {
+                                            "Sắp khởi hành" => "badge-info",
+                                            "Đang vận hành" => "badge-warning text-dark",
+                                            "Hoàn thành" => "badge-success",
+                                            "Đã hủy" => "badge-danger",
+                                            _ => "badge-secondary"
+                                        };
+                                    }
+                                    <span class="badge badge-status shadow-sm @sClass">@item.TrangThai</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center">
+                                        <a asp-action="Details" asp-route-id="@item.MaLichTrinh" class="btn-modern btn-view" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                                        @if (canInvoice)
+                                        {
+                                            <a asp-area="NhanVien" asp-controller="HoaDons" asp-action="Create" asp-route-maLichTrinh="@item.MaLichTrinh" class="btn-modern btn-invoice" title="Lập hóa đơn"><i class="fas fa-file-invoice-dollar"></i></a>
+                                        }
+                                        else
+                                        {
+                                            <span class="btn-modern btn-lock btn-invalid-invoice" data-reason="@reason" data-id="@item.MaLichTrinh" title="Không thể lập hóa đơn"><i class="fas fa-ban"></i></span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function() {
+            var table = $('#dataTable').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json",
+                    "searchPlaceholder": "Tìm tên tàu, tuyến..."
+                },
+                "pageLength": 10,
+                "order": [[3, "asc"]],
+                "dom": "<'row px-3 py-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+            });
+
+            $('#statusFilter').on('change', function() {
+                var val = $(this).val();
+                table.column(6).search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+
+            $('#btnResetFilter').on('click', function() {
+                $('#statusFilter').val('');
+                table.search('').column(6).search('').draw();
+            });
+
+            // Cập nhật class click cho phù hợp với hóa đơn
+            $(document).on('click', '.btn-invalid-invoice', function() {
+                var reason = $(this).data('reason');
+                var id = $(this).data('id');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thông báo',
+                    text: reason,
+                    showCancelButton: true,
+                    confirmButtonColor: '#039be5',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fas fa-eye"></i> Xem chi tiết',
+                    cancelButtonText: 'Đóng'
+                }).then((result) => {
+                    if (result.isConfirmed && id) {
+                        window.location.href = '@Url.Action("Details", "LichTrinhs")/' + id;
+                    }
+                });
+            });
+        });
+    </script>
+}

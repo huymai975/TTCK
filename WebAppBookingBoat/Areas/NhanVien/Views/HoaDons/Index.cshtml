@@ -1,0 +1,296 @@
+﻿@model IEnumerable<WebAppBookingBoat.Models.HoaDon>
+
+@{
+    ViewData["Title"] = "Quản lý Hóa đơn";
+}
+
+<style>
+    /* 1. KHUNG BẢNG & TỈ LỆ CỘT CỐ ĐỊNH */
+    #dataTable {
+        table-layout: fixed;
+        width: 100% !important;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .col-id {
+        width: 60px;
+    }
+
+    .col-customer {
+        width: auto;
+    }
+
+    .col-route {
+        width: 200px;
+    }
+
+    .col-date {
+        width: 110px;
+    }
+
+    .col-amount {
+        width: 140px;
+    }
+
+    .col-status {
+        width: 150px;
+    }
+
+    .col-action {
+        width: 140px;
+    }
+
+    /* 2. STYLE NỘI DUNG */
+    .text-main-bold {
+        display: block;
+        font-weight: 700;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+
+    .btn-modern {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+        margin: 0 2px;
+        border: none;
+        text-decoration: none !important;
+    }
+
+    .btn-view {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .btn-print {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .btn-cancel {
+        background-color: #fff5f5;
+        color: #e53935;
+    }
+
+    .btn-view:hover {
+        background-color: #1976d2;
+        color: #fff;
+    }
+
+    .btn-print:hover {
+        background-color: #7b1fa2;
+        color: #fff;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e53935;
+        color: #fff;
+    }
+
+    .badge-status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        border: none;
+        cursor: pointer;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fa-solid fa-receipt text-primary mr-2"></i>Quản lý Hóa đơn
+        </h1>
+        <a asp-action="Create" class="btn btn-primary btn-icon-split shadow-sm border-0">
+            <span class="icon text-white-50"><i class="fas fa-cart-plus"></i></span>
+            <span class="text font-weight-bold">Lập hóa đơn (F2)</span>
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header py-3 bg-white d-flex flex-wrap align-items-center justify-content-between border-bottom">
+            <h6 class="m-0 font-weight-bold text-primary small">
+                <i class="fas fa-table mr-1"></i> DANH SÁCH GIAO DỊCH
+            </h6>
+
+            @* Bộ lọc đồng nhất *@
+            <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
+                <select id="statusFilter" class="form-control form-control-sm border-light shadow-sm mr-2" style="width: 160px;">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Đã thanh toán">Đã thanh toán</option>
+                    <option value="Chưa thanh toán">Chưa thanh toán</option>
+                    <option value="Đã hủy">Đã hủy</option>
+                </select>
+                <input type="date" id="dateFilter" class="form-control form-control-sm border-light shadow-sm mr-2" style="width: 150px;">
+                <button id="btnResetFilter" class="btn btn-sm btn-light border shadow-sm">
+                    <i class="fas fa-sync-alt text-primary"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="dataTable">
+                    <thead class="bg-light text-muted small font-weight-bold">
+                        <tr>
+                            <th class="text-center col-id border-0">ID</th>
+                            <th class="col-customer border-0">Khách hàng / NV</th>
+                            <th class="col-route border-0">Chuyến tàu</th>
+                            <th class="col-date border-0">Ngày lập</th>
+                            <th class="text-right col-amount border-0">Thanh toán</th>
+                            <th class="text-center col-status border-0">Trạng thái</th>
+                            <th class="text-center col-action border-0">Tác vụ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center font-weight-bold text-gray-500 small">#@item.MaHoaDon</td>
+                                <td>
+                                    <span class="text-main-bold">@(item.KhachHang?.HoTen ?? "Khách vãng lai")</span>
+                                    <small class="text-muted d-block">NV: @(item.NhanVien?.HoTen ?? "Online")</small>
+                                </td>
+                                <td>
+                                    @if (item.Ves?.Any() == true)
+                                    {
+                                        var lt = item.Ves.First().LichTrinh;
+                                        <div class="small font-weight-bold text-dark text-truncate">@lt?.TuyenDuong?.TenTuyen</div>
+                                        <div class="text-muted small">@lt?.NgayGioKhoiHanh.ToString("dd/MM HH:mm")</div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="small">@item.NgayLap.ToString("dd/MM/yyyy")</div>
+                                    <div class="text-muted small">@item.NgayLap.ToString("HH:mm")</div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="text-success font-weight-bold">@item.TongTien.ToString("N0")đ</div>
+                                    @if (item.SoTienGiam > 0)
+                                    {
+                                        <div class="text-danger small" style="font-size: 0.7rem;">-@item.SoTienGiam.ToString("N0")đ</div>
+                                    }
+                                </td>
+                                <td class="text-center" data-search="@item.TrangThai">
+                                    @{
+                                        var badgeClass = item.TrangThai switch
+                                        {
+                                            "Đã thanh toán" => "badge-success",
+                                            "Chưa thanh toán" => "badge-warning",
+                                            "Đã hủy" => "badge-danger",
+                                            _ => "badge-secondary"
+                                        };
+                                    }
+                                    @if (item.TrangThai == "Chưa thanh toán")
+                                    {
+                                        <button class="badge badge-status @badgeClass shadow-sm btn-block"
+                                                onclick="confirmPayment(@item.MaHoaDon, this)">
+                                            <i class="fas fa-hand-holding-usd mr-1"></i> THU TIỀN
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-status @badgeClass">@item.TrangThai</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center">
+                                        <a asp-action="Details" asp-route-id="@item.MaHoaDon" class="btn-modern btn-view" title="Xem"><i class="fa-solid fa-eye"></i></a>
+                                        <a asp-action="XuatHoaDon" asp-route-id="@item.MaHoaDon" target="_blank" class="btn-modern btn-print" title="In PDF"><i class="fa-solid fa-file-pdf"></i></a>
+                                        @if (item.TrangThai == "Chưa thanh toán")
+                                        {
+                                            <button onclick="cancelInvoice(@item.MaHoaDon, this)" class="btn-modern btn-cancel" title="Hủy"><i class="fa-solid fa-trash-can"></i></button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        var table;
+        $(document).ready(function() {
+            table = $('#dataTable').DataTable({
+                "language": { "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
+                "pageLength": 10,
+                "order": [[0, "desc"]],
+                "dom": "<'row px-3 py-2'<'col-sm-12 col-md-6'f><'col-sm-12 col-md-6'l>>t<'row px-3 py-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+            });
+
+            // Sửa lỗi lọc trạng thái (sử dụng cột index 5)
+            $('#statusFilter').on('change', function() {
+                var val = $(this).val();
+                table.column(5).search(val ? '^' + val + '$' : '', true, false).draw();
+            });
+
+            // Lọc theo ngày (cột index 3)
+            $('#dateFilter').on('change', function() {
+                var val = $(this).val();
+                if(!val) { table.column(3).search('').draw(); return; }
+                var d = val.split('-');
+                table.column(3).search(d[2] + '/' + d[1] + '/' + d[0]).draw();
+            });
+
+            $('#btnResetFilter').on('click', function() {
+                $('#statusFilter, #dateFilter').val('');
+                table.search('').columns().search('').draw();
+            });
+        });
+
+        // Hàm gọi AJAX cập nhật
+        function updateData(id, status, method) {
+            $.post('@Url.Action("UpdatePayment", "HoaDons")', {
+                id: id, status: status, method: method,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            }, function(res) {
+                if(res.success) {
+                    Swal.fire({ icon: 'success', title: 'Thành công!', timer: 1000, showConfirmButton: false })
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire('Lỗi', res.message, 'error');
+                }
+            });
+        }
+
+        function confirmPayment(id) {
+            Swal.fire({
+                title: 'Thu tiền hóa đơn #' + id,
+                html: `<select id="swal-method" class="form-control"><option value="Tiền mặt">Tiền mặt</option><option value="Chuyển khoản">Chuyển khoản</option></select>`,
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận'
+            }).then((res) => {
+                if(res.isConfirmed) updateData(id, 'Đã thanh toán', $('#swal-method').val());
+            });
+        }
+
+        function cancelInvoice(id) {
+            Swal.fire({
+                title: 'Hủy hóa đơn?',
+                text: "Thao tác này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33'
+            }).then((res) => {
+                if(res.isConfirmed) updateData(id, 'Đã hủy', 'N/A');
+            });
+        }
+    </script>
+}

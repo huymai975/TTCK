@@ -180,7 +180,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public IActionResult Create()
         {
             LoadDropdownData();
-            return View(new Ve { TrangThai = "Đã thanh toán" });
+            return View(new Ve { TrangThai = "Hợp lệ" });
         }
 
         [HttpPost]

@@ -122,8 +122,114 @@
                 <i class="fas fa-info-circle mr-1"></i> Lưu ý: Mọi thay đổi về thời gian khởi hành sẽ được thông báo tự động tới hành khách đã đặt vé.
             </p>
         </div>
+
+        @* --- PHẦN BỔ SUNG: DANH SÁCH HÀNH KHÁCH --- *@
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                    <i class="fas fa-users mr-2"></i>Danh sách hành khách đi tàu
+                </h6>
+                <div>
+                    <button onclick="window.print()" class="btn btn-sm btn-outline-secondary shadow-sm">
+                        <i class="fas fa-print fa-sm mr-1"></i> In danh sách
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover border" id="passengerTable" width="100%" cellspacing="0">
+                        <thead class="bg-light text-dark">
+                            <tr>
+                                <th class="text-center" width="5%">STT</th>
+                                <th>Hành khách</th>
+                                <th>Liên hệ</th>
+                                <th class="text-center">Số ghế</th>
+                                <th>Loại vé</th>
+                                <th class="text-center">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.DanhSachHanhKhach != null)
+                            {
+                                int stt = 1;
+                                foreach (var item in ViewBag.DanhSachHanhKhach)
+                                {
+                                    <tr>
+                                        <td class="text-center font-weight-bold">@(stt++)</td>
+                                        <td>
+                                            <div class="font-weight-bold text-dark">@item.TenHanhKhach</div>
+                                            <small class="text-muted">Mã vé: #@item.MaVe</small>
+                                        </td>
+                                        <td>
+                                            <div class="small"><i class="fas fa-phone fa-xs mr-1"></i> @item.SoDienThoai</div>
+                                            <div class="small"><i class="fas fa-envelope fa-xs mr-1"></i> @item.Email</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-pill badge-info px-3">@item.TenGhe</span>
+                                        </td>
+                                        <td>@item.LoaiGhe</td>
+                                        <td class="text-center">
+                                            @if (item.TrangThaiVe == "Hợp lệ")
+                                            {
+                                                <span class="badge badge-success-soft text-success border-success">
+                                                    <i class="fas fa-check-circle mr-1"></i>Hợp lệ
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-warning-soft text-warning border-warning">
+                                                    @item.TrangThaiVe
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">
+                                        <i class="fas fa-user-slash mr-2"></i>Chưa có hành khách nào đặt vé cho chuyến này.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @* Style bổ sung cho badge mềm *@
+        <style>
+            .badge-success-soft {
+                background-color: #eafaf1;
+                border: 1px solid;
+            }
+
+            .badge-warning-soft {
+                background-color: #fff9e6;
+                border: 1px solid;
+            }
+
+            @@media print {
+                .d-sm-flex, .card-footer, .btn, .italic, .sidebar, .navbar {
+                    display: none !important;
+                }
+
+                .card {
+                    border: none !important;
+                    shadow: none !important;
+                }
+
+                .table-responsive {
+                    overflow: visible !important;
+                }
+            }
+        </style>
     </div>
 </div>
+
+
 
 <style>
     .border-left-info {
@@ -140,5 +246,30 @@
 
     .bg-light {
         background-color: #f8f9fc !important;
+    }
+
+    .badge-success-soft {
+        background-color: #eafaf1;
+        border: 1px solid;
+    }
+
+    .badge-warning-soft {
+        background-color: #fff9e6;
+        border: 1px solid;
+    }
+
+    @@media print {
+        .d-sm-flex, .card-footer, .btn, .italic, .sidebar, .navbar {
+            display: none !important;
+        }
+
+        .card {
+            border: none !important;
+            shadow: none !important;
+        }
+
+        .table-responsive {
+            overflow: visible !important;
+        }
     }
 </style>

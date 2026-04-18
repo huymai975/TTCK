@@ -42,6 +42,27 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                // 1. Kiểm tra điểm đi và điểm đến không được trùng nhau
+                if (vm.DiemDi.ToString().ToUpper().Equals(vm.DiemDen.ToString().ToUpper()))
+                {
+                    ModelState.AddModelError("DiemDen", "Điểm đến không được trùng với điểm đi.");
+                    return View(vm);
+                }
+
+                // 2. Kiểm tra trùng tên tuyến
+                if (await _context.TuyenDuongs.AnyAsync(t => t.TenTuyen == vm.TenTuyen))
+                {
+                    ModelState.AddModelError("TenTuyen", "Tên tuyến đường này đã tồn tại.");
+                    return View(vm);
+                }
+
+                // 3. Kiểm tra trùng lộ trình (Điểm đi - Điểm đến)
+                if (await _context.TuyenDuongs.AnyAsync(t => t.DiemDi == vm.DiemDi && t.DiemDen == vm.DiemDen))
+                {
+                    ModelState.AddModelError("", "Lộ trình này đã có trong hệ thống.");
+                    return View(vm);
+                }
+
                 try
                 {
                     string uniqueFileName = "default-route.jpg";
@@ -132,6 +153,27 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                // 1. Kiểm tra điểm đi và điểm đến không trùng nhau
+                if (vm.DiemDi == vm.DiemDen)
+                {
+                    ModelState.AddModelError("DiemDen", "Điểm đến phải khác điểm đi.");
+                    return View(vm);
+                }
+
+                // 2. Kiểm tra trùng tên với tuyến khác (trừ chính nó)
+                if (await _context.TuyenDuongs.AnyAsync(t => t.TenTuyen == vm.TenTuyen && t.MaTuyen != id))
+                {
+                    ModelState.AddModelError("TenTuyen", "Tên tuyến này đã được sử dụng.");
+                    return View(vm);
+                }
+
+                // 3. Kiểm tra trùng lộ trình với tuyến khác
+                if (await _context.TuyenDuongs.AnyAsync(t => t.DiemDi == vm.DiemDi && t.DiemDen == vm.DiemDen && t.MaTuyen != id))
+                {
+                    ModelState.AddModelError("", "Lộ trình từ " + vm.DiemDi + " đến " + vm.DiemDen + " đã tồn tại.");
+                    return View(vm);
+                }
+
                 try
                 {
                     var tuyenDuong = await _context.TuyenDuongs.FindAsync(id);
@@ -200,11 +242,22 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmedAjax(int id)
         {
             var tuyen = await _context.TuyenDuongs.FindAsync(id);
             if (tuyen == null)
                 return Json(new { success = false, message = "Không tìm thấy tuyến đường này." });
+
+            var hasRelatedSchedules = await _context.LichTrinhs.AnyAsync(l => l.MaTuyen == id);
+            if (hasRelatedSchedules)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Không thể xóa! Tuyến đường này đang được sử dụng trong các lịch trình vận hành."
+                });
+            }
 
             try
             {

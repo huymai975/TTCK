@@ -1,0 +1,165 @@
+﻿@model WebAppBookingBoat.ViewModels.nvHoaDonViewModel
+
+@{
+    ViewData["Title"] = "Hóa đơn #" + Model.MaHoaDon;
+}
+
+@* Đặt CSS trực tiếp ở đây thay vì dùng @section Styles 
+   để tránh lỗi Layout không Render được section.
+*@
+<style>
+    @@media print {
+        /* 1. Ẩn tất cả mọi thứ */
+        body * {
+            visibility: hidden;
+        }
+        /* 2. Chỉ hiển thị vùng hóa đơn và các thành phần con của nó */
+        #invoice-content, #invoice-content * {
+            visibility: visible;
+        }
+        /* 3. Đưa hóa đơn lên đầu trang */
+        #invoice-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        /* 4. Ẩn các nút không cần thiết trong vùng hóa đơn (như nút In, nút Trở lại) */
+        .no-print {
+            display: none !important;
+        }
+        /* Xóa bóng đổ và viền thừa để tiết kiệm mực và đẹp hơn */
+        .card {
+            border: none !important;
+            shadow: none !important;
+        }
+
+        .shadow-sm {
+            box-shadow: none !important;
+        }
+    }
+</style>
+
+<div class="container-fluid" id="invoice-content">
+    @* Tiêu đề tinh chỉnh cho nhân viên *@
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 no-print">
+        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">
+            <i class="fas fa-file-invoice text-primary mr-2"></i>Chi tiết Hóa đơn
+        </h1>
+        <button type="button" onclick="window.print()" class="btn btn-primary shadow-sm">
+            <i class="fas fa-print fa-sm text-white-50 mr-1"></i> In hóa đơn
+        </button>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary">MÃ HÓA ĐƠN: #@Model.MaHoaDon</h6>
+                    <span class="text-muted small">
+                        <i class="fas fa-calendar-alt mr-1"></i> Ngày lập: @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                </div>
+
+                <div class="card-body px-lg-5">
+                    @* Thông tin Chuyến đi *@
+                    <div class="alert alert-light border shadow-sm mb-4">
+                        <h6 class="font-weight-bold text-dark"><i class="fas fa-ship mr-2 text-info"></i>Thông tin hành trình</h6>
+                        <hr class="my-2" />
+                        <div class="row text-dark">
+                            <div class="col-md-4">
+                                <small class="text-uppercase text-muted d-block">Tàu & Chuyến</small>
+                                <span class="font-weight-bold">@Model.TenTau - @Model.TenChuyen</span>
+                            </div>
+                            <div class="col-md-4 border-left">
+                                <small class="text-uppercase text-muted d-block">Tuyến đường</small>
+                                <span>@Model.TuyenDuong</span>
+                            </div>
+                            <div class="col-md-4 border-left">
+                                <small class="text-uppercase text-muted d-block">Giờ khởi hành</small>
+                                <span class="text-danger font-weight-bold">@Model.NgayKhoiHanh.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        @* Khách hàng *@
+                        <div class="col-md-6 border-right">
+                            <h6 class="font-weight-bold text-dark mb-3">Thông tin khách hàng</h6>
+                            <p class="mb-1 text-dark"><strong>Họ tên:</strong> @Model.TenKhachHang</p>
+                            <p class="mb-1 text-dark"><strong>Điện thoại:</strong> @Model.SoDienThoaiKH</p>
+                            <p class="mb-1 text-dark"><strong>Nhân viên lập:</strong> @Model.TenNhanVien</p>
+                            <div class="mt-3">
+                                <small class="d-block text-muted">Phương thức thanh toán:</small>
+                                <span class="badge badge-light border"><i class="fas fa-wallet mr-2"></i>@Model.PhuongThucTT</span>
+                            </div>
+                        </div>
+
+                        @* Thanh toán *@
+                        <div class="col-md-6 pl-md-4">
+                            <h6 class="font-weight-bold text-dark mb-3">Thanh toán</h6>
+                            <div class="d-flex justify-content-between mb-1"><span>Tạm tính:</span> <span>@Model.TamTinh.ToString("N0") đ</span></div>
+                            <div class="d-flex justify-content-between mb-1 text-danger"><span>Giảm giá:</span> <span>-@Model.SoTienGiam.ToString("N0") đ</span></div>
+                            <div class="d-flex justify-content-between mt-2 p-2 bg-light font-weight-bold h5 text-dark">
+                                <span>Tổng tiền:</span> <span class="text-success">@Model.TongTienFormat</span>
+                            </div>
+                            <div class="text-center mt-3">
+                                <span class="badge @(Model.TrangThai == "Đã thanh toán" ? "badge-success" : "badge-warning") px-4 py-2">
+                                    @Model.TrangThai
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Bảng vé *@
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <h6 class="font-weight-bold text-dark mb-0">Danh sách vé đặt</h6>
+                            <span class="badge badge-primary ml-2">@Model.SoLuongVe vé</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="bg-light">
+                                    <tr class="text-dark">
+                                        <th class="text-center">Mã vé</th>
+                                        <th>Vị trí Ghế</th>
+                                        <th class="text-center">Hạng</th>
+                                        <th class="text-right">Giá vé</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.DanhSachVe != null)
+                                    {
+                                        foreach (var ve in Model.DanhSachVe)
+                                        {
+                                            <tr>
+                                                <td class="text-center text-muted">#@ve.MaVe</td>
+                                                <td class="font-weight-bold">@ve.TenGhe</td>
+                                                <td class="text-center">
+                                                    <span class="small">@ve.LoaiGhe</span>
+                                                </td>
+                                                <td class="text-right font-weight-bold">
+                                                    @ve.GiaVe.ToString("N0") đ
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white d-flex justify-content-between no-print">
+                    <a asp-area="NhanVien" asp-controller="HoaDons" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Trở lại danh sách
+                    </a>
+                    <span class="text-muted small align-self-center">WebAppBookingBoat - Hệ thống đặt vé tàu</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

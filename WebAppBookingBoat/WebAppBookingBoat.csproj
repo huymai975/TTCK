@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\NhanVien\Data\**" />
+    <Content Remove="Areas\NhanVien\Data\**" />
+    <EmbeddedResource Remove="Areas\NhanVien\Data\**" />
+    <None Remove="Areas\NhanVien\Data\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\css\.DS_Store" />
     <None Include="wwwroot\fonts\.DS_Store" />
     <None Include="wwwroot\images\.DS_Store" />
@@ -30,13 +37,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGenerators.Mvc" Version="8.0.23" />
     <PackageReference Include="Rotativa.AspNetCore" Version="1.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\NhanVienArea\Data\" />
-    <Folder Include="Areas\NhanVienArea\Models\" />
-    <Folder Include="Views\Review\" />
-    <Folder Include="wwwroot\images\tuyen-duong\" />
   </ItemGroup>
 
 </Project>

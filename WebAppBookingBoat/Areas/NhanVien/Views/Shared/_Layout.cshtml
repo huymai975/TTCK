@@ -1,0 +1,373 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<title>@ViewBag.Title</title>
+
+	<!-- Custom fonts for this template-->
+	<link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+	<link href="~/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+		  rel="stylesheet">
+
+	<!-- Custom styles for this template-->
+	<link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="~/css/admin-soft-ui.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+	@* css custom *@
+	<style>
+		/* 1. Cố định vị trí và hiệu ứng ẩn/hiện mượt mà */
+		.topbar .dropdown-menu {
+			display: block !important; /* Luôn render để chạy transition */
+			visibility: hidden;
+			opacity: 0;
+			transform: translateY(10px);
+			transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+			/* Chống đụng viền và bo góc */
+			border-radius: 12px !important;
+			border: none !important;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+			overflow: hidden;
+			margin-top: 0 !important;
+		}
+
+		/* 2. Cầu nối vô hình: Giúp chuột di từ Icon xuống Menu không bị mất */
+		.topbar .nav-item.dropdown::after {
+			content: "";
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			height: 20px; /* Vùng đệm */
+			z-index: 1;
+		}
+
+		/* 3. Hiển thị khi Hover vào Icon hoặc Menu */
+		.topbar .nav-item.dropdown:hover .dropdown-menu {
+			visibility: visible;
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		/* 4. Đồng bộ kích thước và khoảng cách cho phần Chuông & Tin nhắn */
+		.topbar .dropdown-list {
+			width: 320px !important;
+			min-width: 320px !important;
+		}
+
+		.topbar .dropdown-item {
+			display: flex !important;
+			align-items: center;
+			padding: 15px 20px !important;
+			white-space: normal;
+			border-bottom: 1px solid #f8f9fc;
+			transition: background 0.2s ease;
+		}
+
+			.topbar .dropdown-item:last-child {
+				border-bottom: none;
+			}
+
+			/* Chỉnh chữ không bị dính viền */
+			.topbar .dropdown-item > div:last-child {
+				flex: 1;
+				padding-left: 5px;
+			}
+
+		/* 5. Hiệu ứng Icon khi Hover */
+		.topbar .nav-link i {
+			transition: transform 0.3s ease, color 0.3s ease;
+		}
+
+		.topbar .nav-item.dropdown:hover .nav-link i {
+			color: #4e73df;
+			transform: scale(1.2);
+		}
+	</style>
+
+
+</head>
+
+<body id="page-top">
+
+	<!-- Page Wrapper -->
+	<div id="wrapper">
+
+		<!-- Sidebar -->
+		<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+			<!-- Sidebar - Brand -->
+			<li>
+				<a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+					<div class="sidebar-brand-icon rotate-n-15">
+						<i class="fas fa-laugh-wink"></i>
+					</div>
+					<div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+				</a>
+			</li>
+
+			<!-- Divider -->
+			<li>
+				<hr class="sidebar-divider my-0">
+			</li>
+
+			<!-- Nav Item - Dashboard -->
+			<li class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")">
+				<a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+					<i class="fas fa-fw fa-tachometer-alt"></i>
+					<span>Trang chủ</span>
+				</a>
+			</li>
+
+			<li><hr class="sidebar-divider"></li>
+
+			<li>
+				<div class="sidebar-heading">
+					Hệ thống vận hành
+				</div>
+			</li>
+
+			<li class="nav-item">
+				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDoiTac"
+				   aria-expanded="true" aria-controls="collapseDoiTac">
+					<i class="fas fa-fw fa-users"></i>
+					<span>Đối tác & Khách hàng</span>
+				</a>
+				<div id="collapseDoiTac" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+					<div class="bg-white py-2 collapse-inner rounded">
+						<h6 class="collapse-header">Hồ sơ:</h6>
+						<a class="collapse-item" asp-area="NhanVien" asp-controller="KhachHangs" asp-action="Index">Khách hàng</a>
+					</div>
+				</div>
+			</li>
+
+			<li class="nav-item">
+				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBanHang"
+				   aria-expanded="true" aria-controls="collapseBanHang">
+					<i class="fas fa-fw fa-ticket-alt"></i>
+					<span>Nghiệp vụ bán vé</span>
+				</a>
+				<div id="collapseBanHang" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+					<div class="bg-white py-2 collapse-inner rounded">
+						@* Danh mục Vận hành & Kinh doanh *@
+						<h6 class="collapse-header">Bán hàng & Giao dịch:</h6>
+						<a class="collapse-item font-weight-bold text-primary" asp-area="NhanVien" asp-controller="Ves" asp-action="Index">
+							<i class="fas fa-plus-circle mr-1"></i>Bổ sung vé
+						</a>
+						<a class="collapse-item" asp-area="NhanVien" asp-controller="HoaDons" asp-action="Index">Quản lý hóa đơn</a>
+
+						<div class="collapse-divider"></div>
+						<h6 class="collapse-header">Lịch trình & Tuyến:</h6>
+						<a class="collapse-item" asp-area="NhanVien" asp-controller="LichTrinhs" asp-action="Index">Lịch trình tàu chạy</a>
+					</div>
+				</div>
+			</li>
+
+			<li><hr class="sidebar-divider d-none d-md-block"></li>
+
+			<!-- Sidebar Toggler (Sidebar) -->
+			<li class="nav-item d-none d-md-block">
+				<div class="text-center">
+					<button class="rounded-circle border-0" id="sidebarToggle"></button>
+				</div>
+			</li>
+
+		</ul>
+		<!-- End of Sidebar -->
+		<!-- Content Wrapper -->
+		<div id="content-wrapper" class="d-flex flex-column">
+
+			<!-- Main Content -->
+			<div id="content">
+
+				<!-- Topbar -->
+				<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+					<!-- Sidebar Toggle (Topbar) -->
+					<button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+						<i class="fa fa-bars"></i>
+					</button>
+
+					<!-- Topbar Navbar -->
+					<ul class="navbar-nav ml-auto">
+
+						<li>
+							<div class="topbar-divider d-none d-sm-block"></div>
+						</li>
+
+						<!-- Nav Item - User Information -->
+						<li class="nav-item dropdown no-arrow">
+							<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+							   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<span class="mr-2 d-none d-lg-inline text-gray-600 small">Xin chào @UserManager.GetUserName(User)!</span>
+								<img class="img-profile rounded-circle"
+									 src="~/images/undraw_profile.svg">
+							</a>
+							<!-- Dropdown - User Information -->
+							<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+
+								@* Nút Hồ sơ cá nhân *@
+								<a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile">
+									<i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+									Hồ sơ của tôi
+								</a>
+
+								@* Nút Lịch sử đặt vé (Dành cho Khách hàng) *@
+								@if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
+								{
+									<a class="dropdown-item" asp-area="" asp-controller="HoaDons" asp-action="MyOrders">
+										<i class="fas fa-shopping-cart fa-sm fa-fw mr-2 text-gray-400"></i>
+										Đơn hàng của tôi
+									</a>
+								}
+
+								@* Nút Quản trị hệ thống (Chỉ Admin hoặc Nhân viên mới thấy) *@
+								@if (User.IsInRole("Admin") )
+								{
+									<a class="dropdown-item" asp-area="Admin" asp-controller="Home" asp-action="Index">
+										<i class="fas fa-user-shield fa-sm fa-fw mr-2 text-gray-400"></i>
+										<strong>Quản trị hệ thống</strong>
+									</a>
+								}else if (User.IsInRole("Staff"))
+								{
+									<a class="dropdown-item" asp-area="NhanVien" asp-controller="Home" asp-action="Index">
+										<i class="fas fa-user-shield fa-sm fa-fw mr-2 text-gray-400"></i>
+										<strong>Quản trị hệ thống</strong>
+									</a>
+								}
+
+								<div class="dropdown-divider"></div>
+
+								@* Nút Đăng xuất *@
+								<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+									<i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+									Đăng xuất
+								</a>
+							</div>
+						</li>
+
+					</ul>
+
+				</nav>
+				<!-- End of Topbar -->
+				<!-- Begin Page Content -->
+				<div class="container-fluid">
+
+					@RenderBody()
+
+				</div>
+				<!-- /.container-fluid -->
+
+			</div>
+			<!-- End of Main Content -->
+			<!-- Footer -->
+			<footer class="sticky-footer bg-white">
+				<div class="container my-auto">
+					<div class="copyright text-center my-auto">
+						<span>Bản quyền &copy; @DateTime.Now.Year - Water Boat Booking. Thiết kế bởi <strong>Maihuyy</strong></span>
+					</div>
+				</div>
+			</footer>
+			<!-- End of Footer -->
+
+		</div>
+		<!-- End of Content Wrapper -->
+
+	</div>
+	<!-- End of Page Wrapper -->
+	<!-- Scroll to Top Button-->
+	<a class="scroll-to-top rounded" href="#page-top">
+		<i class="fas fa-angle-up"></i>
+	</a>
+
+	<!-- Logout Modal-->
+	<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Bạn muốn rời đi?</h5>
+					<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">Chọn "Đăng xuất" bên dưới nếu bạn đã sẵn sàng kết thúc phiên làm việc hiện tại.</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy</button>
+
+					@* Quan trọng: Dùng form POST để gửi yêu cầu đăng xuất *@
+					<form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+						<button type="submit" class="btn btn-primary">Đăng xuất</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bootstrap core JavaScript-->
+	<script src="~/vendor/jquery/jquery.min.js"></script>
+	<script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Core plugin JavaScript-->
+	<script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+	<!-- Custom scripts for all pages-->
+
+	<script src="~/js/sb-admin-2.min.js"></script>
+
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+	<script src="~/js/notification.js"></script>
+
+	<script>
+
+		document.addEventListener("DOMContentLoaded", function() {
+			// 1. LẤY DỮ LIỆU TỪ CONTROLLER
+			var success = '@Html.Raw(TempData["SuccessMessage"] ?? "")';
+			var error = '@Html.Raw(TempData["ErrorMessage"] ?? "")';
+
+			// 2. CẤU HÌNH TOAST
+			const Toast = Swal.mixin({
+				toast: true,
+				position: 'top-end',
+				showConfirmButton: false,
+				timer: 3000,
+				timerProgressBar: true,
+				didOpen: (toast) => {
+					toast.addEventListener('mouseenter', Swal.stopTimer)
+					toast.addEventListener('mouseleave', Swal.resumeTimer)
+				}
+			});
+
+			// Cho nổ thông báo nếu có nội dung
+			if (success.trim()) {
+				Toast.fire({ icon: 'success', title: success });
+			}
+			if (error.trim()) {
+				Toast.fire({ icon: 'error', title: error });
+			}
+		});
+
+	</script>
+
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
+
+@section Scripts {
+
+}

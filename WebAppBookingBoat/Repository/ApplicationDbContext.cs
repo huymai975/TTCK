@@ -56,21 +56,11 @@ namespace WebAppBookingBoat.Repository
                 t.HasCheckConstraint("CK_NV_Email_Format", "[Email] LIKE '%_@_%._%'");
             });
 
-            // --- CẤU HÌNH QUAN HỆ 1-1 CHI TIẾT ---
-
-            // 1 tài khoản AppUser <-> 1 hồ sơ NhanVien
-            modelBuilder.Entity<NhanVien>()
-                .HasOne(nv => nv.AppUser)
-                .WithOne()
-                .HasForeignKey<NhanVien>(nv => nv.MaTK)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 1 tài khoản AppUser <-> 1 hồ sơ KhachHang
-            modelBuilder.Entity<KhachHang>()
-                .HasOne(kh => kh.AppUser)
-                .WithOne()
-                .HasForeignKey<KhachHang>(kh => kh.MaTK)
-                .OnDelete(DeleteBehavior.Restrict);
+            // Tuyến đường
+            modelBuilder.Entity<TuyenDuong>().ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_TD_DiemKhacNhau", "[DiemDi] <> [DiemDen]");
+            });
 
             // Lịch trình
             modelBuilder.Entity<LichTrinh>(e =>
@@ -78,6 +68,12 @@ namespace WebAppBookingBoat.Repository
                 e.ToTable(t => t.HasCheckConstraint("CK_LT_ThoiGian", "[NgayGioCapBenDuKien] > [NgayGioKhoiHanh]"));
                 e.ToTable(t => t.HasCheckConstraint("CK_LT_GheTrong", "[SoGheTrong] >= 0"));
                 e.ToTable(t => t.HasCheckConstraint("CK_LT_GiaVe", "[GiaVeCoBan] >= 0"));
+            });
+
+            modelBuilder.Entity<LichTrinh>().ToTable(t =>
+            {
+                // Trạng thái chuyến đi
+                t.HasCheckConstraint("CK_LT_TrangThai", "[TrangThai] IN (N'Sắp khởi hành', N'Đang vận hành', N'Hoàn thành', N'Đã hủy')");
             });
 
             //Khuyến mãi(Đảm bảo ngày kết thúc sau ngày bắt đầu và các giá trị không âm)
@@ -113,6 +109,12 @@ namespace WebAppBookingBoat.Repository
                 .HasIndex(v => new { v.MaLichTrinh, v.MaGhe })
                 .IsUnique();
 
+            modelBuilder.Entity<Ve>().ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Ve_GiaVe", "[GiaVe] >= 0");
+                t.HasCheckConstraint("CK_Ve_TrangThai", "[TrangThai] IN (N'Đang chờ', N'Hợp lệ', N'Đã hủy')");
+            });
+
             // --- 3. CẤU HÌNH DECIMAL ---
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetProperties())
@@ -127,6 +129,14 @@ namespace WebAppBookingBoat.Repository
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
+            // 1 Hóa đơn <-> 1 Đánh giá
+            modelBuilder.Entity<DanhGia>()
+                .HasOne(d => d.HoaDon)
+                .WithOne(h => h.DanhGia) // Bạn cần đảm bảo trong class HoaDon có: public virtual DanhGia? DanhGia { get; set; }
+                .HasForeignKey<DanhGia>(d => d.MaHoaDon) // Chỉ định MaHoaDon trong bảng DanhGia là Foreign Key
+                .OnDelete(DeleteBehavior.Restrict); // Tránh xóa dây chuyền nếu không cần thiết
+
+
             // --- 5. CẤU HÌNH BẢNG LOG ---
             modelBuilder.Entity<Log>(entity =>
             {
@@ -139,6 +149,22 @@ namespace WebAppBookingBoat.Repository
             {
                 t.HasCheckConstraint("CK_Log_Loai", "[LoaiLog] IN ('Info', 'Warning', 'Error', 'Critical')");
             });
+
+            // --- CẤU HÌNH QUAN HỆ 1-1 CHI TIẾT ---
+
+            // 1 tài khoản AppUser <-> 1 hồ sơ NhanVien
+            modelBuilder.Entity<NhanVien>()
+                .HasOne(nv => nv.AppUser)
+                .WithOne()
+                .HasForeignKey<NhanVien>(nv => nv.MaTK)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 1 tài khoản AppUser <-> 1 hồ sơ KhachHang
+            modelBuilder.Entity<KhachHang>()
+                .HasOne(kh => kh.AppUser)
+                .WithOne()
+                .HasForeignKey<KhachHang>(kh => kh.MaTK)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // SeedData ở đây
             DbInitializer.Seed(modelBuilder);

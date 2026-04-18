@@ -3,11 +3,91 @@
 @inject UserManager<AppUser> UserManager
 
 
+<style>
+	/* Bo góc và màu nền nhạt cho các icon contact */
+	.contact-icon-circle {
+		width: 45px;
+		height: 45px;
+		border-radius: 12px; /* Bo góc hiện đại kiểu iOS/Android */
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.1rem;
+		transition: 0.3s;
+	}
+
+	/* Các màu nền nhẹ cho Icon */
+	.bg-light-primary {
+		background-color: rgba(78, 115, 223, 0.1);
+	}
+
+	.bg-light-success {
+		background-color: rgba(28, 200, 138, 0.1);
+	}
+
+	.bg-light-info {
+		background-color: rgba(54, 185, 204, 0.1);
+	}
+
+	.contact-box:hover .contact-icon-circle {
+		transform: translateY(-3px);
+		box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+	}
+
+	.contact-text strong {
+		font-size: 0.9rem;
+		letter-spacing: 0.5px;
+	}
+
+	.contact-text small {
+		font-size: 0.75rem;
+	}
+
+	/* Sticky Header mượt mà */
+	.header-main {
+		z-index: 1000;
+		transition: all 0.3s;
+	}
+
+	.social-links a {
+		transition: 0.3s;
+		opacity: 0.8;
+	}
+
+		.social-links a:hover {
+			opacity: 1;
+			transform: scale(1.2);
+		}
+
+	/* Responsive cho Logo */
+	@@media (max-width: 992px) {
+		.header-main {
+			padding: 10px 0;
+		}
+	}
+
+	.auth-dropdown .dropdown-menu::before {
+		content: "";
+		position: absolute;
+		top: -20px; /* Độ cao lấp đầy khoảng trống giữa nút và menu */
+		left: 0;
+		right: 0;
+		height: 20px;
+		background: transparent;
+	}
+
+	/* Đảm bảo menu hiển thị ngay sát phía dưới avatar */
+	.auth-dropdown .dropdown-menu {
+		margin-top: 5px !important; /* Giảm khoảng cách này lại */
+		transition: all 0.2s ease-in-out;
+	}
+</style>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-	<title>WaterBoat &mdash; Website Template by Colorlib</title>
+	<title>WaterBoat &mdash; Website Booking</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -19,6 +99,7 @@
 	<link rel="stylesheet" href="~/css/owl.carousel.min.css">
 	<link rel="stylesheet" href="~/css/owl.theme.default.min.css">
 	<link rel="stylesheet" href="~/css/owl.theme.default.min.css">
+	<link rel="stylesheet" href="~/css/jquery.mb.YTPlayer.min.css">
 
 	<link rel="stylesheet" href="~/css/jquery.fancybox.min.css">
 
@@ -40,110 +121,218 @@
 	<link href="~/css/sb-admin-2.min.css" rel="stylesheet">
 
 
+	@* --- CSS "ĐỘ" CHUYÊN NGHIỆP --- *@
 	<style>
-		/* 1. Cố định vị trí và thiết lập hiệu ứng ẩn/hiện */
-		.header-top .dropdown-menu-right {
-			right: 0 !important;
-			left: auto !important;
-			position: absolute !important;
-			top: 100% !important;
-			transform: translateY(10px) !important;
-			display: block !important; /* Luôn render để chạy transition */
-			/* Trạng thái ẩn */
-			visibility: hidden;
-			opacity: 0;
-			transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
-			/* Chống đụng viền và bo góc */
-			border-radius: 12px !important;
-			border: none !important;
-			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
-			overflow: hidden;
-			z-index: 1000;
-			padding: 0 !important;
+		/* --- 1. TỔNG THỂ & TIỆN ÍCH --- */
+		.small-caps {
+			font-variant: small-caps;
+			letter-spacing: 0.5px;
 		}
 
-		/* 2. Cầu nối: Tạo vùng đệm để khi di chuột từ Icon xuống Dropdown không bị mất */
-		.header-top .nav-item.dropdown::after {
-			content: "";
-			position: absolute;
-			top: 100%;
-			left: 0;
-			width: 100%;
-			height: 15px; /* Vùng đệm vô hình */
-		}
-
-		/* 3. Hiển thị khi Hover vào Icon HOẶC Hover vào chính Dropdown */
-		.header-top .nav-item.dropdown:hover .dropdown-menu-right {
-			visibility: visible;
-			opacity: 1;
-			transform: translateY(0px) !important;
-			transition-delay: 0s; /* Hiện ngay lập tức */
-		}
-
-		/* 4. Định dạng nội dung bên trong (Chống đụng viền chữ) */
-		.header-top .dropdown-item {
-			display: flex !important;
-			align-items: center;
-			padding: 15px 20px !important; /* Khoảng cách chữ rất thoáng */
-			transition: background 0.2s ease;
-			white-space: normal;
-			border-bottom: 1px solid #f8f9fc;
-		}
-
-			.header-top .dropdown-item:last-child {
-				border-bottom: none;
-			}
-
-		/* Khối văn bản */
-		.header-top .content-text {
-			padding-right: 5px;
-			flex-grow: 1;
-		}
-
-		/* 5. Hiệu ứng Icon và Avatar khi Hover */
-		.header-top .nav-link {
+		.hover-lift {
 			transition: all 0.3s ease;
 		}
 
-			.header-top .nav-link i {
-				transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			.hover-lift:hover {
+				transform: translateY(-3px);
+				box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
 			}
 
-		.header-top .nav-item.dropdown:hover .nav-link i {
-			color: #007bff;
-			transform: scale(1.15);
+		/* --- 2. TOP BAR & CONTACT BOX --- */
+		.hover-primary:hover {
+			color: #4e73df !important;
+			transition: 0.3s;
 		}
 
-		.header-top .nav-item.dropdown:hover .img-profile {
-			border-color: #007bff !important;
-		}
-
-		/* Dropdown Header */
-		.header-top .dropdown-header {
-			padding: 15px 20px !important;
-			font-size: 0.75rem;
-			letter-spacing: 1px;
-		}
-
-		/* Ép chiều rộng cho cả 2 dropdown bằng nhau */
-		.header-top .dropdown-list {
-			width: 320px !important; /* Tăng từ 280px lên 320px cho rộng rãi */
-			min-width: 320px !important;
-		}
-
-		/* Sửa lỗi chiều dọc quá dài cho phần Chuông */
-		.header-top .dropdown-item {
-			display: flex !important;
+		.contact-icon-circle {
+			width: 45px;
+			height: 45px;
+			border-radius: 12px;
+			display: flex;
 			align-items: center;
-			padding: 12px 20px !important;
-			min-height: 70px; /* Đảm bảo các item có độ cao đồng đều */
+			justify-content: center;
+			transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 		}
 
-		/* Khối text bên trong */
-		.header-top .content-text {
-			flex: 1; /* Để text chiếm hết khoảng trống còn lại */
-			padding-left: 5px;
+		.contact-box:hover .contact-icon-circle {
+			transform: scale(1.1) rotate(10deg);
+			box-shadow: 0 5px 15px rgba(0,0,0,0.08);
 		}
+
+		.bg-light-primary {
+			background: #f0f3ff;
+		}
+
+		.bg-light-success {
+			background: #e8fff3;
+		}
+
+		.bg-light-info {
+			background: #e2faff;
+		}
+
+		/* --- 3. NAVIGATION MENU --- */
+		.main-nav-wrapper {
+			border-bottom: 2px solid #f8f9fc;
+			z-index: 1000;
+		}
+
+		.nav-menu li a {
+			display: block;
+			padding: 20px 25px;
+			color: #4e73df;
+			font-weight: 700;
+			text-transform: uppercase;
+			font-size: 0.85rem;
+			letter-spacing: 1px;
+			position: relative;
+			text-decoration: none;
+			transition: 0.3s;
+		}
+
+			.nav-menu li a::after {
+				content: '';
+				position: absolute;
+				width: 0;
+				height: 3px;
+				bottom: 0;
+				left: 50%;
+				background: #4e73df;
+				transition: 0.3s ease;
+				transform: translateX(-50%);
+			}
+
+		.nav-menu li:hover a {
+			color: #224abe;
+		}
+
+			.nav-menu li:hover a::after, .nav-menu li.active a::after {
+				width: 60%;
+			}
+
+		.nav-menu li.active a {
+			color: #224abe;
+		}
+
+		.sticky-top.shadow-sm {
+			box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
+		}
+
+		/* --- 4. AUTH UI & DROPDOWN (FIX LỖI) --- */
+		.auth-dropdown {
+			position: relative; /* Neo giữ dropdown không bị trôi */
+		}
+
+		.avatar-wrapper {
+			transition: transform 0.3s ease;
+		}
+
+		.auth-dropdown:hover .avatar-wrapper {
+			transform: scale(1.05);
+		}
+
+		/* Hiệu ứng Dropdown mượt mà */
+		.auth-dropdown .dropdown-menu {
+			display: block;
+			visibility: hidden;
+			opacity: 0;
+			top: 100% !important; /* Luôn nằm dưới Avatar */
+			right: 0 !important; /* Căn lề phải */
+			left: auto !important;
+			transform: translateY(15px);
+			transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+			pointer-events: none;
+			z-index: 9999;
+			min-width: 220px;
+		}
+
+			/* Hiện Dropdown khi hover hoặc class .show (click) */
+			.auth-dropdown:hover .dropdown-menu,
+			.auth-dropdown .dropdown-menu.show {
+				visibility: visible;
+				opacity: 1;
+				transform: translateY(0);
+				pointer-events: auto;
+			}
+
+		/* Items bên trong Dropdown */
+		.dropdown-item {
+			padding: 0.75rem 1.5rem;
+			font-size: 0.9rem;
+			color: #5a5c69;
+			transition: all 0.2s;
+			border-bottom: 1px solid #f8f9fc;
+		}
+
+			.dropdown-item:last-child {
+				border-bottom: none;
+			}
+
+			.dropdown-item:hover {
+				background-color: #f8f9fc;
+				color: #4e73df;
+				padding-left: 1.8rem; /* Hiệu ứng đẩy nhẹ sang phải */
+			}
+
+		.dropdown-header {
+			background: #4e73df;
+			color: white;
+			font-weight: bold;
+			padding: 15px;
+		}
+
+		/* Mobile Toggle */
+		.site-menu-toggle {
+			text-decoration: none !important;
+			color: #4e73df !important;
+		}
+
+		/* Container chứa dropdown */
+.auth-dropdown {
+    position: relative;
+}
+
+/* Tùy chỉnh menu Dropdown */
+.auth-dropdown .dropdown-menu {
+    display: block; /* Luôn để block để CSS Transition có tác dụng */
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(15px); /* Đẩy xuống một chút để tạo hiệu ứng trượt lên */
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Hiệu ứng đàn hồi */
+    pointer-events: none; /* Tránh click nhầm khi đang ẩn */
+    
+    /* Căn chỉnh để không bị lệch */
+    top: 100%;
+    right: 0 !important; 
+    left: auto !important;
+}
+
+/* Khi menu được mở (Bootstrap thêm class .show) */
+.auth-dropdown .dropdown-menu.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Hiệu ứng Hover cho các Item bên trong */
+.auth-dropdown .dropdown-item {
+    transition: background 0.2s, padding-left 0.2s;
+}
+
+.auth-dropdown .dropdown-item:hover {
+    background-color: #f8f9fc;
+    padding-left: 1.75rem; /* Nhích nhẹ sang phải khi hover */
+}
+
+/* Avatar hover nhẹ */
+.avatar-wrapper {
+    transition: transform 0.2s;
+}
+
+.auth-dropdown:hover .avatar-wrapper {
+    transform: scale(1.05);
+}
 	</style>
 
 </head>
@@ -151,186 +340,145 @@
 <body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
 
 	<div class="site-wrap">
-
-		<div class="site-mobile-menu site-navbar-target">
-			<div class="site-mobile-menu-header">
-				<div class="site-mobile-menu-close mt-3">
-					<span class="icon-close2 js-menu-toggle"></span>
-				</div>
-			</div>
-			<div class="site-mobile-menu-body"></div>
-		</div>
-
-		@* Navbar Head *@
-
-		<div class="header-top bg-light py-4 border-bottom">
+		@* --- TOP BAR: Sang trọng & Tinh gọn --- *@
+		<div class="top-bar py-2 bg-dark d-none d-lg-block">
 			<div class="container-fluid px-lg-5">
 				<div class="row align-items-center">
+					<div class="col-md-6">
+						<small class="text-white-50">
+							<i class="fa fa-clock mr-2 text-primary"></i>Giờ làm việc: <span class="text-white font-weight-bold">06:00 - 21:00</span> (Thứ 2 - CN)
+						</small>
+					</div>
+					<div class="col-md-6 text-right">
+						<div class="top-social">
+							<span class="text-white-50 small mr-3">Kết nối:</span>
+							<a href="#" class="text-white-50 mx-2 small hover-primary"><i class="fab fa-facebook-f"></i></a>
+							<a href="#" class="text-white-50 mx-2 small hover-primary"><i class="fab fa-youtube"></i></a>
+							<a href="#" class="text-white-50 mx-2 small hover-primary"><i class="fab fa-instagram"></i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
+		@* --- HEADER MAIN: Logo & Contact --- *@
+		<div class="header-main bg-white py-3 border-bottom shadow-sm">
+			<div class="container-fluid px-lg-5">
+				<div class="row align-items-center">
 					@* LOGO *@
 					<div class="col-6 col-lg-2">
-						<a asp-controller="Home" asp-action="Index">
-							<img src="~/images/logo.png" alt="Image" class="img-fluid" style="max-height: 60px;">
+						<a asp-controller="Home" asp-action="Index" class="navbar-brand">
+							<img src="~/images/logo.png" alt="Water Boat" class="img-fluid" style="max-height: 75px;">
 						</a>
 					</div>
 
-					@* PHẦN GIỮA: 3 THÔNG TIN LIÊN HỆ *@
+					@* QUICK CONTACT *@
 					<div class="col-lg-7 d-none d-lg-block">
-						<div class="d-flex justify-content-center align-items-center">
-
-							<div class="quick-contact-icons d-flex mx-3">
-								<div class="icon align-self-start mr-2">
-									<span class="icon-location-arrow text-primary"></span>
+						<div class="d-flex justify-content-center">
+							<div class="contact-box d-flex align-items-center mx-4">
+								<div class="contact-icon-circle bg-light-primary text-primary mr-3">
+									<i class="fa fa-map-marker-alt"></i>
 								</div>
-								<div class="text">
-									<span class="h4 d-block" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 0;">San Francisco</span>
-									<span class="caption-text" style="font-size: 0.8rem;">Mountain View, Fake st., CA</span>
-								</div>
-							</div>
-
-							<div class="quick-contact-icons d-flex mx-3">
-								<div class="icon align-self-start mr-2">
-									<span class="icon-phone text-primary"></span>
-								</div>
-								<div class="text">
-									<span class="h4 d-block" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 0;">000 209 392 312</span>
-									<span class="caption-text" style="font-size: 0.8rem;">Toll free</span>
+								<div class="contact-text">
+									<strong class="d-block text-dark small-caps">Bến tàu Rạch Giá</strong>
+									<small class="text-muted">Nguyễn Công Trứ, Kiên Giang</small>
 								</div>
 							</div>
 
-							<div class="quick-contact-icons d-flex mx-3">
-								<div class="icon align-self-start mr-2">
-									<span class="icon-envelope text-primary"></span>
+							<div class="contact-box d-flex align-items-center mx-4 border-left border-right px-4">
+								<div class="contact-icon-circle bg-light-success text-success mr-3">
+									<i class="fa fa-phone-alt"></i>
 								</div>
-								<div class="text">
-									<span class="h4 d-block" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 0;">info@gmail.com</span>
-									<span class="caption-text" style="font-size: 0.8rem;">Gournadi, 1230 Bariasl</span>
+								<div class="contact-text">
+									<strong class="d-block text-dark small-caps">038 674 7090</strong>
+									<small class="text-muted">Hotline 24/7</small>
 								</div>
 							</div>
 
+							<div class="contact-box d-flex align-items-center mx-4">
+								<div class="contact-icon-circle bg-light-info text-info mr-3">
+									<i class="fa fa-envelope-open"></i>
+								</div>
+								<div class="contact-text">
+									<strong class="d-block text-dark small-caps">booking@waterboat.vn</strong>
+									<small class="text-muted">Phản hồi nhanh</small>
+								</div>
+							</div>
 						</div>
 					</div>
 
-					@* AUTH UI (SÁT PHẢI) *@
+					@* AUTH UI *@
 					<div class="col-6 col-lg-3 text-right">
 						<div class="d-flex justify-content-end align-items-center">
-							<ul class="navbar-nav d-flex flex-row align-items-center mb-0" style="list-style: none; gap: 12px;">
-
+							<ul class="navbar-nav d-flex flex-row align-items-center mb-0" style="list-style: none; gap: 15px;">
 								@if (SignInManager.IsSignedIn(User))
 								{
-									@* Biểu tượng Chuông *@
-									@* <li class="nav-item dropdown no-arrow mx-1">
-										<a class="nav-link dropdown-toggle p-0 text-gray-600" href="#" id="alertsDropdown" role="button" data-toggle="dropdown">
-											<i class="fas fa-bell fa-fw"></i>
-											<span class="badge badge-danger badge-counter">3+</span>
+									<li class="nav-item dropdown no-arrow auth-dropdown position-relative">
+										@* Thêm position-relative ở đây *@
+										<a class="nav-link dropdown-toggle p-0 d-flex align-items-center" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											<div class="text-right mr-3 d-none d-lg-block">
+												<span class="d-block text-dark font-weight-bold" style="font-size: 0.8rem; line-height: 1.2;">Xin chào</span>
+												<small class="text-primary font-weight-bold">@UserManager.GetUserName(User)</small>
+											</div>
+											<div class="avatar-wrapper">
+												<img class="img-profile rounded-circle border border-primary shadow-sm" src="~/images/avt.jpg" width="45" height="45" style="object-fit: cover; padding: 2px; background: #fff;">
+											</div>
 										</a>
-										Dropdown Chuông
-										<div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0" aria-labelledby="alertsDropdown">
-											<h6 class="dropdown-header bg-primary border-0 text-white py-3">
-												<i class="fas fa-bell mr-2"></i>Thông báo
-											</h6>
 
-											Item 1
-											<a class="dropdown-item d-flex align-items-center" href="#">
-												<div class="mr-3">
-													<div class="icon-circle bg-primary text-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-														<i class="fas fa-file-alt"></i>
-													</div>
-												</div>
-												<div class="content-text">
-													<div class="small text-gray-500">12/04/2026</div>
-													<div class="font-weight-bold" style="line-height: 1.2; color: #333;">Đơn hàng mới đã được đặt thành công!</div>
-												</div>
-											</a>
+										@* Sửa lại menu: thêm right-0 để nó không bị tràn sang phải *@
+										<div class="dropdown-menu dropdown-menu-right shadow-lg border-0 mt-2 py-0"
+											 aria-labelledby="userDropdown"
+											 style="position: absolute; right: 0; min-width: 220px; z-index: 9999;">
 
-											Item 2
-											<a class="dropdown-item d-flex align-items-center" href="#">
-												<div class="mr-3">
-													<div class="icon-circle bg-success text-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-														<i class="fas fa-donate"></i>
-													</div>
+											<div class="dropdown-header bg-primary text-white p-3 rounded-top d-flex align-items-center">
+												<i class="fas fa-user-circle fa-2x mr-2"></i>
+												<div class="text-left">
+													<h6 class="mb-0 text-white font-weight-bold">TÀI KHOẢN</h6>
+													<small class="text-white-50">@UserManager.GetUserName(User)</small>
 												</div>
-												<div class="content-text">
-													<div class="small text-gray-500">11/04/2026</div>
-													<div style="line-height: 1.2;">Thanh toán cho mã đơn #123 đã hoàn tất.</div>
-												</div>
-											</a>
+											</div>
 
-											<a class="dropdown-item text-center small text-gray-500 py-2" href="#">Xem tất cả</a>
-										</div>
-									</li> *@
+											<div class="bg-white rounded-bottom overflow-hidden">
+												<a class="dropdown-item py-3 border-bottom" asp-area="" asp-controller="Account" asp-action="Index">
+													<i class="fas fa-user-cog fa-sm fa-fw mr-3 text-gray-400"></i> Hồ sơ của tôi
+												</a>
+												@if (User.IsInRole("Admin"))
+												{
+													<a class="dropdown-item py-3 border-bottom text-primary font-weight-bold" asp-area="Admin" asp-controller="Dashboards" asp-action="Index">
+														<i class="fas fa-user-shield fa-sm fa-fw mr-3"></i> Quản trị hệ thống
+													</a>
+												}
+												else if (User.IsInRole("Staff"))
+												{
+													<a class="dropdown-item py-3 border-bottom text-primary font-weight-bold" asp-area="NhanVien" asp-controller="HoaDons" asp-action="Index">
+														<i class="fas fa-user-shield fa-sm fa-fw mr-3"></i> Nghiệp vụ bán hàng
+													</a>
+												}else if (User.IsInRole("Customer"))
+												{
+													<a class="dropdown-item py-3 border-bottom" asp-area="" asp-controller="Booking" asp-action="MyOrders">
+														<i class="fas fa-history fa-sm fa-fw mr-3 text-gray-400"></i> Lịch sử đơn hàng
+													</a>
+												}
 
-									@* Biểu tượng Thư *@
-									@* <li class="nav-item dropdown no-arrow mx-2">
-										<a class="nav-link dropdown-toggle p-0 text-gray-600" href="#" id="messagesDropdown" role="button" data-toggle="dropdown">
-											<i class="fas fa-envelope fa-fw"></i>
-											<span class="badge badge-danger badge-counter">5+</span>
-										</a>
-										<div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0 overflow-hidden" aria-labelledby="messagesDropdown">
-											<h6 class="dropdown-header bg-success border-0 text-white py-3">
-												<i class="fas fa-envelope mr-2"></i>Tin nhắn
-											</h6>
-											<a class="dropdown-item d-flex align-items-center border-bottom py-3" href="#">
-												<div class="dropdown-list-image mr-3">
-													<img class="rounded-circle" src="~/images/person_1.jpg" width="40" height="40" style="object-fit: cover;">
-												</div>
-												Bao bọc chữ trong một div để kiểm soát khoảng cách
-												<div style="padding-right: 10px;">
-													<div class="text-truncate font-weight-bold" style="color: #333;">
-														Chào bạn, mình muốn hỏi về tàu...
-													</div>
-													<div class="small text-gray-500">Huy Mai · 58 phút trước</div>
-												</div>
-											</a>
-											<a class="dropdown-item text-center small text-gray-500 py-2" href="#">Đọc thêm tin nhắn</a>
-										</div>
-									</li> *@
-
-									<li class="nav-item d-none d-sm-block">
-										<div style="width: 0; border-right: 1px solid #e3e6f0; height: 1.5rem; margin: 0 10px; margin-top: 8px;"></div>
-									</li>
-
-									@* User Profile *@
-									<li class="nav-item dropdown no-arrow">
-										<a class="nav-link dropdown-toggle p-0 d-flex align-items-center text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown">
-											<span class="mr-3 d-none d-lg-inline text-dark font-weight-bold" style="font-size: 0.95rem;">
-												@UserManager.GetUserName(User)
-											</span>
-											<img class="img-profile rounded-circle border border-primary" src="~/images/person_1.jpg" width="40" height="40" style="object-fit: cover;">
-										</a>
-										<div class="dropdown-menu dropdown-menu-right shadow border-0 overflow-hidden" aria-labelledby="userDropdown">
-											<a class="dropdown-item py-2" asp-controller="Profile" asp-action="Index">
-												<i class="fas fa-user fa-sm fa-fw mr-3 text-gray-400"></i>Thông tin cá nhân
-											</a>
-											<a class="dropdown-item py-2" asp-controller="Booking" asp-action="MyOrders">
-												<i class="fas fa-history fa-sm fa-fw mr-3 text-gray-400"></i>Lịch sử đặt vé
-											</a>
-											<div class="dropdown-divider"></div>
-											<form asp-controller="Account" asp-action="Logout" method="post">
-												<button type="submit" class="dropdown-item text-danger py-2">
-													<i class="fas fa-sign-out-alt fa-sm fa-fw mr-3 text-gray-400"></i>Đăng xuất
-												</button>
-											</form>
+												<a class="dropdown-item py-3 text-danger font-weight-bold" href="#" data-toggle="modal" data-target="#logoutModal">
+													<i class="fas fa-sign-out-alt fa-sm fa-fw mr-3"></i> Đăng xuất
+												</a>
+											</div>
 										</div>
 									</li>
 								}
 								else
 								{
-									@* Nút Đăng nhập - Định dạng giống nút đăng ký *@
 									<li class="nav-item">
-										<a class="btn btn-outline-primary rounded-pill font-weight-bold" asp-controller="Account" asp-action="Login" style="font-size: 0.85rem; padding: 7px 18px;">
-											Đăng nhập
-										</a>
+										<a class="btn btn-link text-primary font-weight-bold text-decoration-none px-3 hover-lift" asp-controller="Account" asp-action="Login">Đăng nhập</a>
 									</li>
 									<li class="nav-item">
-										<a class="btn btn-primary rounded-pill font-weight-bold shadow-sm" asp-controller="Account" asp-action="Register" style="font-size: 0.85rem; padding: 7px 18px;">
-											Đăng ký
-										</a>
+										<a class="btn btn-primary rounded-pill px-4 shadow-sm font-weight-bold hover-lift" asp-controller="Account" asp-action="Register">Đăng ký</a>
 									</li>
 								}
 							</ul>
 
-							@* Menu Mobile Toggle *@
+							@* Nút Menu Mobile *@
 							<div class="d-block d-lg-none ml-3">
 								<a href="#" class="site-menu-toggle js-menu-toggle text-black">
 									<span class="icon-menu h3"></span>
@@ -338,86 +486,128 @@
 							</div>
 						</div>
 					</div>
-
 				</div>
 			</div>
 		</div>
 
-		@* Thanh Menu chính (Home, About, Services...) *@
-		<div class="site-navbar py-2 js-sticky-header site-navbar-target d-none d-lg-block" role="banner">
+		@* --- MAIN NAVIGATION: Thanh Menu tập trung --- *@
+		<nav class="main-nav-wrapper bg-white shadow-sm sticky-top d-none d-lg-block">
 			<div class="container">
-				<div class="d-flex align-items-center justify-content-center">
-					<nav class="site-navigation position-relative text-center" role="navigation">
-						<ul class="site-menu main-menu js-clone-nav d-none d-lg-block pl-0 mb-0">
-							<li class="active"><a asp-controller="Home" asp-action="Index" class="nav-link">Home</a></li>
-							<li><a href="#" class="nav-link">About Us</a></li>
-							<li><a href="#" class="nav-link">Services</a></li>
-							<li><a asp-area="" asp-controller="DanhGiaController" asp-action="Index" class="nav-link">Testimonials</a></li>
-							<li><a href="#" class="nav-link">Blog</a></li>
-							<li><a href="#" class="nav-link">Contact</a></li>
-						</ul>
-					</nav>
+				<div class="d-flex justify-content-center">
+					<ul class="nav-menu d-flex list-unstyled mb-0">
+						<li class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
+							<a asp-controller="Home" asp-action="Index">Trang chủ</a>
+						</li>
+						<li><a asp-controller="Home" asp-action="About">Giới thiệu</a></li>
+						<li><a asp-controller="Home" asp-action="Service">Dịch vụ</a></li>
+						<li><a asp-controller="DanhGia" asp-action="Index">Phản hồi</a></li>
+						<li><a asp-controller="KhuyenMai" asp-action="Index">Khuyến mãi</a></li>
+						<li><a asp-controller="Home" asp-action="Contact">Liên hệ</a></li>
+					</ul>
 				</div>
 			</div>
-		</div>
-
+		</nav>
 	</div>
+
+	
 
 
 	@RenderBody();
 
-	<div class="footer bg-light">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-3">
-					<p class="mb-4"><img src="~/images/logo.png" alt="Image" class="img-fluid"></p>
-					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae nemo minima qui dolor, iusto iure.</p>
-					<p><a href="#">Learn More</a></p>
+	<!-- Logout Modal-->
+	<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Bạn muốn rời đi?</h5>
+					<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
 				</div>
-				<div class="col-lg-3">
-					<h3 class="footer-heading"><span>Our Company</span></h3>
-					<ul class="list-unstyled">
-						<li><a href="#">About</a></li>
-						<li><a href="#">News</a></li>
-						<li><a href="#">Services</a></li>
-						<li><a href="#">Our Team</a></li>
-						<li><a href="#">Careers</a></li>
-						<li><a href="#">Projects</a></li>
-					</ul>
-				</div>
-				<div class="col-lg-3">
-					<h3 class="footer-heading"><span>Our Services</span></h3>
-					<ul class="list-unstyled">
-						<li><a href="#">Industrial</a></li>
-						<li><a href="#">Construction</a></li>
-						<li><a href="#">Remodeling</a></li>
-					</ul>
-				</div>
-				<div class="col-lg-3">
-					<h3 class="footer-heading"><span>Contact</span></h3>
-					<ul class="list-unstyled">
-						<li><a href="#">Help Center</a></li>
-						<li><a href="#">Support Community</a></li>
-						<li><a href="#">Press</a></li>
-						<li><a href="#">FAQ</a></li>
-						<li><a href="#">Our Partners</a></li>
-					</ul>
-				</div>
-			</div>
+				<div class="modal-body">Chọn "Đăng xuất" bên dưới nếu bạn đã sẵn sàng kết thúc phiên làm việc hiện tại.</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy</button>
 
-			<div class="row">
-				<div class="col-12">
-					<div class="copyright">
-						<p>
-							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-							Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart text-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-						</p>
-					</div>
+					@* Quan trọng: Dùng form POST để gửi yêu cầu đăng xuất *@
+					<form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+						<button type="submit" class="btn btn-primary">Đăng xuất</button>
+					</form>
 				</div>
 			</div>
 		</div>
 	</div>
+
+	@* FOOTER *@
+	<footer class="footer bg-white pt-5 pb-3 border-top">
+		<div class="container">
+			<div class="row g-4">
+				@* Cột 1: Giới thiệu *@
+				<div class="col-lg-4">
+					<h3 class="footer-heading text-uppercase text-primary mb-4 font-weight-bold">Water Boat</h3>
+					<p class="text-muted">Hệ thống đặt vé tàu cao tốc hàng đầu tại Kiên Giang. Chúng tôi cam kết mang lại hành trình an toàn, nhanh chóng và trải nghiệm tuyệt vời nhất trên mỗi chuyến đi.</p>
+					<div class="d-flex pt-2">
+						<a class="btn btn-outline-primary btn-social mr-2" href="#"><i class="fab fa-facebook-f"></i></a>
+						<a class="btn btn-outline-primary btn-social mr-2" href="#"><i class="fab fa-youtube"></i></a>
+						<a class="btn btn-outline-primary btn-social" href="#"><i class="fab fa-instagram"></i></a>
+					</div>
+				</div>
+
+				@* Cột 2: Liên kết nhanh *@
+				<div class="col-lg-2 col-md-6">
+					<h5 class="text-dark mb-4 fw-bold">Liên kết</h5>
+					<ul class="list-unstyled footer-links">
+						<li><a asp-controller="Home" asp-action="About">Về chúng tôi</a></li>
+						<li><a asp-controller="Home" asp-action="Service">Dịch vụ</a></li>
+						<li><a asp-controller="Home" asp-action="Contact">Liên hệ</a></li>
+						<li><a href="#">Điều khoản</a></li>
+					</ul>
+				</div>
+
+				@* Cột 3: Tuyến tàu phổ biến *@
+				<div class="col-lg-3 col-md-6">
+					<h5 class="text-dark mb-4 fw-bold">Tuyến phổ biến</h5>
+					<ul class="list-unstyled footer-links">
+						<li><a href="#"><i class="fa fa-caret-right mr-2 text-primary"></i>Rạch Giá - Phú Quốc</a></li>
+						<li><a href="#"><i class="fa fa-caret-right mr-2 text-primary"></i>Rạch Giá - Nam Du</a></li>
+						<li><a href="#"><i class="fa fa-caret-right mr-2 text-primary"></i>Hà Tiên - Phú Quốc</a></li>
+						<li><a href="#"><i class="fa fa-caret-right mr-2 text-primary"></i>Rạch Giá - Hòn Sơn</a></li>
+					</ul>
+				</div>
+
+				@* Cột 4: Thông tin liên hệ *@
+				<div class="col-lg-3">
+					<h5 class="text-dark mb-4 fw-bold">Thông tin liên hệ</h5>
+					<div class="contact-info">
+						<p class="mb-2"><i class="fa fa-map-marker-alt mr-3 text-primary"></i>Bến tàu Rạch Giá, Kiên Giang</p>
+						<p class="mb-2"><i class="fa fa-phone-alt mr-3 text-primary"></i>038 674 7090</p>
+						<p class="mb-2"><i class="fa fa-envelope mr-3 text-primary"></i>support@waterboat.vn</p>
+					</div>
+					<div class="mt-4 pt-2">
+						<p class="small text-muted mb-2">Đối tác thanh toán:</p>
+						<img src="~/images/vnpay-logo.jpg" alt="VNPay" class="img-fluid shadow-sm border p-1 rounded bg-white" style="width: 50px;">
+						@* <img src="~/images/momo-logo.png" alt="Momo" class="img-fluid shadow-sm border p-1 rounded bg-white ml-2" style="width: 30px;"> *@
+					</div>
+				</div>
+			</div>
+
+			<hr class="my-4" style="opacity: 0.1;">
+
+			<div class="row align-items-center">
+				<div class="col-md-6 text-center text-md-left">
+					<p class="mb-0 text-muted small">
+						&copy; <script>document.write(new Date().getFullYear());</script> <span class="fw-bold text-primary">Water Boat</span>. Thiết kế bởi <span class="text-dark">Huy Mai</span>.
+					</p>
+				</div>
+				<div class="col-md-6 text-center text-md-right">
+					<div class="footer-bottom-menu">
+						<a href="#">Trang chủ</a>
+						<a href="#">Chính sách</a>
+						<a href="#">Trợ giúp</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
 
 	<!-- .site-wrap -->
 	<!-- loader -->

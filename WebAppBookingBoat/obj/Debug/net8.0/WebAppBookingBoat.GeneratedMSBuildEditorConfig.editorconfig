@@ -200,6 +200,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUm9sZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/Admin/Views/Roles/ManageUserRoles.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUm9sZXNcTWFuYWdlVXNlclJvbGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/Admin/Views/Roles/UserRoles.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUm9sZXNcVXNlclJvbGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/Admin/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -288,24 +296,80 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVienArea/Views/Home/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5BcmVhXFZpZXdzXEhvbWVcSW5kZXguY3NodG1s
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/HoaDons/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcSG9hRG9uc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVienArea/Views/Shared/_Layout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5BcmVhXFZpZXdzXFNoYXJlZFxfTGF5b3V0LmNzaHRtbA==
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/HoaDons/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcSG9hRG9uc1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVienArea/Views/Shared/_ValidationScriptsPartial.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5BcmVhXFZpZXdzXFNoYXJlZFxfVmFsaWRhdGlvblNjcmlwdHNQYXJ0aWFsLmNzaHRtbA==
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/HoaDons/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcSG9hRG9uc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVienArea/Views/_ViewImports.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5BcmVhXFZpZXdzXF9WaWV3SW1wb3J0cy5jc2h0bWw=
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/HoaDons/XuatHoaDonPDF.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcSG9hRG9uc1xYdWF0SG9hRG9uUERGLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVienArea/Views/_ViewStart.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5BcmVhXFZpZXdzXF9WaWV3U3RhcnQuY3NodG1s
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/KhachHangs/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcS2hhY2hIYW5nc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/KhachHangs/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcS2hhY2hIYW5nc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/KhachHangs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcS2hhY2hIYW5nc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/LichTrinhs/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcTGljaFRyaW5oc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/LichTrinhs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcTGljaFRyaW5oc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/Ves/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcVmVzXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/Ves/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcVmVzXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/Ves/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcVmVzXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/Ves/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcVmVzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Areas/NhanVien/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcTmhhblZpZW5cVmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Account/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Account/Login.cshtml]
@@ -348,8 +412,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9va2luZ1xTZWFyY2guY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/DanhGia/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFuaEdpYVxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/DanhGia/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFuaEdpYVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Errors/GenericError.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXJyb3JzXEdlbmVyaWNFcnJvci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Home/About.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Home/Contact.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDb250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Home/Index.cshtml]
@@ -360,8 +440,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Profile/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleC5jc2h0bWw=
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Home/Service.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTZXJ2aWNlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/KhuyenMai/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2h1eWVuTWFpXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/KhuyenMai/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2h1eWVuTWFpXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Admin/Documents/DPM225422/TTCK/TTCK/WebAppBookingBoat/Views/Shared/Error.cshtml]

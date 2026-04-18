@@ -90,15 +90,29 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             if (lichTrinh == null) return NotFound();
 
-            // --- TÍNH TOÁN CON SỐ THỰC TẾ TẠI ĐÂY ---
-            // 1. Tổng số ghế thực tế có trong bảng Ghes của con tàu này
-            ViewBag.TongSoGheThucTe = await _context.Ghes.CountAsync(g => g.MaTau == lichTrinh.MaTau);
+            // Lấy danh sách hành khách
+            var passengers = await _context.Ves
+                .Where(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy")
+                .Include(v => v.Ghe)
+                .Include(v => v.HoaDon).ThenInclude(h => h!.KhachHang)
+                .Select(v => new
+                {
+                    MaVe = v.MaVe,
+                    TenHanhKhach = v.HoaDon!.KhachHang!.HoTen,
+                    SoDienThoai = v.HoaDon.KhachHang.Sdt,
+                    Email = v.HoaDon.KhachHang.Email,
+                    TenGhe = v.Ghe!.TenGhe,
+                    LoaiGhe = v.Ghe.LoaiGhe,
+                    TrangThaiVe = v.TrangThai
+                })
+                .OrderBy(v => v.TenGhe)
+                .ToListAsync();
 
-            // 2. Số vé thực tế đã đặt (chưa hủy) cho lịch trình này
-            var soVeDaDat = await _context.Ves.CountAsync(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy");
+            ViewBag.DanhSachHanhKhach = passengers;
 
-            // 3. Số ghế trống thực tế = Tổng ghế thực tế - Vé đã đặt
-            ViewBag.SoGheTrongThucTe = (int)ViewBag.TongSoGheThucTe - soVeDaDat;
+            // Giả sử bạn đã tính toán các ViewBag này trước đó
+            ViewBag.TongSoGheThucTe = lichTrinh.Tau.Ghes?.Count ?? 0;
+            ViewBag.SoGheTrongThucTe = lichTrinh.SoGheTrong;
 
             return View(lichTrinh);
         }
@@ -278,35 +292,70 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (id != vm.MaLichTrinh) return NotFound();
 
-            // Lấy dữ liệu gốc từ DB để so sánh
+            // 1. Lấy dữ liệu gốc từ DB (AsNoTracking để không bị track khi cập nhật sau này)
             var lichTrinhDb = await _context.LichTrinhs.AsNoTracking().FirstOrDefaultAsync(l => l.MaLichTrinh == id);
             if (lichTrinhDb == null) return NotFound();
 
-            // GỌI VALIDATE TẠI ĐÂY
+            // 2. Gọi logic kiểm tra nghiệp vụ (Validate trùng lịch, tàu sẵn sàng, đã bán vé chưa...)
             await ValidateLichTrinhBusiness(vm, isEdit: true, lichTrinhDb: lichTrinhDb);
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // 3. Lấy thực thể cần cập nhật từ DB
                     var lichTrinh = await _context.LichTrinhs.FindAsync(id);
-                    // ... (gán dữ liệu từ vm sang lichTrinh như code cũ của bạn) ...
+                    if (lichTrinh == null) return NotFound();
 
-                    _context.Update(lichTrinh!);
+                    // 4. Cập nhật các thông tin từ ViewModel
+                    lichTrinh.MaTuyen = vm.MaTuyen;
+                    lichTrinh.MaTau = vm.MaTau;
+                    lichTrinh.NgayGioKhoiHanh = vm.NgayGioKhoiHanh;
+                    lichTrinh.NgayGioCapBenDuKien = vm.NgayGioCapBenDuKien;
+                    lichTrinh.GiaVeCoBan = vm.GiaVeCoBan;
+                    lichTrinh.TrangThai = vm.TrangThai;
 
-                    await GhiLogHeThong("Thay đổi giờ chạy", "LichTrinhs",
-                            $"ID: {id}. Giờ cũ: {lichTrinhDb.NgayGioKhoiHanh} -> Giờ mới: {vm.NgayGioKhoiHanh}. Cảnh báo: Lịch này đã có khách đặt vé!", "Warning");
+                    // 5. Tính toán lại số ghế trống nếu có thay đổi tàu (Phòng trường hợp Admin đổi tàu chưa bán vé)
+                    if (lichTrinhDb.MaTau != vm.MaTau)
+                    {
+                        lichTrinh.SoGheTrong = await _context.Ghes.CountAsync(g => g.MaTau == vm.MaTau);
+                    }
 
+                    // 6. Ghi Log hệ thống
+                    string logNoiDung = $"Cập nhật lịch trình ID: {id}.";
+                    if (lichTrinhDb.NgayGioKhoiHanh != vm.NgayGioKhoiHanh)
+                        logNoiDung += $" Đổi giờ: {lichTrinhDb.NgayGioKhoiHanh:HH:mm dd/MM} -> {vm.NgayGioKhoiHanh:HH:mm dd/MM}.";
+
+                    await GhiLogHeThong("Chỉnh sửa lịch trình", "LichTrinhs", logNoiDung,
+                        lichTrinhDb.NgayGioKhoiHanh != vm.NgayGioKhoiHanh ? "Warning" : "Info");
+
+                    // 7. Lưu thay đổi
+                    _context.Update(lichTrinh);
                     await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Cập nhật lịch trình thành công!";
                     return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException) { /* ... */ }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!LichTrinhExists(vm.MaLichTrinh)) return NotFound();
+                    else throw;
+                }
+                catch (Exception)
+                {
+                    ModelState.AddModelError("", "Lỗi hệ thống khi lưu chỉnh sửa. Vui lòng thử lại.");
+                }
             }
 
+            // Nếu có lỗi, load lại dữ liệu Dropdown để hiển thị lại View Edit
             LoadDropdownData(vm);
             return View(vm);
         }
 
+        private bool LichTrinhExists(int id)
+        {
+            return _context.LichTrinhs.Any(e => e.MaLichTrinh == id);
+        }
         #endregion
 
         #region DELETE
@@ -343,6 +392,43 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 return Json(new { success = false, message = "Lỗi hệ thống: Không thể xóa lịch trình lúc này." });
             }
+        }
+
+        public async Task<IActionResult> Passengers(int id)
+        {
+            var lichTrinh = await _context.LichTrinhs
+                .Include(lt => lt.Tau)
+                .Include(lt => lt.TuyenDuong)
+                .FirstOrDefaultAsync(lt => lt.MaLichTrinh == id);
+
+            if (lichTrinh == null) return NotFound();
+
+            var model = new PassengerListViewModel
+            {
+                MaLichTrinh = lichTrinh.MaLichTrinh,
+                TenTau = lichTrinh.Tau.TenTau,
+                TuyenDuong = $"{lichTrinh.TuyenDuong.TenTuyen}",
+                NgayKhoiHanh = lichTrinh.NgayGioKhoiHanh,
+                Passengers = await _context.Ves
+                    .Where(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy")
+                    .Include(v => v.HoaDon).ThenInclude(h => h!.KhachHang)
+                    .Include(v => v.Ghe)
+                    .Select(v => new PassengerItem
+                    {
+                        MaVe = v.MaVe,
+                        TenHanhKhach = v.HoaDon!.KhachHang!.HoTen, // Dữ liệu từ bảng Khách Hàng bạn vừa đưa
+                        SoDienThoai = v.HoaDon.KhachHang.Sdt,
+                        Email = v.HoaDon.KhachHang.Email,
+                        TenGhe = v.Ghe!.TenGhe,
+                        LoaiGhe = v.Ghe.LoaiGhe,
+                        TrangThaiVe = v.TrangThai,
+                        GiaVe = v.GiaVe
+                    })
+                    .OrderBy(v => v.TenGhe)
+                    .ToListAsync()
+            };
+
+            return View(model);
         }
 
         #endregion

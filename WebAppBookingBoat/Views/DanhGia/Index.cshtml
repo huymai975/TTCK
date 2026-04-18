@@ -1,0 +1,257 @@
+﻿@model IEnumerable<WebAppBookingBoat.Models.ViewModels.DanhGiaViewModel>
+
+@{
+    ViewData["Title"] = "Cảm nhận khách hàng";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #ffffff;
+    }
+
+    .detail-bg {
+        padding-top: 160px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+        min-height: 100vh;
+    }
+
+    /* Header */
+    .review-header {
+        max-width: 800px;
+        margin: 0 auto 60px;
+    }
+
+        .review-header h1 {
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            color: #1a1d23;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+    .accent-pill {
+        width: 60px;
+        height: 6px;
+        background: #007bff;
+        margin: 0 auto;
+        border-radius: 50px;
+    }
+
+    /* Card Premium */
+    .card-review-premium {
+        border: 1px solid rgba(0,0,0,0.03);
+        border-radius: 30px;
+        background: #fff;
+        transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 25px;
+    }
+
+        .card-review-premium:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.08);
+            border-color: #007bff33;
+        }
+
+    .review-img-wrapper {
+        height: 220px;
+        border-radius: 22px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+        .review-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+    .card-review-premium:hover .review-img-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .quote-container {
+        position: relative;
+        background: #f8faff;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 20px;
+        flex-grow: 1;
+    }
+
+    .quote-text {
+        font-style: italic;
+        color: #4a5568;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .star-wrapper {
+        color: #ffc107;
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+    }
+
+    .customer-name {
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: #1a1d23;
+        margin-bottom: 5px;
+    }
+
+    .route-tag {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #007bff;
+        background: #eef6ff;
+        padding: 4px 12px;
+        border-radius: 50px;
+        display: inline-block;
+    }
+
+    /* Admin Response Style */
+    .admin-preview-box {
+        margin-top: 15px;
+        padding: 12px;
+        background: #ffffff;
+        border-radius: 15px;
+        border-left: 3px solid #007bff;
+        box-shadow: 0 4px 12px rgba(0,123,255,0.05);
+    }
+
+    .admin-label-mini {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #007bff;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .admin-preview-text {
+        font-size: 0.85rem;
+        color: #444;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Pagination */
+    .pagination .page-link {
+        border: none;
+        margin: 0 5px;
+        border-radius: 50% !important;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1a1d23;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        color: white;
+    }
+</style>
+
+<div class="detail-bg pb-5">
+    <div class="container">
+        <div class="review-header text-center">
+            <span class="text-primary fw-bold text-uppercase small" style="letter-spacing: 4px;">Testimonials</span>
+            <h1>Lời Chúc Từ Khách Hàng</h1>
+            <div class="accent-pill mb-4"></div>
+            <p class="text-muted fs-5">Những câu chuyện thật về hành trình cùng WaterBoat.</p>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row g-4">
+                @foreach (var item in Model)
+                {
+                    <div class="col-xl-4 col-lg-6">
+                        <div class="card card-review-premium" onclick="location.href='@Url.Action("Details", new { id = item.MaDanhGia })'">
+
+                            <div class="review-img-wrapper shadow-sm">
+                                @{
+                                    var imgUrl = string.IsNullOrEmpty(item.HinhAnh) ? "/images/no-image-placeholder.png" : "/images/danh-gia/" + item.HinhAnh;
+                                }
+                                <img src="@imgUrl" alt="Customer">
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h3 class="customer-name">@item.TenKhachHang</h3>
+                                    <span class="route-tag">@item.TenTuyenDuong</span>
+                                </div>
+                                <div class="star-wrapper">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi @(i <= item.SoSao ? "bi-star-fill" : "bi-star")"></i>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="quote-container">
+                                <p class="quote-text mb-0">
+                                    "@(item.NoiDung?.Length > 100 ? item.NoiDung.Substring(0, 100) + "..." : item.NoiDung)"
+                                </p>
+
+                                @if (!string.IsNullOrEmpty(item.PhanHoiAdmin))
+                                {
+                                    <div class="admin-preview-box">
+                                        <span class="admin-label-mini"><i class="bi bi-patch-check-fill"></i> WaterBoat Phản hồi</span>
+                                        <p class="admin-preview-text mb-0">@item.PhanHoiAdmin</p>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+                                <div class="text-muted small">
+                                    <i class="bi bi-calendar3 me-1"></i> @item.NgayDanhGia.ToString("dd/MM/yyyy")
+                                </div>
+                                <div class="text-primary fw-bold small">
+                                    Chi tiết <i class="bi bi-chevron-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-center mt-5">
+                    <nav>
+                        <ul class="pagination">
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-chat-dots text-muted" style="font-size: 4rem; opacity: 0.2;"></i>
+                <p class="text-muted mt-3">Chưa có đánh giá nào.</p>
+            </div>
+        }
+    </div>
+</div>
