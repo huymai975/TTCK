@@ -237,12 +237,36 @@
             });
         });
 
-        function toggleStatus(id) {
-            $.post('@Url.Action("ToggleStatus", "Users")', { id: id }, function(res) {
-                if (res.success) {
-                    location.reload();
-                } else {
-                    Swal.fire('Lỗi bảo mật!', res.message, 'error');
+                        function toggleStatus(id) {
+            // 1. Hiện thông báo hỏi ý kiến Admin trước
+            Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: "Trạng thái của tài khoản này sẽ bị thay đổi!",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                // 2. Nếu Admin bấm "Đồng ý" thì mới gửi lệnh đi
+                if (result.isConfirmed) {
+                    $.post('@Url.Action("ToggleStatus", "Users")', { id: id }, function(res) {
+                        if (res.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: 'Đã cập nhật trạng thái mới.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            // Hiện lỗi nếu là Admin tổng hoặc chính mình (theo logic Controller của bạn)
+                            Swal.fire('Thao tác bị chặn!', res.message, 'error');
+                        }
+                    });
                 }
             });
         }

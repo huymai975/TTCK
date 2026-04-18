@@ -139,9 +139,5 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
 
             return View(model);
         }
-        /* Lưu ý: Các hàm Create, Edit, Delete đã được loại bỏ 
-           vì Nhân viên thường không có quyền thay đổi cấu trúc lịch trình của công ty.
-           Nếu bạn muốn nhân viên vẫn được sửa, hãy copy lại các hàm đó và đổi ViewModel tương ứng.
-        */
     }
 }

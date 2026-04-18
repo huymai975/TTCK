@@ -65,7 +65,7 @@ namespace WebAppBookingBoat.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, "Khách hàng");
+                    await _userManager.AddToRoleAsync(user, "Customer");
 
                     var khachHang = new KhachHang
                     {
@@ -90,7 +90,6 @@ namespace WebAppBookingBoat.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại.";
                 await GhiLogHeThong("Lỗi đăng ký", "System", ex.Message, "Error");
             }
 
@@ -111,6 +110,20 @@ namespace WebAppBookingBoat.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid) return View(model);
+
+            // 1. Tìm xem ông này là ai trong hệ thống
+            var user = await _userManager.FindByNameAsync(model.TenDangNhap!);
+
+            if (user != null)
+            {
+                // 2. KIỂM TRA QUAN TRỌNG: Nếu trạng thái là false (bị khóa) thì đuổi về luôn
+                if (!user.TrangThai)
+                {
+                    await GhiLogHeThong("Đăng nhập bị chặn", "AspNetUsers", $"Tài khoản {model.TenDangNhap} bị khóa nhưng cố đăng nhập.", "Warning");
+                    ModelState.AddModelError("", "Tài khoản của bạn hiện đang bị khóa. Vui lòng liên hệ Admin.");
+                    return View(model);
+                }
+            }
 
             var result = await _signInManager.PasswordSignInAsync(
                 model.TenDangNhap!,

@@ -51,6 +51,9 @@ wwwroot\images\danh-gia\2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f_view-bien.jpg
 wwwroot\images\danh-gia\5f4e3d2c-1b0a-4c9d-8e7f-6a5b4c3d2e1f_tau-phu-quy.jpg
 wwwroot\images\danh-gia\6a4b2c8d-1e5f-4a3b-9c2d-8e7f6a5b4c3d_review-phu-quoc.jpeg
 wwwroot\images\danh-gia\8e7d6c5b-4a3f-4e2d-9c1b-0a9b8c7d6e5f_review-thang-long.jpg
+wwwroot\images\danh-gia\review-32feeeab.jpg
+wwwroot\images\danh-gia\review-4a8e41e1.jpg
+wwwroot\images\danh-gia\review-57532569.jpeg
 wwwroot\images\default.jpg
 wwwroot\images\hero_1.jpg
 wwwroot\images\hero_2.jpg
