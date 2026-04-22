@@ -19,34 +19,35 @@ namespace WebAppBookingBoat.Controllers
             int pageSize = 6;
             int pageNumber = page ?? 1;
 
-            // 1. Lấy danh sách MaDanhGia mới nhất của mỗi khách hàng (Câu truy vấn gọn nhẹ)
-            var uniqueDanhGiaIds = _context.DanhGias
+            // 1. Lấy danh sách ID đánh giá mới nhất của mỗi khách hàng
+            var uniqueDanhGiaIds = await _context.DanhGias
                 .Where(d => d.TrangThai == "Đã hiển thị")
-                .GroupBy(d => d.HoaDon!.MaKH) // Sử dụng MaKH từ dữ liệu thực tế của bạn
-                .Select(g => g.OrderByDescending(x => x.NgayDanhGia).Select(x => x.MaDanhGia).FirstOrDefault());
+                .GroupBy(d => d.HoaDon!.MaKH)
+                .Select(g => g.OrderByDescending(x => x.NgayDanhGia).Select(x => x.MaDanhGia).FirstOrDefault())
+                .ToListAsync();
 
-            // 2. Tạo query từ danh sách ID đã lọc
+            // 2. Query chính - Dùng AsNoTracking để tăng tốc vì đây là trang hiển thị
             var query = _context.DanhGias
                 .Include(d => d.HoaDon).ThenInclude(h => h!.KhachHang)
                 .Include(d => d.HoaDon).ThenInclude(h => h!.Ves)
                     .ThenInclude(v => v.LichTrinh).ThenInclude(l => l!.TuyenDuong)
                 .Where(d => uniqueDanhGiaIds.Contains(d.MaDanhGia))
+                .AsNoTracking() // Tối ưu performance
                 .OrderByDescending(d => d.NgayDanhGia);
 
-            // 3. Tính toán phân trang
             int totalItems = await query.CountAsync();
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
             ViewBag.CurrentPage = pageNumber;
 
-            // 4. Thực thi lấy dữ liệu trang hiện tại
             var list = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(d => new DanhGiaViewModel
                 {
                     MaDanhGia = d.MaDanhGia,
-                    TenKhachHang = d.HoaDon != null && d.HoaDon.KhachHang != null ? d.HoaDon.KhachHang.HoTen : "Khách hàng ẩn danh",
-                    TenTuyenDuong = d.HoaDon!.Ves.FirstOrDefault() != null ? d.HoaDon.Ves.FirstOrDefault()!.LichTrinh!.TuyenDuong.TenTuyen : "N/A",
+                    TenKhachHang = d.HoaDon!.KhachHang!.HoTen ?? "Khách hàng ẩn danh",
+                    // Truy cập qua Ves (vì một hóa đơn vẫn có nhiều vé)
+                    TenTuyenDuong = d.HoaDon.Ves.FirstOrDefault()!.LichTrinh!.TuyenDuong.TenTuyen,
                     SoSao = d.SoSao,
                     NoiDung = d.NoiDung,
                     HinhAnh = d.HinhAnh,

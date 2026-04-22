@@ -13,7 +13,6 @@
         margin-top: 80px;
     }
 
-    /* Style cho bộ lọc */
     .filter-section {
         background: white;
         border-radius: 15px;
@@ -28,16 +27,15 @@
         font-size: 0.9rem;
     }
 
-    /* Style cho Card đơn hàng */
+    /* Card Order */
     .order-card {
         background: white;
         border-radius: 15px;
         border: none;
         margin-bottom: 1.5rem;
-        /* Chuyển sang dùng CSS Transition thay vì jQuery Animate để mượt hơn */
         opacity: 0;
         transform: translateY(20px);
-        transition: all 0.5s ease-out, transform 0.2s ease, box-shadow 0.2s ease;
+        transition: all 0.5s ease-out;
     }
 
         .order-card.visible {
@@ -50,6 +48,7 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
         }
 
+    /* Status Badge */
     .badge-status {
         display: inline-block;
         min-width: 110px;
@@ -58,7 +57,6 @@
         font-weight: 600;
         font-size: 0.7rem;
         text-transform: uppercase;
-        text-align: center;
     }
 
     .bg-status-success {
@@ -76,41 +74,75 @@
         color: #e74a3b;
     }
 
-    .route-name {
-        color: #4e73df;
-        font-weight: 700;
-        font-size: 1.1rem;
+    /* Button Action Optimization */
+    .btn-action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+        align-items: center;
     }
 
     .btn-action {
         border-radius: 10px;
         font-weight: 600;
-        padding: 8px 16px;
-        transition: all 0.3s;
-        min-width: 120px;
+        padding: 10px 20px;
+        font-size: 0.85rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-    }
-
-    /* Phân trang */
-    .pagination .page-link {
+        min-width: 130px;
+        height: 42px; /* Cố định chiều cao để các nút bằng nhau */
+        transition: all 0.2s;
         border: none;
-        margin: 0 5px;
-        border-radius: 8px !important;
-        font-weight: 600;
-        color: #4e73df;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
-    .pagination .page-item.active .page-link {
-        background-color: #4e73df;
+    /* Tinh chỉnh riêng cho nút Huỷ vé (để không bị lệch do nằm trong form) */
+    .form-cancel {
+        display: contents;
+    }
+
+    .btn-info.btn-action {
+        background-color: #36b9cc;
         color: white;
     }
 
-    .star-rating {
-        color: #f6c23e;
-        font-size: 0.9rem;
+    .btn-warning.btn-action {
+        background-color: #f6c23e;
+        color: white;
+    }
+
+    .btn-outline-danger.btn-action {
+        border: 2px solid #e74a3b;
+        color: #e74a3b;
+        background: transparent;
+    }
+
+        .btn-outline-danger.btn-action:hover {
+            background: #e74a3b;
+            color: white;
+        }
+
+    /* Màu cho nút In vé (xanh lá cây nhẹ hoặc xanh biển đậm tùy bạn chọn) */
+    .btn-success.btn-action {
+        background-color: #1cc88a;
+        color: white;
+    }
+
+    @@media (max-width: 768px) {
+        .btn-action-group {
+            justify-content: center;
+        }
+
+        .btn-action {
+            width: 100%;
+        }
+
+        .border-left, .border-right {
+            border: none !important;
+        }
     }
 </style>
 
@@ -183,14 +215,14 @@
         <div class="row">
             @foreach (var item in Model)
             {
-                var danhGia = item.DanhGias?.FirstOrDefault();
+                var danhGia = item.DanhGia;
                 var veDauTien = item.Ves.FirstOrDefault();
 
                 <div class="col-12">
                     <div class="card order-card shadow-sm">
                         <div class="card-body p-4">
                             <div class="row align-items-center">
-                                @* Thông tin chuyến đi *@
+                                @* Cột 1: Thông tin *@
                                 <div class="col-md-4 mb-3 mb-md-0">
                                     <span class="text-xs font-weight-bold text-uppercase text-secondary">MÃ ĐƠN: #@item.MaHoaDon</span>
                                     <div class="route-name mt-1">
@@ -202,7 +234,7 @@
                                     </div>
                                 </div>
 
-                                @* Trạng thái và Giá *@
+                                @* Cột 2: Giá & Trạng thái *@
                                 <div class="col-md-3 text-md-center mb-3 mb-md-0 border-left border-right">
                                     <div class="h5 mb-2 font-weight-bold text-dark">@item.TongTien.ToString("N0") <small>VND</small></div>
 
@@ -216,7 +248,6 @@
                                                 {
                                                     <i class="@(i <= danhGia.SoSao ? "fas" : "far") fa-star"></i>
                                                 }
-                                                <div class="small text-info font-weight-bold mt-1">Đã đánh giá</div>
                                             </div>
                                         }
                                     }
@@ -230,37 +261,49 @@
                                     }
                                 </div>
 
-                                @* Nút hành động *@
-                                <div class="col-md-5 text-md-right d-flex flex-wrap justify-content-md-end gap-2">
-                                    @if (item.TrangThai == "Chờ thanh toán")
-                                    {
-                                        <a asp-action="Payment" asp-route-id="@item.MaHoaDon" class="btn btn-warning btn-action m-1">
-                                            <i class="fas fa-credit-card mr-1"></i> Thanh toán
-                                        </a>
-                                    }
-
-                                    <a asp-action="Details" asp-route-id="@item.MaHoaDon" class="btn btn-info btn-action m-1 text-white">
-                                        <i class="fas fa-info-circle mr-1"></i> Chi tiết
-                                    </a>
-
-                                    @if (item.TrangThai == "Đã thanh toán")
-                                    {
-                                        if (danhGia == null)
+                                @* Cột 3: Nút hành động *@
+                                <div class="col-md-5">
+                                    <div class="btn-action-group">
+                                        @* 1. Nút Thanh toán (Chỉ hiện khi chưa trả tiền) *@
+                                        @if (item.TrangThai == "Chờ thanh toán")
                                         {
-                                            <a asp-action="Evaluate" asp-route-id="@item.MaHoaDon" class="btn btn-primary btn-action m-1">
-                                                <i class="fas fa-star mr-1"></i> Đánh giá
+                                            <a asp-action="Payment" asp-route-id="@item.MaHoaDon" class="btn btn-warning btn-action">
+                                                <i class="fas fa-credit-card mr-2"></i>Thanh toán
                                             </a>
                                         }
-                                        else
+
+                                        @* 2. Nút In vé (Chỉ hiện khi đã thanh toán) *@
+                                        @if (item.TrangThai == "Đã thanh toán")
                                         {
-                                            <button class="btn btn-outline-secondary btn-action m-1" disabled>
-                                                <i class="fas fa-check mr-1"></i> Đã đánh giá
-                                            </button>
+                                            <a asp-action="ExportPdf" asp-route-id="@item.MaHoaDon" target="_blank" class="btn btn-success btn-action">
+                                                <i class="fas fa-print mr-2"></i>In vé
+                                            </a>
                                         }
-                                        <a asp-action="ExportPdf" asp-route-id="@item.MaHoaDon" class="btn btn-outline-danger btn-action m-1">
-                                            <i class="fas fa-file-pdf mr-1"></i> Tải vé
+
+                                        @* 3. Nút Đánh giá (Chỉ hiện khi đã thanh toán và CHƯA đánh giá) *@
+                                        @if (item.TrangThai == "Đã thanh toán" && danhGia == null)
+                                        {
+                                            <a asp-controller="Booking" asp-action="Evaluate" asp-route-id="@item.MaHoaDon" class="btn btn-primary btn-action">
+                                                <i class="fas fa-star mr-2"></i>Đánh giá
+                                            </a>
+                                        }
+
+                                        @* 4. Nút Chi tiết (Luôn có) *@
+                                        <a asp-action="Details" asp-route-id="@item.MaHoaDon" class="btn btn-info btn-action">
+                                            <i class="fas fa-eye mr-2"></i>Chi tiết
                                         </a>
-                                    }
+
+                                        @* 5. Nút Huỷ vé (Hiện khi Chờ thanh toán HOẶC Đã thanh toán) *@
+                                        @if (item.TrangThai == "Chờ thanh toán" || item.TrangThai == "Đã thanh toán")
+                                        {
+                                            <form asp-action="CancelOrder" asp-route-id="@item.MaHoaDon" method="post" class="form-cancel">
+                                                <input type="hidden" class="order-status" value="@item.TrangThai" />
+                                                <button type="button" class="btn btn-outline-danger btn-action btn-cancel-confirm">
+                                                    <i class="fas fa-trash-alt mr-2"></i>Huỷ vé
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -322,6 +365,41 @@
 
             // 4. Tooltip (nếu có dùng Bootstrap tooltip)
             $('[title]').tooltip();
+
+                    $('.btn-cancel-confirm').on('click', function () {
+            const $form = $(this).closest('.form-cancel');
+            const status = $form.find('.order-status').val();
+
+            let title = "Xác nhận huỷ vé?";
+            // Mặc định luôn nhắc nhở về điều kiện 24h
+            let text = "Lưu ý: Bạn chỉ có thể tự huỷ vé TRƯỚC 24 GIỜ so với giờ khởi hành.";
+            let icon = "warning";
+
+            // Nếu đã thanh toán, thêm cảnh báo hoàn tiền
+            if (status === "Đã thanh toán") {
+                title = "Cảnh báo hoàn tiền & Thời gian!";
+                text = "1. Bạn chỉ được huỷ trước 24h khởi hành.\n2. Vì đơn đã thanh toán, bạn sẽ chỉ được hoàn lại 50% giá trị hóa đơn.\nBạn vẫn muốn tiếp tục?";
+                icon = "error";
+            }
+
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonColor: '#e74a3b',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Tôi đã hiểu và muốn huỷ',
+                cancelButtonText: 'Quay lại',
+                customClass: {
+                    popup: 'border-radius-15'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $form.submit();
+                }
+            });
+        });
         });
     </script>
 }

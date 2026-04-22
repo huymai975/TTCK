@@ -285,7 +285,6 @@ C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBo.B1EC93BB.Up2Date
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\refint\WebAppBookingBoat.dll
@@ -294,3 +293,4 @@ C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\ref\WebAppBookingBoat.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Rotativa.AspNetCore.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

@@ -450,20 +450,35 @@ namespace WebAppBookingBoat.Controllers
         public async Task<IActionResult> CancelOrder(int id)
         {
             var userId = _userManager.GetUserId(User);
+
+            // Lấy hóa đơn kèm các vé để giải phóng ghế
             var hoaDon = await _context.HoaDons
                 .Include(h => h.Ves).ThenInclude(v => v.LichTrinh)
                 .FirstOrDefaultAsync(h => h.MaHoaDon == id);
 
             if (hoaDon == null) return NotFound();
 
-            // Kiểm tra điều kiện hủy (Ví dụ: trước 24h chuyến đi đầu tiên trong đơn khởi hành)
-            var firstTicket = hoaDon.Ves.FirstOrDefault();
-            if (firstTicket?.LichTrinh != null)
+            // 1. CHẶN QUYỀN: Khách chỉ được huỷ đơn của chính mình
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaTK == userId);
+            if (khachHang == null || hoaDon.MaKH != khachHang.MaKH)
             {
-                var thoiGianKhoiHanh = firstTicket.LichTrinh.NgayGioKhoiHanh;
-                if (DateTime.Now.AddHours(24) >= thoiGianKhoiHanh)
+                TempData["ErrorMessage"] = "Bạn không có quyền thực hiện thao tác này.";
+                return RedirectToAction("MyOrders");
+            }
+
+            // 2. KIỂM TRA TRẠNG THÁI: Nếu đã huỷ hoặc đang xử lý khác thì không cho huỷ nữa
+            if (hoaDon.TrangThai == "Đã hủy")
+            {
+                TempData["ErrorMessage"] = "Đơn hàng này đã được hủy trước đó.";
+                return RedirectToAction("MyOrders");
+            }
+
+            // 3. ĐIỀU KIỆN THỜI GIAN (Quy định cho khách hàng: Huỷ trước 24h)
+            foreach (var ve in hoaDon.Ves)
+            {
+                if (ve.LichTrinh != null && DateTime.Now.AddHours(24) >= ve.LichTrinh.NgayGioKhoiHanh)
                 {
-                    TempData["ErrorMessage"] = "Không thể hủy vé vì đã quá thời hạn cho phép (trước 24h khởi hành).";
+                    TempData["ErrorMessage"] = $"Đã quá thời hạn tự huỷ vé (yêu cầu trước 24h). Vui lòng liên hệ hỗ trợ.";
                     return RedirectToAction("MyOrders");
                 }
             }
@@ -471,31 +486,51 @@ namespace WebAppBookingBoat.Controllers
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // 1. Cập nhật trạng thái hóa đơn
+                string logDetail = "";
+                string notification = "";
+
+                // 4. LOGIC HOÀN TIỀN (Khách tự huỷ đơn đã thanh toán)
+                if (hoaDon.TrangThai == "Đã thanh toán")
+                {
+                    decimal soTienHoan = hoaDon.TongTien * 0.5m;
+                    hoaDon.GhiChu += $" | KH TỰ HUỶ: Hoàn 50% ({soTienHoan:N0}đ)";
+                    logDetail = $"Khách {khachHang.HoTen} tự huỷ đơn #{id} (Đã thanh toán). Cần hoàn 50%: {soTienHoan:N0}đ.";
+                    notification = $"Hủy thành công. Theo quy định, bạn sẽ được hoàn trả {soTienHoan:N0} VND (50%).";
+                }
+                else
+                {
+                    hoaDon.GhiChu += " | KH TỰ HUỶ: Đơn chưa thanh toán";
+                    logDetail = $"Khách {khachHang.HoTen} tự huỷ đơn #{id} (Chưa thanh toán).";
+                    notification = "Đã hủy đơn hàng thành công.";
+                }
+
+                // 5. CẬP NHẬT TRẠNG THÁI
                 hoaDon.TrangThai = "Đã hủy";
 
-                // 2. Cập nhật trạng thái từng vé và hoàn lại số lượng ghế trống cho lịch trình
+                // Giải phóng ghế cho từng vé trong hóa đơn
                 foreach (var ve in hoaDon.Ves)
                 {
                     ve.TrangThai = "Đã hủy";
                     var lichTrinh = await _context.LichTrinhs.FindAsync(ve.MaLichTrinh);
                     if (lichTrinh != null)
                     {
-                        lichTrinh.SoGheTrong += 1; // Hoàn lại 1 ghế
+                        lichTrinh.SoGheTrong += 1;
                     }
                 }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                await GhiLogHeThong("Hủy đơn hàng", "HoaDons", $"Khách hàng đã tự hủy hóa đơn #{id}", "Warning");
-                TempData["SuccessMessage"] = "Đơn hàng của bạn đã được hủy thành công.";
+                // 6. GHI LOG (Hệ thống sẽ lưu lại để Admin kiểm soát luồng huỷ của khách)
+                await GhiLogHeThong("Khách hàng tự hủy đơn", "HoaDons", logDetail, "Warning");
+
+                TempData["SuccessMessage"] = notification;
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                await GhiLogHeThong("Lỗi hủy đơn", "System", ex.Message, "Error");
-                TempData["ErrorMessage"] = "Có lỗi xảy ra khi hủy đơn hàng.";
+                await GhiLogHeThong("Lỗi khách tự hủy đơn", "System", $"Lỗi đơn #{id}: {ex.Message}", "Error");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra, vui lòng thử lại sau.";
             }
 
             return RedirectToAction("MyOrders");
@@ -531,7 +566,7 @@ namespace WebAppBookingBoat.Controllers
             // 1. Khởi tạo Query ban đầu
             var query = _context.HoaDons
                 .Include(h => h.Ves).ThenInclude(v => v.LichTrinh).ThenInclude(l => l!.TuyenDuong)
-                .Include(h => h.DanhGias)
+                .Include(h => h.DanhGia)
                 .Where(h => h.MaKH == khachHang.MaKH)
                 .AsQueryable();
 

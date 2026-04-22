@@ -29,20 +29,30 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         {
             if (nv.Luong < 0) return "Lương không được phép là số âm.";
 
+            // 1. Kiểm tra Email trùng trong bảng NhanViens
             if (await _context.NhanViens.AnyAsync(n => n.Email == nv.Email && n.MaNV != id))
-                return "Email này đã tồn tại trong hệ thống!";
+                return "Email này đã tồn tại trong danh sách nhân viên!";
 
+            // 2. Kiểm tra Email trùng trong bảng Users hệ thống (Identity)
+            // Nếu nhân viên không liên kết tài khoản (MaTK null), vẫn nên chặn nếu Email đó đã có người dùng khác đăng ký
+            var userWithEmail = await _userManager.FindByEmailAsync(nv.Email);
+            if (userWithEmail != null && userWithEmail.Id != nv.MaTK)
+                return "Email này đã được sử dụng bởi một tài khoản khác trong hệ thống!";
+
+            // 3. Kiểm tra Số điện thoại trùng trong bảng NhanViens
             if (await _context.NhanViens.AnyAsync(n => n.Sdt == nv.Sdt && n.MaNV != id))
-                return "Số điện thoại này đã tồn tại!";
+                return "Số điện thoại này đã tồn tại cho một nhân viên khác!";
 
-            // KIỂM TRA CHÉO: Tài khoản không được tồn tại ở cả bảng NhanVien và KhachHang
+            // 4. KIỂM TRA CHÉO MaTK (Tài khoản liên kết)
             if (!string.IsNullOrEmpty(nv.MaTK))
             {
+                // Kiểm tra xem MaTK có đang được dùng bởi nhân viên khác không
                 if (await _context.NhanViens.AnyAsync(n => n.MaTK == nv.MaTK && n.MaNV != id))
-                    return "Tài khoản này đã được gán cho nhân viên khác!";
+                    return "Tài khoản hệ thống này đã được gán cho nhân viên khác!";
 
+                // Kiểm tra xem MaTK có phải là khách hàng không
                 if (await _context.KhachHangs.AnyAsync(kh => kh.MaTK == nv.MaTK))
-                    return "Tài khoản này đã được gán cho một Khách hàng, không thể gán làm Nhân viên!";
+                    return "Tài khoản này thuộc về một Khách hàng, không thể gán làm Nhân viên!";
             }
 
             return null;
@@ -50,24 +60,47 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
         private void LoadUserData(int? currentMaNV = null, string? selectedMaTK = null)
         {
-            // 1. Lấy tất cả MaTK đã bị gán ở bảng Nhân viên (trừ nhân viên hiện tại đang sửa)
+            // 1. Lấy danh sách ID từ bảng Nhân viên (Tải về List<string>)
             var assignedInStaff = _context.NhanViens
                 .Where(n => n.MaTK != null && n.MaNV != currentMaNV)
-                .Select(n => n.MaTK);
+                .Select(n => n.MaTK)
+                .ToList();
 
-            // 2. Lấy tất cả MaTK đã bị gán ở bảng Khách hàng
+            // 2. Lấy danh sách ID từ bảng Khách hàng (Tải về List<string>)
             var assignedInCustomer = _context.KhachHangs
                 .Where(k => k.MaTK != null)
-                .Select(k => k.MaTK);
+                .Select(k => k.MaTK)
+                .ToList();
 
-            // 3. Hợp nhất danh sách ID đã bị gán
-            var allAssignedIds = assignedInStaff.Union(assignedInCustomer).ToList();
+            // 3. Hợp nhất và loại bỏ trùng lặp trong bộ nhớ
+            var allAssignedIds = assignedInStaff
+                .Union(assignedInCustomer)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .ToList();
 
-            // 4. Lọc ra những User "Sạch" hoàn toàn
+            // 4. Lọc Users dựa trên danh sách ID đã thu thập
             var availableUsers = _context.Users
                 .Where(u => !allAssignedIds.Contains(u.Id))
-                .Select(u => new { u.Id, Display = u.UserName + " (" + u.Email + ")" })
+                .Select(u => new
+                {
+                    u.Id,
+                    Display = u.UserName + " (" + u.Email + ")"
+                })
                 .ToList();
+
+            // 5. Nếu đang ở chế độ EDIT, phải đảm bảo tài khoản hiện tại được hiển thị lại
+            if (!string.IsNullOrEmpty(selectedMaTK))
+            {
+                var currentUser = _context.Users
+                    .Where(u => u.Id == selectedMaTK)
+                    .Select(u => new { u.Id, Display = u.UserName + " (" + u.Email + ")" })
+                    .FirstOrDefault();
+
+                if (currentUser != null && !availableUsers.Any(x => x.Id == selectedMaTK))
+                {
+                    availableUsers.Add(currentUser);
+                }
+            }
 
             ViewData["MaTK"] = new SelectList(availableUsers, "Id", "Display", selectedMaTK);
         }
@@ -142,6 +175,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             LoadUserData(null, nhanVien.MaTK);
             return View(nhanVien);
         }
+
+
 
         public async Task<IActionResult> Edit(int? id)
         {

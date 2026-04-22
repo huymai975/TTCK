@@ -256,9 +256,12 @@
         });
 
         // Hàm gọi AJAX cập nhật
-        function updateData(id, status, method) {
+                function updateData(id, status, method, note = "") {
             $.post('@Url.Action("UpdatePayment", "HoaDons")', {
-                id: id, status: status, method: method,
+                id: id,
+                status: status,
+                method: method,
+                ghiChu: note, // Gửi thêm ghi chú
                 __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
             }, function(res) {
                 if(res.success) {
@@ -281,15 +284,27 @@
             });
         }
 
-        function cancelInvoice(id) {
+                function cancelInvoice(id) {
             Swal.fire({
-                title: 'Hủy hóa đơn?',
-                text: "Thao tác này không thể hoàn tác!",
+                title: 'Xác nhận hủy hóa đơn #' + id,
+                text: "Vui lòng nhập lý do hủy (thao tác này không thể hoàn tác):",
                 icon: 'warning',
+                input: 'text', // Thêm ô nhập liệu
+                inputPlaceholder: 'Nhập lý do hủy tại đây...',
                 showCancelButton: true,
-                confirmButtonColor: '#d33'
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận hủy',
+                cancelButtonText: 'Đóng',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Bạn cần phải nhập lý do hủy!' // Bắt buộc nhập
+                    }
+                }
             }).then((res) => {
-                if(res.isConfirmed) updateData(id, 'Đã hủy', 'N/A');
+                if (res.isConfirmed) {
+                    // res.value chứa nội dung ghi chú người dùng vừa nhập
+                    updateData(id, 'Đã hủy', 'N/A', res.value);
+                }
             });
         }
     </script>

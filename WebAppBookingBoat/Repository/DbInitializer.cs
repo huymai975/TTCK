@@ -236,7 +236,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Cát Bà",
                     KhoangCach = 30,
                     ThoiGianDuKien = new TimeSpan(0, 45, 0),
-                    HinhAnh = "3088b83b-8e30-4ca5-9bda-05b5a97d93ba_af9afc1b-e219-4ac4-931e-cb5e98013dca_c31132fa-0e14-4787-8d05-fd22a23a3411_cat-ba.jpeg"
+                    HinhAnh = "44d79dd3-8be5-4e1a-beed-0ddbcd5f32ef_istockphoto-1152413990-170667a.jpeg"
                 },
                 new TuyenDuong
                 {
