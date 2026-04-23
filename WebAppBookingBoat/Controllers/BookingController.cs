@@ -27,18 +27,40 @@ namespace WebAppBookingBoat.Controllers
         // --- HÀM GHI LOG HỆ THỐNG ---
         private async Task GhiLogHeThong(string hanhDong, string bangTacDong, string chiTiet, string loai = "Info")
         {
-            var log = new Log
+            try
             {
-                MaTK = _userManager.GetUserId(User),
-                HanhDong = hanhDong,
-                BangTacDong = bangTacDong,
-                NoiDungChiTiet = chiTiet,
-                LoaiLog = loai,
-                ThoiGian = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
-            };
-            _context.Logs.Add(log);
-            await _context.SaveChangesAsync();
+                // 1. QUAN TRỌNG NHẤT: Làm sạch Context
+                // Nếu hàm này được gọi từ khối catch của một lỗi trước đó, 
+                // các thay đổi gây lỗi vẫn còn nằm trong Tracker. 
+                // Lệnh này xóa bỏ các thay đổi lỗi đó để SaveChanges không bị "kéo theo" lỗi cũ.
+                _context.ChangeTracker.Clear();
+
+                // 2. Lấy thông tin tài khoản an toàn
+                var userId = _userManager.GetUserId(User);
+
+                // 3. Khởi tạo đối tượng Log
+                var log = new Log
+                {
+                    MaTK = userId,
+                    HanhDong = hanhDong,
+                    BangTacDong = bangTacDong,
+                    NoiDungChiTiet = chiTiet,
+                    LoaiLog = loai,
+                    ThoiGian = DateTime.Now,
+                    // Lấy IP của người dùng, xử lý null nếu chạy local hoặc qua proxy
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A"
+                };
+
+                // 4. Thêm và lưu riêng biệt
+                _context.Logs.Add(log);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                // Fail-safe: Nếu ghi log cũng lỗi (ví dụ DB mất kết nối), 
+                // ta nuốt lỗi này để không làm văng ứng dụng chính.
+                // Bạn có thể dùng Debug.WriteLine(ex.Message) ở đây để kiểm tra khi code.
+            }
         }
 
         public async Task<IActionResult> Details(int id)
@@ -119,22 +141,36 @@ namespace WebAppBookingBoat.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Search(int maTuyen, DateTime? ngayGioKhoiHanh)
         {
-            if (maTuyen == 0) return RedirectToAction("Index", "Home");
+            // Nếu maTuyen không hợp lệ, quay về trang chủ
+            if (maTuyen <= 0) return RedirectToAction("Index", "Home");
 
+            // Lấy thông tin Tuyến đường trước để hiển thị tiêu đề trang
+            var tuyenDuong = await _context.TuyenDuongs
+                .FirstOrDefaultAsync(m => m.MaTuyen == maTuyen);
+
+            if (tuyenDuong == null) return NotFound();
+
+            // Khởi tạo query lịch trình
             var query = _context.LichTrinhs
                 .Include(l => l.TuyenDuong)
                 .Include(l => l.Tau)
                 .Where(l => l.MaTuyen == maTuyen && l.TrangThai == "Sắp khởi hành");
 
+            // Lọc theo ngày nếu người dùng có chọn ngày cụ thể
             if (ngayGioKhoiHanh.HasValue)
             {
                 var searchDate = ngayGioKhoiHanh.Value.Date;
                 query = query.Where(l => l.NgayGioKhoiHanh.Date == searchDate);
             }
+            else
+            {
+                // Nếu không chọn ngày, mặc định chỉ hiện các chuyến từ thời điểm hiện tại trở đi
+                query = query.Where(l => l.NgayGioKhoiHanh >= DateTime.Now);
+            }
 
             var model = new SearchViewModel
             {
-                TuyenDuong = await _context.TuyenDuongs.FirstOrDefaultAsync(m => m.MaTuyen == maTuyen),
+                TuyenDuong = tuyenDuong,
                 NgayGioKhoiHanh = ngayGioKhoiHanh,
                 KetQuaLichTrinh = await query.OrderBy(l => l.NgayGioKhoiHanh).ToListAsync()
             };
@@ -195,7 +231,7 @@ namespace WebAppBookingBoat.Controllers
                     TempData["ErrorMessage"] = "Lịch trình không còn tồn tại.";
                     return RedirectToAction("Index", "Home");
                 }
-
+                await _context.Entry(lichTrinh).ReloadAsync();
                 if (lichTrinh.SoGheTrong < vm.SelectedGheIds.Count)
                 {
                     TempData["ErrorMessage"] = $"Xin lỗi, chuyến đi này chỉ còn {lichTrinh.SoGheTrong} ghế trống.";
@@ -450,20 +486,35 @@ namespace WebAppBookingBoat.Controllers
         public async Task<IActionResult> CancelOrder(int id)
         {
             var userId = _userManager.GetUserId(User);
+
+            // Lấy hóa đơn kèm các vé để giải phóng ghế
             var hoaDon = await _context.HoaDons
                 .Include(h => h.Ves).ThenInclude(v => v.LichTrinh)
                 .FirstOrDefaultAsync(h => h.MaHoaDon == id);
 
             if (hoaDon == null) return NotFound();
 
-            // Kiểm tra điều kiện hủy (Ví dụ: trước 24h chuyến đi đầu tiên trong đơn khởi hành)
-            var firstTicket = hoaDon.Ves.FirstOrDefault();
-            if (firstTicket?.LichTrinh != null)
+            // 1. CHẶN QUYỀN: Khách chỉ được huỷ đơn của chính mình
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaTK == userId);
+            if (khachHang == null || hoaDon.MaKH != khachHang.MaKH)
             {
-                var thoiGianKhoiHanh = firstTicket.LichTrinh.NgayGioKhoiHanh;
-                if (DateTime.Now.AddHours(24) >= thoiGianKhoiHanh)
+                TempData["ErrorMessage"] = "Bạn không có quyền thực hiện thao tác này.";
+                return RedirectToAction("MyOrders");
+            }
+
+            // 2. KIỂM TRA TRẠNG THÁI: Nếu đã huỷ hoặc đang xử lý khác thì không cho huỷ nữa
+            if (hoaDon.TrangThai == "Đã hủy")
+            {
+                TempData["ErrorMessage"] = "Đơn hàng này đã được hủy trước đó.";
+                return RedirectToAction("MyOrders");
+            }
+
+            // 3. ĐIỀU KIỆN THỜI GIAN (Quy định cho khách hàng: Huỷ trước 24h)
+            foreach (var ve in hoaDon.Ves)
+            {
+                if (ve.LichTrinh != null && DateTime.Now.AddHours(24) >= ve.LichTrinh.NgayGioKhoiHanh)
                 {
-                    TempData["ErrorMessage"] = "Không thể hủy vé vì đã quá thời hạn cho phép (trước 24h khởi hành).";
+                    TempData["ErrorMessage"] = $"Đã quá thời hạn tự huỷ vé (yêu cầu trước 24h). Vui lòng liên hệ hỗ trợ.";
                     return RedirectToAction("MyOrders");
                 }
             }
@@ -471,31 +522,51 @@ namespace WebAppBookingBoat.Controllers
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // 1. Cập nhật trạng thái hóa đơn
+                string logDetail = "";
+                string notification = "";
+
+                // 4. LOGIC HOÀN TIỀN (Khách tự huỷ đơn đã thanh toán)
+                if (hoaDon.TrangThai == "Đã thanh toán")
+                {
+                    decimal soTienHoan = hoaDon.TongTien * 0.5m;
+                    hoaDon.GhiChu += $" | KH TỰ HUỶ: Hoàn 50% ({soTienHoan:N0}đ)";
+                    logDetail = $"Khách {khachHang.HoTen} tự huỷ đơn #{id} (Đã thanh toán). Cần hoàn 50%: {soTienHoan:N0}đ.";
+                    notification = $"Hủy thành công. Theo quy định, bạn sẽ được hoàn trả {soTienHoan:N0} VND (50%).";
+                }
+                else
+                {
+                    hoaDon.GhiChu += " | KH TỰ HUỶ: Đơn chưa thanh toán";
+                    logDetail = $"Khách {khachHang.HoTen} tự huỷ đơn #{id} (Chưa thanh toán).";
+                    notification = "Đã hủy đơn hàng thành công.";
+                }
+
+                // 5. CẬP NHẬT TRẠNG THÁI
                 hoaDon.TrangThai = "Đã hủy";
 
-                // 2. Cập nhật trạng thái từng vé và hoàn lại số lượng ghế trống cho lịch trình
+                // Giải phóng ghế cho từng vé trong hóa đơn
                 foreach (var ve in hoaDon.Ves)
                 {
                     ve.TrangThai = "Đã hủy";
                     var lichTrinh = await _context.LichTrinhs.FindAsync(ve.MaLichTrinh);
                     if (lichTrinh != null)
                     {
-                        lichTrinh.SoGheTrong += 1; // Hoàn lại 1 ghế
+                        lichTrinh.SoGheTrong += 1;
                     }
                 }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                await GhiLogHeThong("Hủy đơn hàng", "HoaDons", $"Khách hàng đã tự hủy hóa đơn #{id}", "Warning");
-                TempData["SuccessMessage"] = "Đơn hàng của bạn đã được hủy thành công.";
+                // 6. GHI LOG (Hệ thống sẽ lưu lại để Admin kiểm soát luồng huỷ của khách)
+                await GhiLogHeThong("Khách hàng tự hủy đơn", "HoaDons", logDetail, "Warning");
+
+                TempData["SuccessMessage"] = notification;
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                await GhiLogHeThong("Lỗi hủy đơn", "System", ex.Message, "Error");
-                TempData["ErrorMessage"] = "Có lỗi xảy ra khi hủy đơn hàng.";
+                await GhiLogHeThong("Lỗi khách tự hủy đơn", "System", $"Lỗi đơn #{id}: {ex.Message}", "Error");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra, vui lòng thử lại sau.";
             }
 
             return RedirectToAction("MyOrders");
@@ -531,7 +602,7 @@ namespace WebAppBookingBoat.Controllers
             // 1. Khởi tạo Query ban đầu
             var query = _context.HoaDons
                 .Include(h => h.Ves).ThenInclude(v => v.LichTrinh).ThenInclude(l => l!.TuyenDuong)
-                .Include(h => h.DanhGias)
+                .Include(h => h.DanhGia)
                 .Where(h => h.MaKH == khachHang.MaKH)
                 .AsQueryable();
 

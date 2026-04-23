@@ -108,6 +108,10 @@ namespace WebAppBookingBoat.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginVM model, string? returnUrl = null)
         {
+            // Dọn dẹp các thông báo cũ trước khi xử lý logic mới
+            TempData.Remove("ErrorMessage");
+            TempData.Remove("SuccessMessage");
+
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid) return View(model);
 

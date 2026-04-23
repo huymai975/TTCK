@@ -22,26 +22,36 @@ namespace WebAppBookingBoat.Controllers
         {
             var model = new HomeViewModel();
 
+            // 1. Lấy danh sách tuyến đường
             model.TuyenDuongs = await _context.TuyenDuongs.Take(6).ToListAsync();
 
+            // 2. Lấy lịch trình và tính toán thông tin liên quan (Tàu, Tuyến, Vé đã đặt)
+            // Cần Include "Tau" để biết tổng số ghế và "Ves" để đếm số lượng đã bán
             model.LichTrinhs = await _context.LichTrinhs
-                .Include(l => l.TuyenDuong).Include(l => l.Tau)
-                .Where(l => l.NgayGioKhoiHanh >= DateTime.Now)
-                .Take(6).ToListAsync();
+                .Include(l => l.TuyenDuong)
+                .Include(l => l.Tau)
+                .Include(l => l.Ves) // Cần thiết để tính Số Ghế Trống
+                .Where(l => l.NgayGioKhoiHanh >= DateTime.Now && l.TrangThai == "Sắp khởi hành")
+                .OrderBy(l => l.NgayGioKhoiHanh)
+                .Take(6)
+                .ToListAsync();
 
-            // Logic: Lọc mỗi khách hàng chỉ lấy 1 đánh giá mới nhất
-            model.DanhGias = await _context.DanhGias
-                .Include(d => d.HoaDon).ThenInclude(h => h!.KhachHang)
-                .Include(d => d.HoaDon).ThenInclude(h => h!.Ves)
-                    .ThenInclude(v => v.LichTrinh).ThenInclude(l => l!.TuyenDuong)
+            // 3. Logic lấy đánh giá (Giữ nguyên logic GroupBy của bạn nhưng tối ưu Include)
+            var allDanhGias = await _context.DanhGias
+                .Include(d => d.HoaDon)
+                    .ThenInclude(h => h!.KhachHang)
+                .Include(d => d.HoaDon)
+                    .ThenInclude(h => h!.Ves)
+                        .ThenInclude(v => v.LichTrinh)
+                            .ThenInclude(l => l!.TuyenDuong)
                 .Where(d => d.TrangThai == "Đã hiển thị")
                 .OrderByDescending(d => d.NgayDanhGia)
-                .ToListAsync(); // Lấy hết về bộ nhớ để lọc GroupBy dễ hơn
+                .ToListAsync();
 
-            model.DanhGias = model.DanhGias
-                .GroupBy(d => d.HoaDon?.MaKH) // Nhóm theo mã khách hàng
-                .Select(g => g.First()) // Lấy đánh giá đầu tiên (mới nhất) của mỗi nhóm
-                .Take(3) // Chỉ lấy 3 người khác nhau
+            model.DanhGias = allDanhGias
+                .GroupBy(d => d.HoaDon?.MaKH)
+                .Select(g => g.First())
+                .Take(3)
                 .ToList();
 
             return View(model);

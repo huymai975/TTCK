@@ -106,6 +106,7 @@ C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\NuGet.ProjectModel.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\NuGet.Protocol.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\NuGet.Versioning.dll
+C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Rotativa.AspNetCore.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\System.ClientModel.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\System.CodeDom.dll
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\System.Composition.AttributedModel.dll
@@ -271,6 +272,7 @@ C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.AssemblyInfoInputs.cache
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.AssemblyInfo.cs
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.RazorAssemblyInfo.cache
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.RazorAssemblyInfo.cs
@@ -292,5 +294,3 @@ C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.pdb
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.genruntimeconfig.cache
 C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\ref\WebAppBookingBoat.dll
-C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\bin\Debug\net8.0\Rotativa.AspNetCore.dll
-C:\Users\Admin\Documents\DPM225422\TTCK\TTCK\WebAppBookingBoat\obj\Debug\net8.0\WebAppBookingBoat.MvcApplicationPartsAssemblyInfo.cs

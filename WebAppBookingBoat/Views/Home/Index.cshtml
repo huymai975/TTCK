@@ -189,7 +189,13 @@
                         <div class="card-body p-4 text-center">
                             <h5 class="font-weight-bold">@tuyen.TenTuyen</h5>
                             <p class="text-muted small"><i class="fa fa-map-marked-alt mr-2"></i>Khoảng cách: @tuyen.KhoangCach km</p>
-                            <a href="#booking-section" class="btn btn-outline-primary btn-sm rounded-pill px-4">Xem chi tiết</a>
+
+                            <a asp-controller="Booking"
+                               asp-action="Search"
+                               asp-route-MaTuyen="@tuyen.MaTuyen"
+                               class="btn btn-outline-primary btn-sm rounded-pill px-4">
+                                Xem chi tiết
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -197,6 +203,7 @@
         </div>
     </div>
 </div>
+
 
 @* --- 4. LỊCH TRÌNH --- *@
 <div class="site-section bg-light">
@@ -207,34 +214,73 @@
                 <p class="text-muted">Cập nhật thời gian thực các chuyến tàu trong ngày</p>
             </div>
         </div>
-        <div class="table-responsive glass-form p-3">
-            <table class="table schedule-table mb-0">
-                <thead>
+        <div class="table-responsive glass-form p-3 shadow-sm bg-white" style="border-radius: 15px;">
+            <table class="table schedule-table mb-0 align-middle">
+                <thead class="thead-light">
                     <tr>
                         <th>Tuyến Đường</th>
                         <th>Tàu</th>
                         <th>Giờ Khởi Hành</th>
                         <th>Giá Vé</th>
-                        <th>Trống</th>
+                        <th>Trạng Thái Ghế</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var lt in Model.LichTrinhs)
                     {
+                        // Tính toán số ghế trống: Tổng số ghế của tàu - Số vé đã bán
+                        var soGheDaDat = lt.Ves?.Count() ?? 0;
+                        var soGheTrong = lt.Tau.TongSoGhe - soGheDaDat;
+                        var isFull = soGheTrong <= 0;
+
                         <tr>
-                            <td class="font-weight-bold text-dark">@lt.TuyenDuong.TenTuyen</td>
-                            <td><i class="fa fa-ship mr-2 text-primary small"></i>@lt.Tau.TenTau</td>
-                            <td>@lt.NgayGioKhoiHanh.ToString("dd/MM HH:mm")</td>
-                            <td class="text-danger font-weight-bold">@lt.GiaVeCoBan.ToString("N0")đ</td>
-                            <td><span class="badge badge-success">@lt.SoGheTrong ghế</span></td>
+                            <td class="font-weight-bold text-dark">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-route mr-2 text-info"></i>
+                                    @lt.TuyenDuong.TenTuyen
+                                </div>
+                            </td>
                             <td>
-                                <a asp-controller="Booking"
-                                   asp-action="BookTicket"
-                                   asp-route-id="@lt.MaLichTrinh"
-                                   class="btn btn-warning btn-sm font-weight-bold px-3 shadow-sm">
-                                    Đặt vé
-                                </a>
+                                <span class="badge badge-light p-2 text-dark" style="border-radius: 8px;">
+                                    <i class="fa fa-ship mr-2 text-primary"></i>@lt.Tau.TenTau
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-dark">@lt.NgayGioKhoiHanh.ToString("dd/MM")</div>
+                                <div class="small font-weight-bold text-primary">@lt.NgayGioKhoiHanh.ToString("HH:mm")</div>
+                            </td>
+                            <td class="text-danger font-weight-bold">
+                                @lt.GiaVeCoBan.ToString("N0")<small>đ</small>
+                            </td>
+                            <td>
+                                @if (isFull)
+                                {
+                                    <span class="badge badge-secondary px-3 py-2">Hết chỗ</span>
+                                }
+                                else
+                                {
+                                    <span class="badge @(soGheTrong < 10 ? "badge-warning" : "badge-success") px-3 py-2">
+                                        Còn @soGheTrong ghế
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-right">
+                                @if (!isFull)
+                                {
+                                    <a asp-controller="Booking"
+                                       asp-action="BookTicket"
+                                       asp-route-id="@lt.MaLichTrinh"
+                                       class="btn btn-warning btn-sm font-weight-bold px-4 shadow-sm rounded-pill">
+                                        Đặt vé <i class="fas fa-chevron-right ml-1 small"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-light btn-sm disabled rounded-pill px-4" disabled>
+                                        Đã đầy
+                                    </button>
+                                }
                             </td>
                         </tr>
                     }

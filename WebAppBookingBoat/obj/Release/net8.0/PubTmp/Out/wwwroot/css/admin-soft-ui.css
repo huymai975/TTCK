@@ -1,0 +1,106 @@
+﻿/* --- PHẦN DÙNG CHUNG CHO TẤT CẢ CÁC TRANG --- */
+
+/* 1. ĐỘ 3 NÚT BẤM (SOFT UI) - Fix lỗi gạch chân */
+.btn-modern {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    border: none;
+    margin: 0 2px;
+    text-decoration: none !important; /* Bỏ gạch chân */
+}
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-decoration: none !important;
+    }
+
+.btn-view {
+    background-color: #e1f5fe;
+    color: #039be5;
+}
+
+.btn-edit {
+    background-color: #fff8e1;
+    color: #f57f17;
+}
+
+.btn-delete {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.btn-view:hover {
+    background-color: #039be5;
+    color: #fff;
+}
+
+.btn-edit:hover {
+    background-color: #f57f17;
+    color: #fff;
+}
+
+.btn-delete:hover {
+    background-color: #c62828;
+    color: #fff;
+}
+
+/* 2. TÙY CHỈNH DATATABLES (Tìm kiếm & Phân trang) */
+.dataTables_filter input {
+    border-radius: 8px !important;
+    border: 1px solid #d1d3e2 !important;
+    padding: 0.5rem 0.75rem !important;
+    transition: all 0.2s;
+    width: 250px !important;
+}
+
+    .dataTables_filter input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15) !important;
+        border-color: #4e73df !important;
+    }
+
+.pagination .page-item.active .page-link {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    box-shadow: 0 4px 6px rgba(78, 115, 223, 0.2);
+}
+
+.pagination .page-link {
+    color: #4e73df;
+    border-radius: 8px !important;
+    margin: 0 2px;
+    border: none;
+    padding: 0.5rem 0.75rem;
+}
+
+/* 3. KHUNG BẢNG & TRẠNG THÁI */
+#dataTable {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.btn-status-toggle {
+    width: 100%;
+    white-space: nowrap;
+    font-weight: 700 !important;
+    font-size: 0.68rem;
+    padding: 6px 4px;
+    border-radius: 30px;
+}
+
+.image-upload-wrapper {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .image-upload-wrapper:hover {
+        border-color: #4e73df !important; /* Đổi màu viền khi di chuột vào */
+        background-color: #f8f9fc !important;
+    }

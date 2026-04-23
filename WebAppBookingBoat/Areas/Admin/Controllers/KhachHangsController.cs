@@ -56,21 +56,38 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
         private async Task<string?> CheckUpsertLogic(WebAppBookingBoat.Models.KhachHang kh, int? id = null)
         {
+            // 1. Kiểm tra Email trùng trong bảng KhachHangs
             if (await _context.KhachHangs.AnyAsync(k => k.Email == kh.Email && k.MaKH != id))
-                return "Email này đã tồn tại trong hệ thống!";
+                return "Email này đã tồn tại trong danh sách khách hàng!";
 
+            // 2. Kiểm tra chéo Email với bảng NhanViens
+            if (await _context.NhanViens.AnyAsync(nv => nv.Email == kh.Email))
+                return "Email này đang được sử dụng bởi một nhân viên!";
+
+            // 3. Kiểm tra Email với hệ thống Identity (Users)
+            // Nếu KH không liên kết MaTK, vẫn chặn nếu Email đó đã có người khác đăng ký tài khoản
+            var userWithEmail = await _userManager.FindByEmailAsync(kh.Email);
+            if (userWithEmail != null && userWithEmail.Id != kh.MaTK)
+                return "Email này đã được đăng ký cho một tài khoản hệ thống khác!";
+
+            // 4. Kiểm tra Số điện thoại trùng trong bảng KhachHangs
             if (await _context.KhachHangs.AnyAsync(k => k.Sdt == kh.Sdt && k.MaKH != id))
-                return "Số điện thoại này đã được sử dụng!";
+                return "Số điện thoại này đã được sử dụng bởi khách hàng khác!";
 
+            // 5. Kiểm tra chéo SĐT với bảng NhanViens
+            if (await _context.NhanViens.AnyAsync(nv => nv.Sdt == kh.Sdt))
+                return "Số điện thoại này đang thuộc sở hữu của một nhân viên!";
+
+            // 6. KIỂM TRA MaTK (Tài khoản liên kết)
             if (kh.MaTK != null)
             {
-                // Kiểm tra xem đã gán cho khách hàng khác chưa
+                // Đã gán cho khách hàng khác?
                 if (await _context.KhachHangs.AnyAsync(k => k.MaTK == kh.MaTK && k.MaKH != id))
-                    return "Tài khoản này đã được gán cho khách hàng khác!";
+                    return "Tài khoản này đã được liên kết với một khách hàng khác!";
 
-                // KIỂM TRA CHÉO: Tài khoản này có phải là nhân viên không?
+                // Có phải là nhân viên không?
                 if (await _context.NhanViens.AnyAsync(nv => nv.MaTK == kh.MaTK))
-                    return "Tài khoản này đã được gán cho một Nhân viên, không thể làm Khách hàng!";
+                    return "Tài khoản này đang là Nhân viên, không thể gán làm Khách hàng!";
             }
 
             return null;

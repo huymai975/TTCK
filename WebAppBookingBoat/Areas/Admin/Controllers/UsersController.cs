@@ -171,27 +171,48 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             if (user == null)
                 return Json(new { success = false, message = "Không tìm thấy người dùng." });
 
-            // KIỂM TRA BẢO MẬT:
+            // 1. KIỂM TRA BẢO MẬT: Không cho phép tự vô hiệu hóa chính mình
             var currentUserId = _userManager.GetUserId(User);
-
-            // 1. Không cho phép tự vô hiệu hóa chính mình
             if (user.Id == currentUserId)
                 return Json(new { success = false, message = "Bạn không thể vô hiệu hóa tài khoản đang sử dụng!" });
 
-            // 2. Không cho phép vô hiệu hóa Admin hệ thống
-            if (user.UserName!.ToLower() == "admin")
-                return Json(new { success = false, message = "Không thể vô hiệu hóa Admin hệ thống." });
-
-            user.TrangThai = false;
-            var result = await _userManager.UpdateAsync(user);
-
-            if (result.Succeeded)
+            // 2. KIỂM TRA ROLE: Không cho phép vô hiệu hóa bất kỳ ai có quyền Admin
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (isAdmin || user.UserName!.ToLower() == "admin")
             {
-                await GhiLogHeThong("Xóa mềm", $"Vô hiệu hóa tài khoản: {user.UserName}", "Warning");
-                return Json(new { success = true, message = "Đã vô hiệu hóa tài khoản thành công." });
+                return Json(new { success = false, message = "Không thể vô hiệu hóa tài khoản có quyền Quản trị (Admin)." });
             }
 
-            return Json(new { success = false, message = "Có lỗi xảy ra khi thực hiện." });
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // 3. Cập nhật trạng thái tài khoản Identity
+                user.TrangThai = false;
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                    return Json(new { success = false, message = "Lỗi khi cập nhật trạng thái tài khoản." });
+
+                // 4. Cập nhật trạng thái nhân viên về 0 (Nghỉ việc/Vô hiệu hóa)
+                var nhanVien = await _context.NhanViens.FirstOrDefaultAsync(nv => nv.MaTK == id);
+                if (nhanVien != null)
+                {
+                    nhanVien.TrangThai = false;
+                    _context.NhanViens.Update(nhanVien);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                await GhiLogHeThong("Xóa mềm", $"Vô hiệu hóa tài khoản và nhân viên: {user.UserName}", "Warning");
+
+                return Json(new { success = true, message = "Đã vô hiệu hóa tài khoản và nhân viên thành công." });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
         }
     }
 }

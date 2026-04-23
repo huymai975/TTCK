@@ -56,7 +56,5 @@ namespace WebAppBookingBoat.Models
         // Khởi tạo List để tránh lỗi Null
         public virtual ICollection<Ve> Ves { get; set; } = new List<Ve>();
 
-        // Nếu bạn giữ lại ICollection này (mặc dù đã bỏ MaLT bên bảng DanhGia thì EF vẫn tự map được qua quan hệ trung gian nếu cần)
-        public virtual ICollection<DanhGia> DanhGias { get; set; } = new List<DanhGia>();
     }
 }

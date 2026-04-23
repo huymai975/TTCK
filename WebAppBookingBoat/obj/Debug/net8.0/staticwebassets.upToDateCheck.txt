@@ -74,7 +74,6 @@ wwwroot\images\tau\4f471677-b064-46f6-ba00-1840314b7226_tau-trung-trac-tren-tuye
 wwwroot\images\tau\ca4c374d-3d0c-48be-8b36-e79219a62796_Tau-cao-toc-Con-Dao-Express-36-1536x863.jpg
 wwwroot\images\tau\dfa33889-692e-4f3a-84c2-491e2a402329_Tau-cao-toc-Trung-Nhi.jpg
 wwwroot\images\tuyen-duong\04e1440f-0c96-46c6-82b1-c10f63b4db23_phu-quy.jpg
-wwwroot\images\tuyen-duong\3088b83b-8e30-4ca5-9bda-05b5a97d93ba_af9afc1b-e219-4ac4-931e-cb5e98013dca_c31132fa-0e14-4787-8d05-fd22a23a3411_cat-ba.jpeg
 wwwroot\images\tuyen-duong\4381c4d6-a7bf-4c81-a317-cb195b3caed9_c051024a-ca91-4835-8751-6a6b40f5c124_hon-son.jpg
 wwwroot\images\tuyen-duong\6f1e4c0e-2db1-4540-b7a0-bdafd5a151cd_nam-du.jpg
 wwwroot\images\tuyen-duong\7abf98e9-a440-4779-8a3a-529b3a400bbd_con-dao.jpg
@@ -82,6 +81,7 @@ wwwroot\images\tuyen-duong\a3c8c7b7-69df-4c73-9acd-11db5b8433e8_ly-son.jpg
 wwwroot\images\tuyen-duong\bcd3de60-2b13-4d14-95c5-37ca27af887d_phu-quoc.jpg
 wwwroot\images\tuyen-duong\c051024a-ca91-4835-8751-6a6b40f5c124_hon-son.jpg
 wwwroot\images\tuyen-duong\c31132fa-0e14-4787-8d05-fd22a23a3411_cat-ba.jpeg
+wwwroot\images\tuyen-duong\f7b2e91a-4c3d-429a-8f6b-1e5c2d3a9b4f.jpg
 wwwroot\images\undraw_posting_photo.svg
 wwwroot\images\undraw_profile.svg
 wwwroot\images\undraw_profile_1.svg

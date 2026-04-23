@@ -70,11 +70,11 @@ namespace WebAppBookingBoat.Models
         [Display(Name = "Ghi chú")]
         public string? GhiChu { get; set; } = "";// Nullable vì không phải hóa đơn nào cũng cần ghi chú
 
-        public virtual DanhGia? DanhGia { get; set; }
+
 
         // --- Navigation Property ---
         public virtual ICollection<Ve> Ves { get; set; } = new List<Ve>();
 
-        public virtual ICollection<DanhGia> DanhGias { get; set; } = new List<DanhGia>();
+        public virtual DanhGia? DanhGia { get; set; }
     }
 }

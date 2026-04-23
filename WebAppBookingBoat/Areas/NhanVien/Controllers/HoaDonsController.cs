@@ -301,7 +301,7 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdatePayment(int id, string status, string method)
+        public async Task<IActionResult> UpdatePayment(int id, string status, string method, string ghiChu)
         {
             var hoaDon = await _context.HoaDons
                 .Include(h => h.Ves).ThenInclude(v => v.LichTrinh)
@@ -316,18 +316,29 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
 
                 if (status == "Đã hủy")
                 {
-                    if (lichTrinh != null)
-                    {
-                        if (lichTrinh.TrangThai == "Hoàn thành")
-                            return Json(new { success = false, message = "Hành trình đã kết thúc, không thể hủy." });
+                    // Kiểm tra nếu hành trình đã hoàn thành thì không cho hủy
+                    if (lichTrinh != null && lichTrinh.TrangThai == "Hoàn thành")
+                        return Json(new { success = false, message = "Hành trình đã kết thúc, không thể hủy." });
 
-                        if (oldStatus != "Đã hủy")
+                    // Cập nhật trạng thái vé và hoàn trả số lượng ghế trống
+                    if (oldStatus != "Đã hủy")
+                    {
+                        if (lichTrinh != null)
                         {
                             lichTrinh.SoGheTrong += hoaDon.Ves.Count;
                             _context.LichTrinhs.Update(lichTrinh);
                         }
+
+                        // Cập nhật trạng thái từng vé
+                        foreach (var v in hoaDon.Ves) v.TrangThai = "Đã hủy";
                     }
-                    foreach (var v in hoaDon.Ves) v.TrangThai = "Đã hủy";
+
+                    // Lưu lý do hủy vào Ghi chú (giữ lại nội dung cũ nếu có)
+                    string reasonPrefix = $"[Lý do hủy - {DateTime.Now:dd/MM HH:mm}]: ";
+                    hoaDon.GhiChu = string.IsNullOrEmpty(hoaDon.GhiChu)
+                        ? $"{reasonPrefix}{ghiChu}"
+                        : $"{hoaDon.GhiChu} | {reasonPrefix}{ghiChu}";
+
                     hoaDon.NgayThanhToan = null;
                 }
                 else if (status == "Đã thanh toán")
@@ -340,7 +351,12 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
                 hoaDon.PhuongThucTT = method;
 
                 await _context.SaveChangesAsync();
-                await GhiLogHeThong("Cập nhật thanh toán", $"HD #{id}: {oldStatus} -> {status}");
+
+                // Ghi log chi tiết bao gồm cả lý do hủy để dễ tra cứu
+                string logDetail = $"HD #{id}: {oldStatus} -> {status}";
+                if (status == "Đã hủy") logDetail += $" - Lý do: {ghiChu}";
+
+                await GhiLogHeThong("Cập nhật thanh toán", logDetail);
 
                 return Json(new { success = true, message = "Cập nhật thành công!" });
             }
@@ -349,9 +365,6 @@ namespace WebAppBookingBoat.Areas.NhanVien.Controllers
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
-
-        // Lưu ý: Thường nhân viên không nên có quyền xóa vĩnh viễn hóa đơn (DeleteConfirmed)
-        // Bạn có thể cân nhắc gỡ bỏ action Delete nếu chỉ muốn Admin mới có quyền xóa.
 
         #endregion
 
