@@ -106,8 +106,9 @@ namespace WebAppBookingBoat.Repository
 
             // Thêm ràng buộc Unique cho bảng Ve: Một ghế chỉ được xuất hiện 1 lần trong 1 lịch trình
             modelBuilder.Entity<Ve>()
-                .HasIndex(v => new { v.MaLichTrinh, v.MaGhe })
-                .IsUnique();
+    .HasIndex(v => new { v.MaLichTrinh, v.MaGhe })
+    .IsUnique()
+    .HasFilter("[TrangThai] <> N'Đã hủy'");
 
             modelBuilder.Entity<Ve>().ToTable(t =>
             {

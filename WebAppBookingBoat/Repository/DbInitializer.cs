@@ -109,24 +109,10 @@ namespace WebAppBookingBoat.Repository
             };
             adminUser.PasswordHash = hasher.HashPassword(adminUser, "1234");
 
+            var user2Id = Guid.NewGuid().ToString();
             var user2 = new AppUser
             {
-                Id = Guid.NewGuid().ToString(),
-                UserName = "nhanvien1",
-                Email = "nhanvien1@booking.com",
-
-                NormalizedUserName = "NHANVIEN1",
-                NormalizedEmail = "NHANVIEN1@BOOKING.COM",
-                EmailConfirmed = true,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                ConcurrencyStamp = Guid.NewGuid().ToString(),
-                TrangThai = true
-            };
-            user2.PasswordHash = hasher.HashPassword(user2, "1234");
-
-            var user3 = new AppUser
-            {
-                Id = Guid.NewGuid().ToString(),
+                Id = user2Id,
                 UserName = "khachhang1",
                 Email = "khachhang1@gmail.com",
 
@@ -137,11 +123,12 @@ namespace WebAppBookingBoat.Repository
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 TrangThai = true
             };
-            user3.PasswordHash = hasher.HashPassword(user3, "1234");
+            user2.PasswordHash = hasher.HashPassword(user2, "1234");
 
-            var user4 = new AppUser
+            var user3Id = Guid.NewGuid().ToString();
+            var user3 = new AppUser
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = user3Id,
                 UserName = "khachhang2",
                 Email = "khachhang2@gmail.com",
 
@@ -152,17 +139,49 @@ namespace WebAppBookingBoat.Repository
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 TrangThai = true
             };
+            user3.PasswordHash = hasher.HashPassword(user3, "1234");
+
+            var user4Id = Guid.NewGuid().ToString();
+            var user4 = new AppUser
+            {
+                Id = user4Id,
+                UserName = "khachhang3",
+                Email = "khachhang3@gmail.com",
+
+                NormalizedUserName = "KHACHHANG3",
+                NormalizedEmail = "KHACHHANG3@GMAIL.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                TrangThai = true
+            };
             user4.PasswordHash = hasher.HashPassword(user4, "1234");
 
-            var testuId = Guid.NewGuid().ToString();
+            var user6Id = Guid.NewGuid().ToString();
+            var user6 = new AppUser
+            {
+                Id = user6Id,
+                UserName = "khachhang4",
+                Email = "khachhang4@gmail.com",
+
+                NormalizedUserName = "KHACHHANG4",
+                NormalizedEmail = "KHACHHANG4@GMAIL.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                TrangThai = true
+            };
+            user6.PasswordHash = hasher.HashPassword(user6, "1234");
+
+            var user5Id = Guid.NewGuid().ToString();
             var user5 = new AppUser
             {
-                Id = testuId,
-                UserName = "testuser",
-                Email = "testuser@gmail.com",
+                Id = user5Id,
+                UserName = "nhanvien1",
+                Email = "nhanvien1@booking.com",
 
-                NormalizedUserName = "TESTUSER",
-                NormalizedEmail = "TESTUSER@GMAIL.COM",
+                NormalizedUserName = "NHANVIEN1",
+                NormalizedEmail = "NHANVIEN1@BOOKING.COM",
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
@@ -172,7 +191,7 @@ namespace WebAppBookingBoat.Repository
 
             // Đưa vào Database
             modelBuilder.Entity<AppUser>().HasData(
-                adminUser, user2, user3, user4, user5
+                adminUser, user2, user3, user4, user5, user6
             );
 
 
@@ -197,23 +216,52 @@ namespace WebAppBookingBoat.Repository
                 RoleId = adminRoleId,
                 UserId = adminUser.Id
             });
+
             // Gán quyền Nhân viên (RoleId = 2) 
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
             {
                 RoleId = staffRoleId,
-                UserId = user2.Id
+                UserId = user5.Id
             });
 
+            // Gán quyền Khách hàng (RoleId = 3) 
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+            new IdentityUserRole<string>
+            {
+                RoleId = customerRoleId,
+                UserId = user2.Id
+            },
+            new IdentityUserRole<string>
+            {
+                RoleId = customerRoleId,
+                UserId = user3.Id
+            },
+            new IdentityUserRole<string>
+            {
+                RoleId = customerRoleId,
+                UserId = user4.Id
+            },
+            new IdentityUserRole<string>
+            {
+                RoleId = customerRoleId,
+                UserId = user6.Id
+            }
+
+                );
 
 
             //--- 3. SEED NHÂN VIÊN ---
             modelBuilder.Entity<NhanVien>().HasData(
-                new NhanVien { MaNV = 1, MaTK = adminUser.Id, HoTen = "Mai Nhứt Huy", Email = "maihuy@booking.com", Sdt = "0386747090", ChucVu = "Admin" }
+                new NhanVien { MaNV = 1, MaTK = adminUser.Id, HoTen = "Mai Nhứt Huy", Email = "maihuy@booking.com", Sdt = "0386747090", ChucVu = "Admin" },
+                new NhanVien { MaNV = 2, MaTK = user5.Id, HoTen = "Jerry", Email = "jerry@booking.com", Sdt = "0386747091", ChucVu = "Nhân viên" }
             );
 
             // --- 4. SEED KHÁCH HÀNG ---
             modelBuilder.Entity<KhachHang>().HasData(
-                new KhachHang { MaKH = 1, MaTK = testuId, HoTen = "Trần Thị Khách", Email = "khach.tran@gmail.com", Sdt = "0912345678", NgaySinh = new DateTime(1995, 5, 20) }
+                new KhachHang { MaKH = 1, MaTK = user2Id, HoTen = "Trần Thị Khách", Email = "khach.tran@gmail.com", Sdt = "0912345678", NgaySinh = new DateTime(1995, 5, 20) },
+                new KhachHang { MaKH = 2, MaTK = user3Id, HoTen = "Nguyễn Thị Khách", Email = "khach.nguyen@gmail.com", Sdt = "0912345679", NgaySinh = new DateTime(1995, 5, 20) },
+                new KhachHang { MaKH = 3, MaTK = user4Id, HoTen = "Lê Thị Khách", Email = "khach.le@gmail.com", Sdt = "0912345676", NgaySinh = new DateTime(1995, 5, 20) },
+                new KhachHang { MaKH = 4, MaTK = user6Id, HoTen = "Đỗ Thị Khách", Email = "khach.do@gmail.com", Sdt = "0912345675", NgaySinh = new DateTime(1995, 5, 20) }
             );
 
             // --- 5. SEED TUYẾN ĐƯỜNG ---
@@ -236,7 +284,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Cát Bà",
                     KhoangCach = 30,
                     ThoiGianDuKien = new TimeSpan(0, 45, 0),
-                    HinhAnh = "44d79dd3-8be5-4e1a-beed-0ddbcd5f32ef_istockphoto-1152413990-170667a.jpeg"
+                    HinhAnh = "f7b2e91a-4c3d-429a-8f6b-1e5c2d3a9b4f.jpg"
                 },
                 new TuyenDuong
                 {
@@ -500,115 +548,71 @@ namespace WebAppBookingBoat.Repository
 
             // --- 9. SEED HÓA ĐƠN MẪU ---
             modelBuilder.Entity<HoaDon>().HasData(
-                new HoaDon
-                {
-                    MaHoaDon = 1,
-                    MaKH = 1,
-                    MaNV = 1,
-                    MaKM = "KM10",
-                    NgayLap = DateTime.Now,
-                    SoLuongVe = 1,
-                    TamTinh = 200000,
-                    SoTienGiam = 20000,
-                    TongTien = 180000,
-                    PhuongThucTT = "Tiền mặt",
-                    TrangThai = "Đã thanh toán"
-                }
-            );
-
-            modelBuilder.Entity<HoaDon>().HasData(
-                new HoaDon
-                {
-                    MaHoaDon = 2,
-                    MaKH = 2,
-                    MaNV = 1,
-                    MaKM = "KM10",
-                    NgayLap = DateTime.Now,
-                    SoLuongVe = 1,
-                    TamTinh = 200000,
-                    SoTienGiam = 20000,
-                    TongTien = 180000,
-                    PhuongThucTT = "Tiền mặt",
-                    TrangThai = "Đã thanh toán"
-                },
-                new HoaDon
-                {
-                    MaHoaDon = 4,
-                    MaKH = 1,
-                    MaNV = 1,
-                    MaKM = "KM10",
-                    NgayLap = DateTime.Now,
-                    SoLuongVe = 1,
-                    TamTinh = 200000,
-                    SoTienGiam = 20000,
-                    TongTien = 180000,
-                    PhuongThucTT = "Tiền mặt",
-                    TrangThai = "Đã thanh toán"
-                }
-            );
-
-            modelBuilder.Entity<HoaDon>().HasData(
-                new HoaDon
-                {
-                    MaHoaDon = 3,
-                    MaKH = 1,
-                    MaNV = 1,
-                    MaKM = "KM10",
-                    NgayLap = DateTime.Now,
-                    SoLuongVe = 1,
-                    TamTinh = 200000,
-                    SoTienGiam = 20000,
-                    TongTien = 180000,
-                    PhuongThucTT = "Tiền mặt",
-                    TrangThai = "Đã thanh toán"
-                }
-            );
+    new HoaDon
+    {
+        MaHoaDon = 1,
+        MaKH = 4,
+        MaNV = 1,
+        MaKM = "KM10",
+        NgayLap = DateTime.Now,
+        SoLuongVe = 1,
+        TamTinh = 200000,
+        SoTienGiam = 20000,
+        TongTien = 180000,
+        PhuongThucTT = "Tiền mặt",
+        TrangThai = "Đã thanh toán"
+    },
+    new HoaDon
+    {
+        MaHoaDon = 2,
+        MaKH = 2,
+        MaNV = 1,
+        MaKM = "KM10",
+        NgayLap = DateTime.Now,
+        SoLuongVe = 1,
+        TamTinh = 200000,
+        SoTienGiam = 20000,
+        TongTien = 180000,
+        PhuongThucTT = "Tiền mặt",
+        TrangThai = "Đã thanh toán"
+    },
+    new HoaDon
+    {
+        MaHoaDon = 3,
+        MaKH = 3,
+        MaNV = 1,
+        MaKM = "KM10",
+        NgayLap = DateTime.Now,
+        SoLuongVe = 1,
+        TamTinh = 200000,
+        SoTienGiam = 20000,
+        TongTien = 180000,
+        PhuongThucTT = "Tiền mặt",
+        TrangThai = "Đã thanh toán"
+    },
+    new HoaDon
+    {
+        MaHoaDon = 4,
+        MaKH = 1,
+        MaNV = 1,
+        MaKM = "KM10",
+        NgayLap = DateTime.Now,
+        SoLuongVe = 1,
+        TamTinh = 200000,
+        SoTienGiam = 20000,
+        TongTien = 180000,
+        PhuongThucTT = "Tiền mặt",
+        TrangThai = "Đã thanh toán"
+    }
+);
 
             // --- 10. SEED VÉ MẪU ---
             modelBuilder.Entity<Ve>().HasData(
-                new Ve
-                {
-                    MaVe = 1,
-                    MaGhe = 2,
-                    MaHoaDon = 1,
-                    MaLichTrinh = 2,
-                    GiaVe = 180000,
-                    TrangThai = "Hợp lệ"
-                }
-            );
-
-            modelBuilder.Entity<Ve>().HasData(
-                new Ve
-                {
-                    MaVe = 2,
-                    MaGhe = 3,
-                    MaHoaDon = 2,
-                    MaLichTrinh = 1,
-                    GiaVe = 180000,
-                    TrangThai = "Hợp lệ"
-                }
-            );
-
-            modelBuilder.Entity<Ve>().HasData(
-               new Ve
-               {
-                   MaVe = 3,
-                   MaGhe = 4,
-                   MaHoaDon = 3,
-                   MaLichTrinh = 1,
-                   GiaVe = 180000,
-                   TrangThai = "Hợp lệ"
-               }, new Ve
-               {
-                   MaVe = 4,
-                   MaGhe = 5,
-                   MaHoaDon = 4,
-                   MaLichTrinh = 2,
-                   GiaVe = 180000,
-                   TrangThai = "Hợp lệ"
-               }
-
-           );
+    new Ve { MaVe = 1, MaGhe = 21, MaHoaDon = 1, MaLichTrinh = 2, GiaVe = 180000, TrangThai = "Hợp lệ" },
+    new Ve { MaVe = 2, MaGhe = 3, MaHoaDon = 2, MaLichTrinh = 1, GiaVe = 180000, TrangThai = "Hợp lệ" },
+    new Ve { MaVe = 3, MaGhe = 4, MaHoaDon = 3, MaLichTrinh = 1, GiaVe = 180000, TrangThai = "Hợp lệ" },
+    new Ve { MaVe = 4, MaGhe = 26, MaHoaDon = 4, MaLichTrinh = 2, GiaVe = 180000, TrangThai = "Hợp lệ" }
+);
 
 
             // --- 11. SEED LOG HỆ THỐNG ---
@@ -639,52 +643,55 @@ namespace WebAppBookingBoat.Repository
 
             // --- 12. SEED ĐÁNH GIÁ (Quan hệ 1-1 với Hóa đơn) ---
             modelBuilder.Entity<DanhGia>().HasData(
-                new DanhGia
-                {
-                    MaDanhGia = 1,
-                    MaHoaDon = 1, // Khớp với HoaDon 1 đã seed ở trên
-                    SoSao = 5,
-                    NoiDung = "Chuyến đi tuyệt vời, tàu chạy rất êm và đúng giờ. Nhân viên hỗ trợ nhiệt tình!",
-                    HinhAnh = "6a4b2c8d-1e5f-4a3b-9c2d-8e7f6a5b4c3d_review-phu-quoc.jpg", // Ảnh khách chụp
-                    NgayDanhGia = new DateTime(2026, 4, 10, 8, 30, 0),
-                    TrangThai = "Đã hiển thị",
-                    // Phản hồi từ Admin
-                    PhanHoiAdmin = "Cảm ơn bạn đã ủng hộ WebAppBookingBoat! Rất mong được phục vụ bạn trong những chuyến đi tới.",
-                    NgayPhanHoi = new DateTime(2026, 4, 10, 14, 0, 0)
-                },
-                new DanhGia
-                {
-                    MaDanhGia = 2,
-                    MaHoaDon = 2, // Khớp với HoaDon 2
-                    SoSao = 4,
-                    NoiDung = "Chất lượng ghế VIP rất tốt, tuy nhiên đồ ăn nhẹ trên tàu hơi ít lựa chọn.",
-                    HinhAnh = "8e7d6c5b-4a3f-4e2d-9c1b-0a9b8c7d6e5f_review-thang-long.jpg",
-                    NgayDanhGia = new DateTime(2026, 4, 11, 15, 20, 0),
-                    TrangThai = "Đã hiển thị",
-                    PhanHoiAdmin = "Chào bạn, Admin ghi nhận góp ý và sẽ làm việc với bếp tàu để cải thiện thực đơn ạ!",
-                    NgayPhanHoi = new DateTime(2026, 4, 12, 9, 15, 0)
-                },
-                new DanhGia
-                {
-                    MaDanhGia = 3,
-                    MaHoaDon = 3, // Khớp với HoaDon 3
-                    SoSao = 5,
-                    NoiDung = "Đặt vé cực nhanh, thanh toán tiện lợi. Sẽ quay lại!",
-                    HinhAnh = "2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f_view-bien.jpg", // Khách không gửi ảnh
-                    NgayDanhGia = DateTime.Now.AddHours(-2),
-                    TrangThai = "Chờ duyệt", // Đang đợi Admin kiểm duyệt
-                    PhanHoiAdmin = null,
-                    NgayPhanHoi = null
-                }, new DanhGia
-                {
-                    MaDanhGia = 4,
-                    MaHoaDon = 4,
-                    SoSao = 5,
-                    NoiDung = "Gia đình mình đi tuyến Hà Tiên - Phú Quốc rất hài lòng...",
-                    HinhAnh = "5f4e3d2c-1b0a-4c9d-8e7f-6a5b4c3d2e1f_tau-phu-quy.jpg", // Cập nhật mã này
-                                                                                      // ... các trường khác
-                }
-            );
+    new DanhGia
+    {
+        MaDanhGia = 1,
+        MaHoaDon = 1,
+        SoSao = 5,
+        NoiDung = "Chuyến đi tuyệt vời, tàu chạy rất êm và đúng giờ. Nhân viên hỗ trợ nhiệt tình!",
+        HinhAnh = "6a4b2c8d-1e5f-4a3b-9c2d-8e7f6a5b4c3d_review-phu-quoc.jpg",
+        NgayDanhGia = new DateTime(2026, 4, 10, 8, 30, 0),
+        TrangThai = "Đã hiển thị",
+        PhanHoiAdmin = "Cảm ơn bạn đã ủng hộ WebAppBookingBoat! Rất mong được phục vụ bạn trong những chuyến đi tới.",
+        NgayPhanHoi = new DateTime(2026, 4, 10, 14, 0, 0)
+    },
+    new DanhGia
+    {
+        MaDanhGia = 2,
+        MaHoaDon = 2,
+        SoSao = 4,
+        NoiDung = "Chất lượng ghế VIP rất tốt, tuy nhiên đồ ăn nhẹ trên tàu hơi ít lựa chọn.",
+        HinhAnh = "8e7d6c5b-4a3f-4e2d-9c1b-0a9b8c7d6e5f_review-thang-long.jpg",
+        NgayDanhGia = new DateTime(2026, 4, 11, 15, 20, 0),
+        TrangThai = "Đã hiển thị",
+        PhanHoiAdmin = "Chào bạn, Admin ghi nhận góp ý và sẽ làm việc với bếp tàu để cải thiện thực đơn ạ!",
+        NgayPhanHoi = new DateTime(2026, 4, 12, 9, 15, 0)
+    },
+    new DanhGia
+    {
+        MaDanhGia = 3,
+        MaHoaDon = 3,
+        SoSao = 5,
+        NoiDung = "Đặt vé cực nhanh, thanh toán tiện lợi. Sẽ quay lại!",
+        HinhAnh = "2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f_view-bien.jpg",
+        NgayDanhGia = DateTime.Now.AddHours(-2),
+        TrangThai = "Chờ duyệt",
+        PhanHoiAdmin = null,
+        NgayPhanHoi = null
+    },
+    new DanhGia
+    {
+        MaDanhGia = 4,
+        MaHoaDon = 4,
+        SoSao = 5,
+        NoiDung = "Gia đình mình đi tuyến Hà Tiên - Phú Quốc rất hài lòng...",
+        HinhAnh = "5f4e3d2c-1b0a-4c9d-8e7f-6a5b4c3d2e1f_tau-phu-quy.jpg",
+        NgayDanhGia = DateTime.Now,
+        TrangThai = "Chờ duyệt",
+        PhanHoiAdmin = null,
+        NgayPhanHoi = null
+    }
+    );
         }
     }
 }

@@ -100,9 +100,9 @@
 <div class="container details-wrapper">
     @{
         var bannerClass = Model.TrangThai == "Đã thanh toán" ? "banner-success" :
-        (Model.TrangThai == "Chờ thanh toán" ? "banner-warning" : "banner-danger");
+        (Model.TrangThai == "Chưa thanh toán" ? "banner-warning" : "banner-danger");
         var statusIcon = Model.TrangThai == "Đã thanh toán" ? "fa-check-circle" :
-        (Model.TrangThai == "Chờ thanh toán" ? "fa-clock" : "fa-times-circle");
+        (Model.TrangThai == "Chưa thanh toán" ? "fa-clock" : "fa-times-circle");
     }
 
     <div class="status-banner @bannerClass">
@@ -191,7 +191,7 @@
                 </div>
             </div>
 
-            @if (Model.TrangThai == "Chờ thanh toán")
+            @if (Model.TrangThai == "Chưa thanh toán")
             {
                 <a asp-action="Payment" asp-route-id="@Model.MaHoaDon" class="btn btn-warning btn-block btn-lg mt-3 shadow font-weight-bold">
                     <i class="fas fa-credit-card mr-2"></i> THANH TOÁN NGAY

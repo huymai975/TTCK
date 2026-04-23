@@ -84,11 +84,18 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             if (id == null) return NotFound();
 
             var lichTrinh = await _context.LichTrinhs
-                .Include(l => l.Tau)
                 .Include(l => l.TuyenDuong)
+                .Include(l => l.Tau).ThenInclude(t => t.Ghes)
                 .FirstOrDefaultAsync(m => m.MaLichTrinh == id);
 
             if (lichTrinh == null) return NotFound();
+
+            // Đếm số vé đã đặt (Chỉ tính các vé có trạng thái hợp lệ/đã thanh toán, không tính vé 'Đã hủy')
+            var soVeDaDat = await _context.Ves
+                .CountAsync(v => v.MaLichTrinh == id && v.TrangThai != "Đã hủy");
+
+            //Tính toán lại các giá trị thực tế
+            int tongSoGhe = lichTrinh.Tau.Ghes?.Count ?? 0;
 
             // Lấy danh sách hành khách
             var passengers = await _context.Ves
@@ -111,8 +118,15 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             ViewBag.DanhSachHanhKhach = passengers;
 
             // Giả sử bạn đã tính toán các ViewBag này trước đó
-            ViewBag.TongSoGheThucTe = lichTrinh.Tau.Ghes?.Count ?? 0;
-            ViewBag.SoGheTrongThucTe = lichTrinh.SoGheTrong;
+            ViewBag.TongSoGheThucTe = tongSoGhe;
+            ViewBag.SoGheTrongThucTe = tongSoGhe - soVeDaDat;
+
+            if (lichTrinh.SoGheTrong != (tongSoGhe - soVeDaDat))
+            {
+                lichTrinh.SoGheTrong = tongSoGhe - soVeDaDat;
+                _context.Update(lichTrinh);
+                await _context.SaveChangesAsync();
+            }
 
             return View(lichTrinh);
         }

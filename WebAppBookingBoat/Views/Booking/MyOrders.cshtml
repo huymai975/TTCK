@@ -144,6 +144,54 @@
             border: none !important;
         }
     }
+
+    .countdown-timer {
+        background: #fff5f5;
+        padding: 5px 10px;
+        border-radius: 8px;
+        display: inline-block;
+        border: 1px dashed #e74a3b;
+    }
+
+    /* Schedule Badges */
+    .bg-trip-upcoming {
+        background-color: #e0f2ff;
+        color: #0288d1;
+    }
+
+    .bg-trip-running {
+        background-color: #fff4e5;
+        color: #f57c00;
+        border: 1px solid #ffe0b2;
+    }
+
+    .bg-trip-finished {
+        background-color: #f0f0f0;
+        color: #6c757d;
+    }
+
+    .bg-trip-urgent {
+        background-color: #fee2e2;
+        color: #dc2626;
+        animation: pulse-red 2s infinite;
+    }
+
+    @@keyframes pulse-red {
+        0%
+
+    {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+
+    }
 </style>
 
 <div class="container py-5">
@@ -177,7 +225,7 @@
                     <select name="status" class="form-control form-control-custom">
                         <option value="">Tất cả</option>
                         <option value="Đã thanh toán" selected="@(ViewBag.Status == "Đã thanh toán")">Đã hoàn tất</option>
-                        <option value="Chờ thanh toán" selected="@(ViewBag.Status == "Chờ thanh toán")">Chờ thanh toán</option>
+                        <option value="Chưa thanh toán" selected="@(ViewBag.Status == "Chưa thanh toán")">Chưa thanh toán</option>
                         <option value="Đã hủy" selected="@(ViewBag.Status == "Đã hủy")">Đã hủy</option>
                     </select>
                 </div>
@@ -217,6 +265,45 @@
             {
                 var danhGia = item.DanhGia;
                 var veDauTien = item.Ves.FirstOrDefault();
+                var lichTrinh = veDauTien?.LichTrinh;
+
+                string tripStatusClass = "bg-trip-finished";
+                string tripStatusText = "Đã hoàn thành";
+                bool canCancelByTime = false; // Biến kiểm tra điều kiện 24h để hiện nút Hủy
+
+                if (lichTrinh != null)
+                {
+                    var bayGio = DateTime.Now;
+                    var gioDi = lichTrinh.NgayGioKhoiHanh;
+                    // Giả sử thời gian hành trình mặc định là 2 tiếng nếu bạn chưa có cột ThoiGianDen
+                    var gioDen = gioDi.AddHours(2);
+
+                    if (bayGio < gioDi)
+                    {
+                        // Kiểm tra điều kiện hủy vé (trước 24h)
+                        if ((gioDi - bayGio).TotalHours >= 24)
+                        {
+                            canCancelByTime = true;
+                        }
+
+                        // Phân loại Sắp khởi hành (< 2 tiếng) và Chưa khởi hành
+                        if ((gioDi - bayGio).TotalHours <= 2)
+                        {
+                            tripStatusClass = "bg-trip-urgent";
+                            tripStatusText = "Sắp khởi hành";
+                        }
+                        else
+                        {
+                            tripStatusClass = "bg-trip-upcoming";
+                            tripStatusText = "Chưa khởi hành";
+                        }
+                    }
+                    else if (bayGio >= gioDi && bayGio <= gioDen)
+                    {
+                        tripStatusClass = "bg-trip-running";
+                        tripStatusText = "Đang vận hành";
+                    }
+                }
 
                 <div class="col-12">
                     <div class="card order-card shadow-sm">
@@ -224,26 +311,43 @@
                             <div class="row align-items-center">
                                 @* Cột 1: Thông tin *@
                                 <div class="col-md-4 mb-3 mb-md-0">
-                                    <span class="text-xs font-weight-bold text-uppercase text-secondary">MÃ ĐƠN: #@item.MaHoaDon</span>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="text-xs font-weight-bold text-uppercase text-secondary mr-2">MÃ ĐƠN: #@item.MaHoaDon</span>
+
+                                        @* HIỂN THỊ BADGE LỊCH TRÌNH *@
+                                        @if (item.TrangThai != "Đã hủy")
+                                        {
+                                            <span class="badge @tripStatusClass" style="padding: 5px 10px; border-radius: 5px; font-size: 0.65rem; font-weight: 700;">
+                                                <i class="fas fa-dot-circle mr-1"></i> @tripStatusText
+                                            </span>
+                                        }
+                                    </div>
+
                                     <div class="route-name mt-1">
                                         <i class="fas fa-anchor mr-2 text-primary"></i>
-                                        @(veDauTien?.LichTrinh?.TuyenDuong?.TenTuyen ?? "Tuyến đường không xác định")
+                                        @(lichTrinh?.TuyenDuong?.TenTuyen ?? "Tuyến đường không xác định")
                                     </div>
                                     <div class="text-muted small mt-2">
-                                        <i class="far fa-calendar-alt mr-1"></i> @item.NgayLap.ToString("dd/MM/yyyy HH:mm")
+                                        <i class="far fa-calendar-alt mr-1"></i> Đặt lúc: @item.NgayLap.ToString("dd/MM/yyyy HH:mm")
                                     </div>
+                                    @if (lichTrinh != null)
+                                    {
+                                        <div class="small text-primary mt-1">
+                                            <i class="far fa-clock mr-1"></i> Khởi hành: <strong>@lichTrinh.NgayGioKhoiHanh.ToString("HH:mm - dd/MM/yyyy")</strong>
+                                        </div>
+                                    }
                                 </div>
 
-                                @* Cột 2: Giá & Trạng thái *@
+                                @* Cột 2: Giá & Trạng thái thanh toán (Giữ nguyên logic của bạn) *@
                                 <div class="col-md-3 text-md-center mb-3 mb-md-0 border-left border-right">
                                     <div class="h5 mb-2 font-weight-bold text-dark">@item.TongTien.ToString("N0") <small>VND</small></div>
 
                                     @if (item.TrangThai == "Đã thanh toán")
                                     {
-                                        <span class="badge badge-status bg-status-success mb-2">Đã hoàn tất</span>
+                                        <span class="badge badge-status bg-status-success mb-2">Đã thanh toán</span>
                                         @if (danhGia != null)
                                         {
-                                            <div class="star-rating">
+                                            <div class="star-rating text-warning">
                                                 @for (int i = 1; i <= 5; i++)
                                                 {
                                                     <i class="@(i <= danhGia.SoSao ? "fas" : "far") fa-star"></i>
@@ -251,9 +355,13 @@
                                             </div>
                                         }
                                     }
-                                    else if (item.TrangThai == "Chờ thanh toán")
+                                    else if (item.TrangThai == "Chưa thanh toán")
                                     {
-                                        <span class="badge badge-status bg-status-warning">Chờ thanh toán</span>
+                                        <span class="badge badge-status bg-status-warning">Chưa thanh toán</span>
+                                        <div class="mt-2 small text-danger font-weight-bold countdown-timer"
+                                             data-expire="@item.NgayLap.AddMinutes(15).ToString("yyyy-MM-ddTHH:mm:ss")">
+                                            <i class="fas fa-clock mr-1"></i>Hết hạn sau: <span class="timer-text">--:--</span>
+                                        </div>
                                     }
                                     else
                                     {
@@ -264,37 +372,32 @@
                                 @* Cột 3: Nút hành động *@
                                 <div class="col-md-5">
                                     <div class="btn-action-group">
-                                        @* 1. Nút Thanh toán (Chỉ hiện khi chưa trả tiền) *@
-                                        @if (item.TrangThai == "Chờ thanh toán")
+                                        @if (item.TrangThai == "Chưa thanh toán")
                                         {
                                             <a asp-action="Payment" asp-route-id="@item.MaHoaDon" class="btn btn-warning btn-action">
                                                 <i class="fas fa-credit-card mr-2"></i>Thanh toán
                                             </a>
                                         }
 
-                                        @* 2. Nút In vé (Chỉ hiện khi đã thanh toán) *@
                                         @if (item.TrangThai == "Đã thanh toán")
                                         {
                                             <a asp-action="ExportPdf" asp-route-id="@item.MaHoaDon" target="_blank" class="btn btn-success btn-action">
                                                 <i class="fas fa-print mr-2"></i>In vé
                                             </a>
+                                            @if (danhGia == null && tripStatusText == "Đã hoàn thành")
+                                            {
+                                                <a asp-controller="Booking" asp-action="Evaluate" asp-route-id="@item.MaHoaDon" class="btn btn-primary btn-action">
+                                                    <i class="fas fa-star mr-2"></i>Đánh giá
+                                                </a>
+                                            }
                                         }
 
-                                        @* 3. Nút Đánh giá (Chỉ hiện khi đã thanh toán và CHƯA đánh giá) *@
-                                        @if (item.TrangThai == "Đã thanh toán" && danhGia == null)
-                                        {
-                                            <a asp-controller="Booking" asp-action="Evaluate" asp-route-id="@item.MaHoaDon" class="btn btn-primary btn-action">
-                                                <i class="fas fa-star mr-2"></i>Đánh giá
-                                            </a>
-                                        }
-
-                                        @* 4. Nút Chi tiết (Luôn có) *@
                                         <a asp-action="Details" asp-route-id="@item.MaHoaDon" class="btn btn-info btn-action">
                                             <i class="fas fa-eye mr-2"></i>Chi tiết
                                         </a>
 
-                                        @* 5. Nút Huỷ vé (Hiện khi Chờ thanh toán HOẶC Đã thanh toán) *@
-                                        @if (item.TrangThai == "Chờ thanh toán" || item.TrangThai == "Đã thanh toán")
+                                        @* Nút Hủy vé: Chỉ hiện khi thỏa điều kiện canCancelByTime (trước 24h) *@
+                                        @if (canCancelByTime && (item.TrangThai == "Chưa thanh toán" || item.TrangThai == "Đã thanh toán"))
                                         {
                                             <form asp-action="CancelOrder" asp-route-id="@item.MaHoaDon" method="post" class="form-cancel">
                                                 <input type="hidden" class="order-status" value="@item.TrangThai" />
@@ -364,42 +467,82 @@
             });
 
             // 4. Tooltip (nếu có dùng Bootstrap tooltip)
-            $('[title]').tooltip();
-
-                    $('.btn-cancel-confirm').on('click', function () {
-            const $form = $(this).closest('.form-cancel');
-            const status = $form.find('.order-status').val();
-
-            let title = "Xác nhận huỷ vé?";
-            // Mặc định luôn nhắc nhở về điều kiện 24h
-            let text = "Lưu ý: Bạn chỉ có thể tự huỷ vé TRƯỚC 24 GIỜ so với giờ khởi hành.";
-            let icon = "warning";
-
-            // Nếu đã thanh toán, thêm cảnh báo hoàn tiền
-            if (status === "Đã thanh toán") {
-                title = "Cảnh báo hoàn tiền & Thời gian!";
-                text = "1. Bạn chỉ được huỷ trước 24h khởi hành.\n2. Vì đơn đã thanh toán, bạn sẽ chỉ được hoàn lại 50% giá trị hóa đơn.\nBạn vẫn muốn tiếp tục?";
-                icon = "error";
+            if (typeof $.fn.tooltip === 'function') {
+                $('[title]').tooltip();
             }
 
-            Swal.fire({
-                title: title,
-                text: text,
-                icon: icon,
-                showCancelButton: true,
-                confirmButtonColor: '#e74a3b',
-                cancelButtonColor: '#858796',
-                confirmButtonText: 'Tôi đã hiểu và muốn huỷ',
-                cancelButtonText: 'Quay lại',
-                customClass: {
-                    popup: 'border-radius-15'
+            // 5. Xác nhận Huỷ vé bằng SweetAlert2
+            $('.btn-cancel-confirm').on('click', function (e) {
+                e.preventDefault(); // Ngăn submit form ngay lập tức
+                const $form = $(this).closest('.form-cancel');
+                const status = $form.find('.order-status').val();
+
+                let title = "Xác nhận huỷ vé?";
+                let text = "Lưu ý: Bạn chỉ có thể tự huỷ vé TRƯỚC 24 GIỜ so với giờ khởi hành.";
+                let icon = "warning";
+
+                if (status === "Đã thanh toán") {
+                    title = "Cảnh báo hoàn tiền & Thời gian!";
+                    text = "1. Bạn chỉ được huỷ trước 24h khởi hành.\n2. Vì đơn đã thanh toán, bạn sẽ chỉ được hoàn lại 50% giá trị hóa đơn.\nBạn vẫn muốn tiếp tục?";
+                    icon = "error";
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $form.submit();
-                }
+
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: icon,
+                    showCancelButton: true,
+                    confirmButtonColor: '#e74a3b',
+                    cancelButtonColor: '#858796',
+                    confirmButtonText: 'Tôi đã hiểu và muốn huỷ',
+                    cancelButtonText: 'Quay lại',
+                    customClass: {
+                        popup: 'border-radius-15'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $form.submit(); // Chỉ submit khi đã xác nhận
+                    }
+                });
             });
-        });
+
+            // 6. Logic đếm ngược thời gian thanh toán
+            function updateCountdowns() {
+                $('.countdown-timer').each(function() {
+                    const expireStr = $(this).data('expire');
+                    if (!expireStr) return;
+
+                    const expireDate = new Date(expireStr).getTime();
+                    const now = new Date().getTime();
+                    const distance = expireDate - now;
+
+                    if (distance < 0) {
+                        // Kiểm tra để tránh reload liên tục
+                        if (!$(this).hasClass('is-expired')) {
+                            $(this).addClass('is-expired');
+                            $(this).html('<i class="fas fa-exclamation-circle"></i> Đã hết hạn thanh toán');
+                            $(this).closest('.order-card').find('.btn-warning').fadeOut();
+
+                            // Load lại trang sau 2 giây để cập nhật trạng thái mới từ Server
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        }
+                        return;
+                    }
+
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    $(this).find('.timer-text').text(
+                        (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds
+                    );
+                });
+            }
+
+            // Kích hoạt đồng hồ chạy mỗi giây
+            setInterval(updateCountdowns, 1000);
+            updateCountdowns(); // Chạy lần đầu ngay khi trang load xong
         });
     </script>
 }
