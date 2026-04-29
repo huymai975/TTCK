@@ -6,7 +6,6 @@
 
 <head>
     <style>
-        /* Các class border-left giữ nguyên để tạo điểm nhấn */
         .border-left-primary {
             border-left: 4px solid #4e73df !important;
         }
@@ -24,7 +23,7 @@
         }
 
         .form-control:focus {
-            border-color: #f6c23e; /* Đổi sang màu vàng khi focus cho đồng bộ */
+            border-color: #f6c23e;
             box-shadow: 0 0 0 0.2rem rgba(246, 194, 62, 0.15);
         }
 
@@ -48,7 +47,7 @@
         }
 
         .custom-file-label::after {
-            content: "Chọn ảnh"; /* Việt hóa nút chọn file */
+            content: "Chọn ảnh";
         }
     </style>
 </head>
@@ -62,11 +61,10 @@
 
     <div class="row justify-content-center">
         <div class="col-xl-11 col-lg-12">
-            @* QUAN TRỌNG: Thêm enctype để upload file *@
             <form asp-action="Edit" method="post" enctype="multipart/form-data" id="editPromotionForm" class="card shadow-lg mb-4 border-left-warning">
+                @* Các trường ẩn quan trọng *@
                 <input type="hidden" asp-for="MaKM" />
-                @* Giữ lại tên file cũ nếu người dùng không chọn file mới *@
-                <input type="hidden" asp-for="HinhAnh" id="OldImage" />
+                <input type="hidden" asp-for="HinhAnh" />
 
                 <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-warning text-uppercase">
@@ -90,19 +88,19 @@
                             <div class="form-group mb-3 text-center">
                                 <div class="preview-container mb-3 shadow-sm">
                                     @{
-                                        // Sửa logic đường dẫn: Trỏ vào folder khuyen-mai thay vì promotions
-                                        var imgSrc = string.IsNullOrEmpty(Model.HinhAnh) ? "/images/no-image.png" :
-                                        (Model.HinhAnh.StartsWith("http") ? Model.HinhAnh : "/images/khuyen-mai/" + Model.HinhAnh);
+                                        // Logic hiển thị ảnh: Nếu là URL (Cloudinary) thì dùng luôn, không thì trỏ vào folder local hoặc ảnh mặc định
+                                        var imgSrc = string.IsNullOrEmpty(Model.HinhAnh)
+                                        ? "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-promo.jpg"
+                                        : (Model.HinhAnh.StartsWith("http") ? Model.HinhAnh : "/images/khuyen-mai/" + Model.HinhAnh);
                                     }
                                     <img id="imgPreview" src="@imgSrc" class="preview-img" alt="Preview" />
                                 </div>
 
                                 <div class="custom-file mb-2">
-                                    @* QUAN TRỌNG: Đổi name từ "fHinhAnh" thành "ImageFile" để khớp với tham số ở Controller *@
                                     <input type="file" name="ImageFile" class="custom-file-input" id="HinhAnhInput" accept="image/*">
-                                    <label class="custom-file-label text-left shadow-sm" for="HinhAnhInput">Chọn file mới...</label>
+                                    <label class="custom-file-label text-left shadow-sm" for="HinhAnhInput">Thay đổi ảnh mới...</label>
                                 </div>
-                                <small class="text-muted italic">Để trống nếu muốn giữ ảnh cũ</small>
+                                <small class="text-muted d-block mt-1"><i>Giữ trống để sử dụng ảnh hiện tại</i></small>
                             </div>
 
                             <div class="form-group">
@@ -144,7 +142,6 @@
                                             <option value="Đã kết thúc">Đã kết thúc</option>
                                             <option value="Đã hủy">Đã hủy</option>
                                         </select>
-                                        <span asp-validation-for="TrangThai" class="text-danger small"></span>
                                     </div>
                                 </div>
                             </div>
@@ -155,10 +152,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text bg-light border-right-0 font-weight-bold text-success">₫</span>
                                     </div>
-                                    @* Ô nhập liệu định dạng đẹp *@
                                     <input type="text" id="SoTienDisplay" class="form-control border-left-0 font-weight-bold"
                                            value="@Model.SoTienToiDaGiam.ToString("N0")" inputmode="numeric" />
-                                    @* Ô ẩn để gửi số nguyên về server *@
                                     <input type="hidden" asp-for="SoTienToiDaGiam" id="SoTienReal" />
                                 </div>
                                 <span asp-validation-for="SoTienToiDaGiam" class="text-danger small"></span>
@@ -173,13 +168,15 @@
 
                             <div class="form-group mb-4">
                                 <label asp-for="NgayBatDau" class="small font-weight-bold text-muted text-uppercase">Ngày bắt đầu</label>
-                                <input asp-for="NgayBatDau" type="date" class="form-control shadow-sm border-left-warning" />
+                                <input asp-for="NgayBatDau" type="date" class="form-control shadow-sm border-left-warning"
+                                       value="@Model.NgayBatDau.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="NgayBatDau" class="text-danger small"></span>
                             </div>
 
                             <div class="form-group mb-4">
                                 <label asp-for="NgayKetThuc" class="small font-weight-bold text-muted text-uppercase">Ngày kết thúc</label>
-                                <input asp-for="NgayKetThuc" type="date" class="form-control shadow-sm border-left-danger" />
+                                <input asp-for="NgayKetThuc" type="date" class="form-control shadow-sm border-left-danger"
+                                       value="@Model.NgayKetThuc.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="NgayKetThuc" class="text-danger small"></span>
                             </div>
                         </div>
@@ -189,13 +186,12 @@
                 <div class="card-footer bg-light d-flex justify-content-between py-3">
                     <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
                         <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
-                        <span class="text">Hủy bỏ</span>
+                        <span class="text">Quay lại</span>
                     </a>
 
-                    @* Nút chuyển sang màu VÀNG (btn-warning) *@
                     <button type="submit" class="btn btn-warning btn-icon-split shadow-sm font-weight-bold text-dark">
                         <span class="icon text-dark-50"><i class="fas fa-save"></i></span>
-                        <span class="text">Cập nhật dữ liệu</span>
+                        <span class="text">Lưu thay đổi</span>
                     </button>
                 </div>
             </form>
@@ -207,26 +203,7 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-    <script>
-        $(document).ready(function () {
-            // Xử lý xem trước ảnh (Preview)
-            $("#HinhAnhInput").change(function () {
-                const file = this.files[0];
-                if (file) {
-                    // Cập nhật tên file vào nhãn label
-                    $(this).next('.custom-file-label').html(file.name);
-
-                    // Đọc file để hiển thị preview
-                    let reader = new FileReader();
-                    reader.onload = function (event) {
-                        $("#imgPreview").attr("src", event.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function () {
@@ -235,16 +212,15 @@
             const hinhAnhInput = $('#HinhAnhInput');
             const imgPreview = $('#imgPreview');
 
-            // 1. Đồng bộ số tiền ban đầu
-            realInput.val(displayInput.val().replace(/,/g, ''));
-
-            // 2. Logic Xem trước ảnh khi chọn File
+            // 1. Xử lý Xem trước ảnh và Label
             hinhAnhInput.on('change', function() {
-                let fileName = $(this).val().split('\\').pop();
-                $(this).next('.custom-file-label').addClass("selected").html(fileName);
-
                 const file = this.files[0];
                 if (file) {
+                    // Cập nhật text cho label
+                    let fileName = file.name;
+                    $(this).next('.custom-file-label').html(fileName);
+
+                    // Hiển thị ảnh preview
                     let reader = new FileReader();
                     reader.onload = function(e) {
                         imgPreview.attr('src', e.target.result);
@@ -253,29 +229,38 @@
                 }
             });
 
-            // 3. Định dạng tiền tệ VNĐ (ví dụ: 100,000)
+            // 2. Định dạng tiền tệ VNĐ (ngay khi load và khi nhập)
+            function formatCurrency(val) {
+                return val.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
             displayInput.on('input', function () {
-                let value = $(this).val().replace(/\D/g, "");
-                $(this).val(value.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-                realInput.val(value);
+                let rawValue = $(this).val().replace(/\D/g, "");
+                $(this).val(formatCurrency(rawValue));
+                realInput.val(rawValue);
             });
 
-            // 4. Xử lý khi Submit
+            // 3. Xử lý Validation trước khi Submit
             $('#editPromotionForm').on('submit', function (e) {
-                // Kiểm tra ngày tháng
                 const start = new Date($('#NgayBatDau').val());
                 const end = new Date($('#NgayKetThuc').val());
 
-                if ($('#NgayBatDau').val() && $('#NgayKetThuc').val() && end < start) {
-                    Swal.fire('Lỗi', 'Ngày kết thúc không được trước ngày bắt đầu!', 'error');
+                if (end < start) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ngày không hợp lệ',
+                        text: 'Ngày kết thúc không được nhỏ hơn ngày bắt đầu!'
+                    });
                     e.preventDefault();
                     return false;
                 }
 
-                // Trước khi gửi, vô hiệu hóa ô Display để Server nhận ô Real (số nguyên)
-                displayInput.prop('disabled', true);
+                // Gán giá trị số nguyên vào input hidden trước khi gửi
+                realInput.val(displayInput.val().replace(/,/g, ''));
+
+                // Mở khóa để đảm bảo dữ liệu được gửi đi nếu cần,
+                // nhưng ở đây ta dùng input hidden 'SoTienReal' nên không lo bị mất format.
             });
         });
     </script>
 }
-

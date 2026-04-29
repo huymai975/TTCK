@@ -28,18 +28,21 @@
 						<div class="col-md-4 text-center border-right">
 							<label class="font-weight-bold text-dark d-block mb-3">Hình ảnh đại diện</label>
 							<div class="image-upload-wrapper mb-3 p-2 border rounded bg-light shadow-sm">
-								<img id="imgPreview" src="~/images/tau/default-boat.jpg"
-									 class="img-fluid rounded"
+								@* Link ảnh mặc định từ Cloudinary hoặc internet *@
+								<img id="imgPreview" src="https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-boat.jpg"
+									 class="img-fluid rounded shadow-sm"
 									 style="max-height: 250px; width: 100%; object-fit: cover;"
-									 alt="Preview" />
+									 alt="Preview"
+									 onerror="this.onerror=null;this.src='https://placehold.co/600x400?text=No+Image';" />
 							</div>
 							<div class="custom-file text-left">
+								@* Input nhận file để gửi lên Server đẩy sang Cloudinary *@
 								<input asp-for="ImageFile" id="imageInput" type="file" class="custom-file-input" accept="image/*" />
 								<label class="custom-file-label text-truncate" for="imageInput">Chọn tệp ảnh...</label>
 								<span asp-validation-for="ImageFile" class="text-danger small font-italic"></span>
 							</div>
-							<small class="form-text text-muted mt-2 font-italic">
-								<i class="fas fa-info-circle mr-1"></i> JPG, PNG, WEBP.
+							<small class="form-text text-muted mt-2 font-italic small">
+								<i class="fas fa-info-circle mr-1"></i> Định dạng: JPG, PNG, WEBP. Ảnh sẽ được tối ưu bởi Cloudinary.
 							</small>
 						</div>
 

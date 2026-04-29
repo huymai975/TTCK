@@ -2,11 +2,11 @@
 
 @{
     ViewData["Title"] = "Kết quả tìm kiếm chuyến tàu";
-    var imagePath = "/images/tuyen-duong/";
+    // Đã loại bỏ biến imagePath vì giờ dùng link Cloud trực tiếp
 }
 
 <style>
-    /* 1. Nâng cấp Hero Section */
+    /* 1. Nâng cấp Hero Section - GIỮ NGUYÊN url('/images/hero_2.jpg') */
     .hero-wrap {
         background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/hero_2.jpg');
         background-size: cover;
@@ -131,7 +131,8 @@
                     <h4 class="h5 text-black mb-4 font-weight-bold"><i class="fas fa-info-circle text-primary mr-2"></i>Thông tin hành trình</h4>
                     @if (Model.TuyenDuong != null)
                     {
-                        <img src="@(string.IsNullOrEmpty(Model.TuyenDuong.HinhAnh) ? "/images/default.jpg" : imagePath + Model.TuyenDuong.HinhAnh)" class="img-fluid mb-4">
+                        @* ĐỔI Ở ĐÂY: Lấy thẳng link từ Model.TuyenDuong.HinhAnh *@
+                        <img src="@(string.IsNullOrEmpty(Model.TuyenDuong.HinhAnh) ? "/images/default.jpg" : Model.TuyenDuong.HinhAnh)" class="img-fluid mb-4">
 
                         <div class="route-info">
                             <div class="d-flex align-items-center mb-3">
@@ -200,11 +201,12 @@
                 {
                     @foreach (var lt in Model.KetQuaLichTrinh)
                     {
-                        <div class="ticket-item modern-card" data-aos="fade-up" 
+                        <div class="ticket-item modern-card" data-aos="fade-up"
                              data-price="@lt.GiaVeCoBan"
                              data-time="@lt.NgayGioKhoiHanh.ToString("yyyyMMddHHmm")"
                              data-seats="@lt.SoGheTrong">
-                            <div class="ticket-img" style="background-image: url('@(string.IsNullOrEmpty(lt.Tau.HinhAnh) ? "/images/default.jpg" : "/images/tau/" + lt.Tau.HinhAnh)');">
+                            @* ĐỔI Ở ĐÂY: Lấy thẳng link từ lt.Tau.HinhAnh *@
+                            <div class="ticket-img" style="background-image: url('@(string.IsNullOrEmpty(lt.Tau.HinhAnh) ? "/images/default.jpg" : lt.Tau.HinhAnh)');">
                                 <span class="status-badge @(lt.TrangThai == "Sắp khởi hành" ? "bg-success text-white" : "bg-warning")">
                                     @lt.TrangThai
                                 </span>
@@ -263,42 +265,28 @@
 
 <script>
     function sortTickets(type) {
-        // 1. Xác định vùng chứa và danh sách các item
         const container = document.querySelector('.col-lg-8');
         const ticketList = container.querySelectorAll('.ticket-item');
-
-        // Chuyển NodeList sang Array để dùng hàm sort()
         const items = Array.from(ticketList);
 
-        // 2. Thực hiện sắp xếp
         items.sort((a, b) => {
-            let valA, valB;
-
             switch (type) {
-                case 'price-asc':
-                    return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
-                case 'price-desc':
-                    return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
-                case 'time-asc':
-                    return a.dataset.time.localeCompare(b.dataset.time);
-                case 'seat-desc':
-                    return parseInt(b.dataset.seats) - parseInt(a.dataset.seats);
-                default:
-                    return 0;
+                case 'price-asc': return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+                case 'price-desc': return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                case 'time-asc': return a.dataset.time.localeCompare(b.dataset.time);
+                case 'seat-desc': return parseInt(b.dataset.seats) - parseInt(a.dataset.seats);
+                default: return 0;
             }
         });
 
-        // 3. Hiệu ứng mờ dần khi sắp xếp (Tùy chọn)
         items.forEach(item => {
             item.style.opacity = '0';
             item.style.transform = 'translateY(10px)';
         });
 
-        // 4. Xóa các item cũ và chèn lại theo thứ tự mới
         setTimeout(() => {
             items.forEach(item => {
                 container.appendChild(item);
-                // Hiển thị lại với hiệu ứng
                 setTimeout(() => {
                     item.style.opacity = '1';
                     item.style.transform = 'translateY(0)';

@@ -206,19 +206,16 @@
                                 <td class="text-center font-weight-bold text-gray-500 small">#@item.MaKM</td>
                                 <td class="text-center">
                                     <div class="promo-img-container mx-auto">
-                                        @if (!string.IsNullOrEmpty(item.HinhAnh))
-                                        {
-                                            @* Đường dẫn URL bắt đầu bằng dấu / để chạy từ gốc website *@
-                                            <img src="~/images/khuyen-mai/@item.HinhAnh"
-                                                 class="promo-img"
-                                                 alt="khuyen-mai"
-                                                 asp-append-version="true"
-                                                 onerror="this.src='/images/default.jpg'">
+                                        @{
+                                            // Link ảnh dự phòng trên Cloud nếu data trống
+                                            var defaultImg = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-promo.jpg";
+                                            var currentImg = !string.IsNullOrEmpty(item.HinhAnh) ? item.HinhAnh : defaultImg;
                                         }
-                                        else
-                                        {
-                                            <img src="~/images/default.jpg" class="promo-img" alt="no-image">
-                                        }
+                                        <img src="@currentImg"
+                                             class="promo-img"
+                                             alt="khuyen-mai"
+                                             loading="lazy"
+                                             onerror="this.onerror=null;this.src='https://placehold.co/100x60?text=No+Image';">
                                     </div>
                                 </td>
                                 <td>
@@ -251,12 +248,11 @@
                                     }
                                     <span class="badge badge-status shadow-sm @sClass">@displayStatus</span>
                                 </td>
-
-                                <td>
+                                <td class="text-center">
+                                    @* Các nút thao tác giữ nguyên logic disable của bạn *@
                                     @if (item.TrangThai == "Đã kết thúc" || item.TrangThai == "Đã hủy")
                                     {
-                                        @* Nút Chỉnh sửa bị vô hiệu hóa *@
-                                        <span class="d-inline-block" data-toggle="tooltip" title="Không thể chỉnh sửa khuyến mãi đã @item.TrangThai.ToLower()">
+                                        <span class="d-inline-block" data-toggle="tooltip" title="Không thể chỉnh sửa">
                                             <button class="btn-modern btn-edit disabled" style="opacity: 0.5; cursor: not-allowed;" disabled>
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -264,30 +260,25 @@
                                     }
                                     else
                                     {
-                                        @* Nút Chỉnh sửa bình thường *@
                                         <a asp-action="Edit" asp-route-id="@item.MaKM" class="btn-modern btn-edit" title="Chỉnh sửa">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     }
 
-                                    @* Nút Chi tiết luôn cho phép xem *@
                                     <a asp-action="Details" asp-route-id="@item.MaKM" class="btn-modern btn-view" title="Chi tiết">
                                         <i class="fas fa-eye"></i>
                                     </a>
 
                                     @if (item.TrangThai == "Đã kết thúc" || item.TrangThai == "Đã hủy")
                                     {
-                                        @* Nút Xóa bị vô hiệu hóa *@
-                                        <span class="d-inline-block" data-toggle="tooltip" title="Khuyến mãi này đã @item.TrangThai.ToLower(), không thể tác động thêm">
-                                            <button type="button" class="btn-modern btn-delete disabled"
-                                                    style="opacity: 0.5; cursor: not-allowed;" disabled>
+                                        <span class="d-inline-block" data-toggle="tooltip" title="Không thể tác động thêm">
+                                            <button type="button" class="btn-modern btn-delete disabled" style="opacity: 0.5; cursor: not-allowed;" disabled>
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </span>
                                     }
                                     else
                                     {
-                                        @* Nút Xóa (Hủy) bình thường *@
                                         <button type="button" class="btn-modern btn-delete"
                                                 onclick="deleteKhuyenMaiAjax('@item.MaKM', '@item.TenChuongTrinh')"
                                                 title="Hủy khuyến mãi">

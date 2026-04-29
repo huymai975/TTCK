@@ -13,16 +13,16 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class TausController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<AppUser> _userManager;
+        private readonly PhotoService _photoService;
 
         public TausController(ApplicationDbContext context,
-                              IWebHostEnvironment webHostEnvironment,
-                              UserManager<AppUser> userManager)
+                              UserManager<AppUser> userManager,
+                              PhotoService photoService)
         {
             _context = context;
-            _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
+            _photoService = photoService;
         }
 
         // Logic check trùng tên tàu
@@ -50,9 +50,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 var error = await CheckBusinessLogic(vm.TenTau);
                 if (error != null)
                 {
-                    // THÊM DÒNG NÀY: Đẩy lỗi vào ModelState để View hiển thị
                     ModelState.AddModelError("TenTau", error);
-                    //TempData["ErrorMessage"] = error;
                     return View(vm);
                 }
 
@@ -63,9 +61,18 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                         TenTau = vm.TenTau,
                         TongSoGhe = vm.TongSoGhe,
                         TrangThai = vm.TrangThai,
-                        HinhAnh = "default-boat.jpg"
+                        HinhAnh = "default-boat.jpg" // Ảnh mặc định nếu không upload
                     };
-                    if (vm.ImageFile != null) tau.HinhAnh = await SaveImage(vm.ImageFile);
+
+                    if (vm.ImageFile != null)
+                    {
+                        // Gọi service với folder "Taus"
+                        var result = await _photoService.AddPhotoAsync(vm.ImageFile, "Taus");
+                        if (result.Error == null)
+                        {
+                            tau.HinhAnh = result.SecureUrl.AbsoluteUri;
+                        }
+                    }
 
                     _context.Add(tau);
                     await _context.SaveChangesAsync();
@@ -76,7 +83,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    //TempData["ErrorMessage"] = "Lỗi hệ thống khi lưu dữ liệu.";
                     await GhiLogHeThong("Lỗi Thêm mới", "Tàu", ex.Message, "Error");
                 }
             }
@@ -110,9 +116,7 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 var error = await CheckBusinessLogic(vm.TenTau, id);
                 if (error != null)
                 {
-                    // THÊM DÒNG NÀY: Đẩy lỗi vào ModelState
                     ModelState.AddModelError("TenTau", error);
-                    //TempData["ErrorMessage"] = error;
                     return View(vm);
                 }
 
@@ -128,8 +132,19 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
                     if (vm.ImageFile != null)
                     {
-                        DeleteOldImage(tau.HinhAnh);
-                        tau.HinhAnh = await SaveImage(vm.ImageFile);
+                        // 1. Xóa ảnh cũ trên Cloudinary để tiết kiệm dung lượng
+                        var oldPublicId = GetPublicIdFromUrl(tau.HinhAnh);
+                        if (!string.IsNullOrEmpty(oldPublicId))
+                        {
+                            await _photoService.DeletePhotoAsync(oldPublicId);
+                        }
+
+                        // 2. Upload ảnh mới vào folder "Taus"
+                        var result = await _photoService.AddPhotoAsync(vm.ImageFile, "Taus");
+                        if (result.Error == null)
+                        {
+                            tau.HinhAnh = result.SecureUrl.AbsoluteUri;
+                        }
                     }
 
                     _context.Update(tau);
@@ -141,7 +156,6 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    //TempData["ErrorMessage"] = "Lỗi khi cập nhật.";
                     await GhiLogHeThong("Lỗi Cập nhật", "Tàu", ex.Message, "Error");
                 }
             }
@@ -164,15 +178,18 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
             try
             {
-                string thongTinTau = $"Xóa tàu: {tau.TenTau} (ID: {tau.MaTau})";
-                DeleteOldImage(tau.HinhAnh);
+                // Xóa ảnh trên Cloudinary trước khi xóa tàu trong DB
+                var publicId = GetPublicIdFromUrl(tau.HinhAnh);
+                if (!string.IsNullOrEmpty(publicId))
+                {
+                    await _photoService.DeletePhotoAsync(publicId);
+                }
 
+                string thongTinTau = $"Xóa tàu: {tau.TenTau} (ID: {tau.MaTau})";
                 _context.Taus.Remove(tau);
                 await _context.SaveChangesAsync();
 
-                // Log thành công
                 await GhiLogHeThong("Xóa", "Tàu", thongTinTau, "Warning");
-
                 return Json(new { success = true, message = "Đã xóa tàu thành công." });
             }
             catch (Exception ex)
@@ -204,23 +221,29 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         }
 
         #region Helpers
-        private async Task<string> SaveImage(IFormFile file)
+        // Hàm trích xuất PublicId từ URL Cloudinary để thực hiện lệnh Xóa
+        private string? GetPublicIdFromUrl(string url)
         {
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string path = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau");
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-            using (var stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-            return fileName;
-        }
+            if (string.IsNullOrEmpty(url) || url == "default-boat.jpg" || !url.Contains("res.cloudinary.com"))
+                return null;
 
-        private void DeleteOldImage(string? fileName)
-        {
-            if (string.IsNullOrEmpty(fileName) || fileName == "default-boat.jpg") return;
-            string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "tau", fileName);
-            if (System.IO.File.Exists(fullPath)) System.IO.File.Delete(fullPath);
+            try
+            {
+                // URL: https://res.cloudinary.com/cloudname/image/upload/v12345/WebAppBookingBoat/Taus/filename.jpg
+                var uri = new Uri(url);
+                var segments = uri.AbsolutePath.Split('/');
+                var uploadIndex = Array.IndexOf(segments, "upload");
+
+                if (uploadIndex != -1)
+                {
+                    // Lấy tất cả các phần tử sau version (v12345)
+                    var publicIdWithExtension = string.Join("/", segments.Skip(uploadIndex + 2));
+                    // Bỏ phần mở rộng file (.jpg, .png...)
+                    return Path.ChangeExtension(publicIdWithExtension, null);
+                }
+            }
+            catch { }
+            return null;
         }
 
         [NonAction]

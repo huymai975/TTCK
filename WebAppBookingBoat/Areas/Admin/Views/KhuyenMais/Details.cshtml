@@ -39,12 +39,15 @@
                         <div class="col-lg-7 p-4">
                             <div class="position-relative mb-4 shadow-sm rounded overflow-hidden">
                                 @{
-                                    var imagePath = !string.IsNullOrEmpty(Model.HinhAnh)
-                                    ? "~/images/khuyen-mai/" + Model.HinhAnh
-                                    : "~/images/default.jpg";
+                                    // Logic đường dẫn ảnh:
+                                    // 1. Kiểm tra nếu HinhAnh trống -> Dùng ảnh mặc định.
+                                    // 2. Nếu là URL tuyệt đối (bắt đầu bằng http) -> Dùng trực tiếp (Cloudinary).
+                                    // 3. Nếu là tên file -> Trỏ vào folder /images/khuyen-mai/.
+                                    var imageSrc = string.IsNullOrEmpty(Model.HinhAnh)
+                                    ? "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-promo.jpg"
+                                    : (Model.HinhAnh.StartsWith("http") ? Model.HinhAnh : Url.Content("~/images/khuyen-mai/" + Model.HinhAnh));
                                 }
-                                <img src="@imagePath"
-                                     asp-append-version="true"
+                                <img src="@imageSrc"
                                      class="w-100"
                                      style="height: 350px; object-fit: cover;"
                                      alt="Banner">

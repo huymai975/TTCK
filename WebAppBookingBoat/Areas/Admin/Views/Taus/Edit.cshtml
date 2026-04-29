@@ -34,20 +34,28 @@
 
 							<div class="mb-3 p-2 border rounded bg-light shadow-sm">
 								<small class="text-muted d-block mb-1 font-italic">Ảnh đang sử dụng:</small>
+								@{
+									// Logic: Nếu có link tuyệt đối (Cloudinary) thì dùng, nếu không thì dùng ảnh mặc định
+									var currentImg = !string.IsNullOrEmpty(Model.HinhAnhCu)
+									? Model.HinhAnhCu
+									: "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-boat.jpg";
+								}
 								<img id="imgPreview"
-									 src="@(string.IsNullOrEmpty(Model.HinhAnhCu) ? "/images/tau/default-boat.jpg" : "/images/tau/" + Model.HinhAnhCu)"
+									 src="@currentImg"
 									 class="img-fluid rounded shadow-sm"
 									 style="max-height: 200px; width: 100%; object-fit: cover;"
-									 alt="Ảnh phương tiện" />
+									 alt="Ảnh phương tiện"
+									 onerror="this.onerror=null;this.src='https://placehold.co/600x400?text=No+Image';" />
 							</div>
 
-							<div class="custom-file text-left mt-2">
+							<div class="custom-file text-left mt-2 shadow-sm">
+								@* Quan trọng: Input này sẽ gửi file lên Cloudinary thông qua Controller *@
 								<input asp-for="ImageFile" id="imageInput" type="file" class="custom-file-input" accept="image/*" />
 								<label class="custom-file-label text-truncate" for="imageInput">Thay đổi ảnh mới...</label>
 								<span asp-validation-for="ImageFile" class="text-danger small font-italic"></span>
 							</div>
 							<small class="form-text text-muted mt-2 small font-italic">
-								<i class="fas fa-info-circle mr-1"></i> Chọn ảnh mới nếu muốn thay thế ảnh cũ.
+								<i class="fas fa-info-circle mr-1"></i> Tải lên ảnh mới sẽ tự động thay thế ảnh cũ trên Cloudinary.
 							</small>
 						</div>
 
@@ -117,20 +125,27 @@
 	}
 
 	<script>
-		// Xử lý hiển thị tên file và preview ảnh ngay lập tức
-		$('.custom-file-input').on('change', function(e) {
-			let fileName = $(this).val().split('\\').pop();
-			$(this).next('.custom-file-label').addClass("selected").html(fileName || "Thay đổi ảnh mới...");
+		$(document).ready(function () {
+			$('#imageInput').on('change', function (e) {
+				let fileName = e.target.files[0] ? e.target.files[0].name : "Thay đổi ảnh mới...";
+				$(this).next('.custom-file-label').html(fileName);
 
-			const file = e.target.files[0];
-			if (file) {
-				const reader = new FileReader();
-				reader.onload = function(e) {
-					// Cập nhật trực tiếp vào ảnh hiện tại để người dùng thấy sự thay đổi
-					$('#imgPreview').attr('src', e.target.result).css('border', '2px dashed #f6c23e');
+				const file = e.target.files[0];
+				if (file) {
+					const reader = new FileReader();
+					reader.onload = function (event) {
+						// Cập nhật ảnh preview với hiệu ứng mờ nhẹ trước khi hiện rõ
+						$('#imgPreview').hide().attr('src', event.target.result).fadeIn(500);
+
+						// Đổi style viền để báo hiệu đây là ảnh "Draft" (nháp)
+						$('#imgPreview').css({
+							'border': '3px solid #f6c23e',
+							'padding': '2px'
+						});
+					};
+					reader.readAsDataURL(file);
 				}
-				reader.readAsDataURL(file);
-			}
+			});
 		});
 	</script>
 }

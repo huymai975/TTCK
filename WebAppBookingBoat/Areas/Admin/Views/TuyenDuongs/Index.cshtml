@@ -139,8 +139,18 @@
                                     <small class="text-muted small">@item.DiemDi <i class="fas fa-arrow-right mx-1 fa-xs"></i> @item.DiemDen</small>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <img src="@(string.IsNullOrEmpty(item.HinhAnh) ? "/images/tuyen-duong/default-route.jpg" : "/images/tuyen-duong/" + item.HinhAnh)"
-                                         width="95" class="rounded shadow-sm border" style="height: 52px; object-fit: cover;" />
+                                    @{
+                                        // URL ảnh mặc định trên Cloudinary (Sử dụng hằng số này để đồng bộ toàn hệ thống)
+                                        var defaultCloudRoute = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-route.jpg";
+
+                                        // Ưu tiên link từ Model (Cloudinary URL), nếu không có dùng ảnh default Cloud
+                                        var imagePath = !string.IsNullOrEmpty(item.HinhAnh) ? item.HinhAnh : defaultCloudRoute;
+                                    }
+                                    <img src="@imagePath"
+                                         class="rounded shadow-sm border"
+                                         style="height: 52px; width: 95px; object-fit: cover;"
+                                         alt="@item.TenTuyen"
+                                         onerror="this.onerror=null;this.src='https://placehold.co/100x60?text=No+Image';" />
                                 </td>
                                 <td class="text-center align-middle">
                                     <span class="badge badge-light border px-2 py-1 text-dark">@item.KhoangCach km</span>
@@ -199,7 +209,6 @@
             });
         }); // Đóng document.ready đúng chỗ
 
-        // Hàm này phải nằm NGOÀI document.ready để nút HTML có thể gọi được
         function deleteTuyenDuongAjax(id, name) {
             Swal.fire({
                 title: 'Xác nhận xóa?',
@@ -228,7 +237,7 @@
                                     timer: 1500,
                                     showConfirmButton: false
                                 }).then(() => {
-                                    location.reload();
+                                    $(`#row-${id}`).fadeOut(500, function() { $(this).remove(); });
                                 });
                             } else {
                                 Swal.fire('Không thể xóa!', response.message, 'error');

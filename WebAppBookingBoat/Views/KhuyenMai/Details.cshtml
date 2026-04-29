@@ -149,8 +149,9 @@
         <div class="row g-5">
             <div class="col-lg-7">
                 <div class="promo-banner-wrapper">
+                    @* ĐÃ ĐỔI: Lấy thẳng link Cloud từ Model.HinhAnh *@
                     @{
-                        var imgUrl = string.IsNullOrEmpty(Model.HinhAnh) ? "/images/khuyen-mai/default-promo.jpg" : "/images/khuyen-mai/" + Model.HinhAnh;
+                        var imgUrl = string.IsNullOrEmpty(Model.HinhAnh) ? "/images/khuyen-mai/default-promo.jpg" : Model.HinhAnh;
                     }
                     <img src="@imgUrl" class="promo-banner-detail" alt="@Model.TenChuongTrinh">
                 </div>

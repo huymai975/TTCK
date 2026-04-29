@@ -1,7 +1,7 @@
 ﻿@model WebAppBookingBoat.Models.ViewModels.HomeViewModel
 @{
     ViewData["Title"] = "Trang chủ - Water Boat";
-    var imagePath = "/images/tuyen-duong/";
+    var defaultImg = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-promo.jpg";
 }
 
 <head>
@@ -12,7 +12,7 @@
     /* 1. HERO & SEARCH GLASSMORPHISM */
     .hero-search-wrap {
         position: relative;
-        margin-top: -80px; /* Đè lên slider */
+        margin-top: -80px;
         z-index: 100;
     }
 
@@ -22,11 +22,6 @@
         border-radius: 20px;
         box-shadow: 0 20px 50px rgba(0,0,0,0.15);
         border: 1px solid rgba(255,255,255,0.3);
-    }
-
-    .form-control:focus {
-        border-color: #4e73df;
-        box-shadow: none;
     }
 
     /* 2. ROUTE CARDS */
@@ -98,15 +93,11 @@
         border: none;
         font-size: 0.85rem;
     }
-
-    .schedule-table tbody tr:hover {
-        background: #f8f9ff;
-    }
 </style>
 
 @* --- 1. SLIDER CHÍNH --- *@
 <div class="hero-slide owl-carousel site-blocks-cover">
-    <div class="intro-section" style="background-image: url('@Url.Content("~/images/hero_1.jpg")');">
+    <div class="intro-section" style="background-image: url('https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777424764/hero_1_qf0esw.jpg');">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-8 ml-auto text-right" data-aos="fade-up">
@@ -119,7 +110,7 @@
     </div>
 </div>
 
-@* --- 2. SECTION TÌM KIẾM (Đã thêm ID để gọi) --- *@
+@* --- 2. SECTION TÌM KIẾM --- *@
 <div class="site-section pt-0 hero-search-wrap" id="booking-section">
     <div class="container">
         <div class="row justify-content-center">
@@ -167,7 +158,7 @@
     </div>
 </div>
 
-@* --- 3. TUYẾN ĐƯỜNG NỔI BẬT --- *@
+@* --- 3. TUYẾN ĐƯỜNG NỔI BẬT (Ảnh Cloudinary) --- *@
 <div class="site-section" id="destination-section">
     <div class="container">
         <div class="row justify-content-center mb-5">
@@ -183,16 +174,16 @@
                 <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up">
                     <div class="card route-card shadow-sm h-100">
                         <div class="route-img-wrapper">
-                            <img src="@(string.IsNullOrEmpty(tuyen.HinhAnh) ? "/images/default.jpg" : imagePath + tuyen.HinhAnh)" alt="@tuyen.TenTuyen">
+                            @* Cập nhật: Sử dụng trực tiếp URL từ Cloudinary *@
+                            <img src="@(string.IsNullOrEmpty(tuyen.HinhAnh) ? defaultImg : tuyen.HinhAnh)"
+                                 alt="@tuyen.TenTuyen"
+                                 onerror="this.src='@defaultImg'">
                             <div class="badge-time">@tuyen.ThoiGianDuKien.ToString(@"hh\:mm") h</div>
                         </div>
                         <div class="card-body p-4 text-center">
                             <h5 class="font-weight-bold">@tuyen.TenTuyen</h5>
                             <p class="text-muted small"><i class="fa fa-map-marked-alt mr-2"></i>Khoảng cách: @tuyen.KhoangCach km</p>
-
-                            <a asp-controller="Booking"
-                               asp-action="Search"
-                               asp-route-MaTuyen="@tuyen.MaTuyen"
+                            <a asp-controller="Booking" asp-action="Search" asp-route-MaTuyen="@tuyen.MaTuyen"
                                class="btn btn-outline-primary btn-sm rounded-pill px-4">
                                 Xem chi tiết
                             </a>
@@ -203,7 +194,6 @@
         </div>
     </div>
 </div>
-
 
 @* --- 4. LỊCH TRÌNH --- *@
 <div class="site-section bg-light">
@@ -216,7 +206,7 @@
         </div>
         <div class="table-responsive glass-form p-3 shadow-sm bg-white" style="border-radius: 15px;">
             <table class="table schedule-table mb-0 align-middle">
-                <thead class="thead-light">
+                <thead>
                     <tr>
                         <th>Tuyến Đường</th>
                         <th>Tàu</th>
@@ -229,7 +219,6 @@
                 <tbody>
                     @foreach (var lt in Model.LichTrinhs)
                     {
-                        // Tính toán số ghế trống: Tổng số ghế của tàu - Số vé đã bán
                         var soGheDaDat = lt.Ves?.Count() ?? 0;
                         var soGheTrong = lt.Tau.TongSoGhe - soGheDaDat;
                         var isFull = soGheTrong <= 0;
@@ -237,8 +226,7 @@
                         <tr>
                             <td class="font-weight-bold text-dark">
                                 <div class="d-flex align-items-center">
-                                    <i class="fas fa-route mr-2 text-info"></i>
-                                    @lt.TuyenDuong.TenTuyen
+                                    <i class="fas fa-route mr-2 text-info"></i> @lt.TuyenDuong.TenTuyen
                                 </div>
                             </td>
                             <td>
@@ -254,32 +242,17 @@
                                 @lt.GiaVeCoBan.ToString("N0")<small>đ</small>
                             </td>
                             <td>
-                                @if (isFull)
-                                {
-                                    <span class="badge badge-secondary px-3 py-2">Hết chỗ</span>
-                                }
-                                else
-                                {
-                                    <span class="badge @(soGheTrong < 10 ? "badge-warning" : "badge-success") px-3 py-2">
-                                        Còn @soGheTrong ghế
-                                    </span>
-                                }
+                                <span class="badge @(isFull ? "badge-secondary" : (soGheTrong < 10 ? "badge-warning" : "badge-success")) px-3 py-2">
+                                    @(isFull ? "Hết chỗ" : $"Còn {soGheTrong} ghế")
+                                </span>
                             </td>
                             <td class="text-right">
                                 @if (!isFull)
                                 {
-                                    <a asp-controller="Booking"
-                                       asp-action="BookTicket"
-                                       asp-route-id="@lt.MaLichTrinh"
+                                    <a asp-controller="Booking" asp-action="BookTicket" asp-route-id="@lt.MaLichTrinh"
                                        class="btn btn-warning btn-sm font-weight-bold px-4 shadow-sm rounded-pill">
                                         Đặt vé <i class="fas fa-chevron-right ml-1 small"></i>
                                     </a>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-light btn-sm disabled rounded-pill px-4" disabled>
-                                        Đã đầy
-                                    </button>
                                 }
                             </td>
                         </tr>
@@ -290,11 +263,12 @@
     </div>
 </div>
 
-@* --- 5. ĐÁNH GIÁ KHÁCH HÀNG --- *@
+@* --- 5. ĐÁNH GIÁ KHÁCH HÀNG (Dùng nguyên bản) --- *@
 <section class="site-section bg-white">
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="font-weight-bold text-dark">Khách Hàng Nói Gì</h2>
+            <div class="mx-auto mt-2" style="width: 60px; height: 3px; background: #4e73df;"></div>
         </div>
         <div class="row">
             @foreach (var item in Model.DanhGias!.Take(3))
@@ -309,9 +283,12 @@
                         </div>
                         <p class="text-secondary italic mb-4">"@item.NoiDung"</p>
                         <div class="d-flex align-items-center mt-auto">
-                            <div class="avatar-circle mr-3">@item.HoaDon?.KhachHang?.HoTen?[0]</div>
+                            @* Quay lại dùng vòng tròn avatar lấy chữ cái đầu *@
+                            <div class="avatar-circle mr-3">
+                                @(item.HoaDon?.KhachHang?.HoTen?.Substring(0, 1).ToUpper() ?? "K")
+                            </div>
                             <div>
-                                <h6 class="mb-0 font-weight-bold">@item.HoaDon?.KhachHang?.HoTen</h6>
+                                <h6 class="mb-0 font-weight-bold">@(item.HoaDon?.KhachHang?.HoTen ?? "Khách hàng")</h6>
                                 <small class="text-muted">Hành khách</small>
                             </div>
                         </div>
@@ -322,28 +299,18 @@
     </div>
 </section>
 
-
-@* 6. Counter Section (Thông số hệ thống) *@
+@* 6. COUNTER SECTION *@
 <div class="site-section bg-image overlay" style="background-image: url('@Url.Content("~/images/hero_1.jpg")');">
     <div class="container">
         <div class="row">
             <div class="col text-center">
-                <div class="counter-39392">
-                    <h3>50+</h3>
-                    <span>Đội Tàu</span>
-                </div>
+                <div class="counter-39392"><h3>50+</h3><span>Đội Tàu</span></div>
             </div>
             <div class="col text-center">
-                <div class="counter-39392">
-                    <h3>10k+</h3>
-                    <span>Khách Hàng</span>
-                </div>
+                <div class="counter-39392"><h3>10k+</h3><span>Khách Hàng</span></div>
             </div>
             <div class="col text-center">
-                <div class="counter-39392">
-                    <h3>20+</h3>
-                    <span>Tuyến Đường</span>
-                </div>
+                <div class="counter-39392"><h3>20+</h3><span>Tuyến Đường</span></div>
             </div>
         </div>
     </div>

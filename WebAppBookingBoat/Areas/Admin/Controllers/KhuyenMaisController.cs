@@ -12,14 +12,19 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
     public class KhuyenMaisController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _hostEnvironment;
         private readonly UserManager<AppUser> _userManager;
+        private readonly PhotoService _photoService;
 
-        public KhuyenMaisController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment, UserManager<AppUser> userManager)
+        // URL ảnh mặc định cho Khuyến mãi trên Cloudinary
+        private const string DefaultCloudPromoImg = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-promo.jpg";
+
+        public KhuyenMaisController(ApplicationDbContext context,
+                                     UserManager<AppUser> userManager,
+                                     PhotoService photoService)
         {
             _context = context;
-            _hostEnvironment = hostEnvironment;
             _userManager = userManager;
+            _photoService = photoService;
         }
 
         #region READ (Index & Details)
@@ -34,14 +39,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 var trangThaiGoc = km.TrangThai;
 
-                if (km.TrangThai == "Đã hủy") continue;
-
-                if (bayGio < km.NgayBatDau)
-                    km.TrangThai = "Sắp diễn ra";
-                else if (bayGio >= km.NgayBatDau && bayGio <= km.NgayKetThuc)
-                    km.TrangThai = "Đang diễn ra";
-                else
-                    km.TrangThai = "Đã kết thúc";
+                // Cập nhật trạng thái tự động dựa trên thời gian
+                CapNhatTrangThaiTheoNgay(km);
 
                 if (trangThaiGoc != km.TrangThai)
                 {
@@ -58,10 +57,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
         public async Task<IActionResult> Details(string id)
         {
-            if (id == null) return NotFound();
+            if (string.IsNullOrEmpty(id)) return NotFound();
 
-            var khuyenMai = await _context.KhuyenMais
-                .FirstOrDefaultAsync(m => m.MaKM == id);
+            var khuyenMai = await _context.KhuyenMais.FirstOrDefaultAsync(m => m.MaKM == id);
 
             if (khuyenMai == null) return NotFound();
 
@@ -78,7 +76,8 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             {
                 MaKM = "KM" + DateTime.Now.Ticks.ToString().Substring(10),
                 NgayBatDau = DateTime.Now,
-                NgayKetThuc = DateTime.Now.AddDays(7)
+                NgayKetThuc = DateTime.Now.AddDays(7),
+                TrangThai = "Sắp diễn ra"
             };
             return View(model);
         }
@@ -94,44 +93,35 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
                 ModelState.AddModelError("MaKM", "Mã khuyến mãi này đã tồn tại!");
             }
 
-            var bayGio = DateTime.Now;
-
-            // Ép kiểu trạng thái dựa trên ngày thực tế để tránh người dùng "hack" giao diện
-            if (khuyenMai.TrangThai != "Đã hủy") // Không ghi đè nếu admin chủ động hủy
-            {
-                if (bayGio < khuyenMai.NgayBatDau)
-                    khuyenMai.TrangThai = "Sắp diễn ra";
-                else if (bayGio >= khuyenMai.NgayBatDau && bayGio <= khuyenMai.NgayKetThuc)
-                    khuyenMai.TrangThai = "Đang diễn ra";
-                else
-                    khuyenMai.TrangThai = "Đã kết thúc";
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // 1. Xử lý ảnh (Cloudinary)
+                    khuyenMai.HinhAnh = DefaultCloudPromoImg; // Mặc định ban đầu
                     if (ImageFile != null)
                     {
-                        khuyenMai.HinhAnh = await SaveImage(ImageFile);
+                        var result = await _photoService.AddPhotoAsync(ImageFile, "KhuyenMai");
+                        if (result.Error == null)
+                        {
+                            khuyenMai.HinhAnh = result.SecureUrl.AbsoluteUri;
+                        }
                     }
+
+                    // 2. Chốt trạng thái cuối cùng trước khi lưu
+                    CapNhatTrangThaiTheoNgay(khuyenMai);
 
                     _context.Add(khuyenMai);
                     await _context.SaveChangesAsync();
 
-                    await GhiLogHeThong("Thêm khuyến mãi", "KhuyenMais",
-                        $"Tạo mới KM: {khuyenMai.TenChuongTrinh} (Mã: {khuyenMai.MaKM}) - Giảm: {khuyenMai.PhanTramGiam}%");
-
-                    // SUCCESS MESSAGE
+                    await GhiLogHeThong("Thêm khuyến mãi", "KhuyenMais", $"Tạo mới KM: {khuyenMai.MaKM}");
                     TempData["SuccessMessage"] = "Thêm chương trình khuyến mãi thành công!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     await GhiLogHeThong("Lỗi thêm khuyến mãi", "KhuyenMais", ex.Message, "Error");
-                    // ERROR MESSAGE
-                    TempData["ErrorMessage"] = "Lỗi hệ thống khi lưu dữ liệu: " + ex.Message;
-                    ModelState.AddModelError("", "Lỗi hệ thống khi lưu dữ liệu.");
+                    ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
                 }
             }
             return View(khuyenMai);
@@ -143,11 +133,9 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
         public async Task<IActionResult> Edit(string id)
         {
-            if (id == null) return NotFound();
-
+            if (string.IsNullOrEmpty(id)) return NotFound();
             var khuyenMai = await _context.KhuyenMais.FindAsync(id);
             if (khuyenMai == null) return NotFound();
-
             return View(khuyenMai);
         }
 
@@ -156,46 +144,50 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(string id, KhuyenMai khuyenMai, IFormFile? ImageFile)
         {
             if (id != khuyenMai.MaKM) return NotFound();
-
-            // Vẫn giữ validate nghiệp vụ cho Edit để tránh dữ liệu sai lệch khi sửa
             ValidateKhuyenMaiBusiness(khuyenMai);
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Lấy dữ liệu cũ để xử lý file ảnh
                     var existingKM = await _context.KhuyenMais.AsNoTracking().FirstOrDefaultAsync(k => k.MaKM == id);
+                    if (existingKM == null) return NotFound();
 
+                    // Xử lý ảnh trên Cloud
                     if (ImageFile != null)
                     {
-                        // Xóa ảnh cũ trên server
-                        if (!string.IsNullOrEmpty(existingKM?.HinhAnh))
+                        // Xóa ảnh cũ trên Cloud (nếu không phải ảnh mặc định)
+                        var oldPublicId = GetPublicIdFromUrl(existingKM.HinhAnh);
+                        if (!string.IsNullOrEmpty(oldPublicId))
                         {
-                            DeleteOldImage(existingKM.HinhAnh);
+                            await _photoService.DeletePhotoAsync(oldPublicId);
                         }
-                        // Lưu ảnh mới
-                        khuyenMai.HinhAnh = await SaveImage(ImageFile);
+
+                        // Upload ảnh mới
+                        var result = await _photoService.AddPhotoAsync(ImageFile, "KhuyenMai");
+                        if (result.Error == null)
+                        {
+                            khuyenMai.HinhAnh = result.SecureUrl.AbsoluteUri;
+                        }
                     }
                     else
                     {
-                        // Người dùng không chọn ảnh mới -> giữ nguyên tên file cũ
-                        khuyenMai.HinhAnh = existingKM?.HinhAnh;
+                        khuyenMai.HinhAnh = existingKM.HinhAnh; // Giữ link cũ
                     }
+
+                    CapNhatTrangThaiTheoNgay(khuyenMai);
 
                     _context.Update(khuyenMai);
                     await _context.SaveChangesAsync();
 
                     await GhiLogHeThong("Cập nhật khuyến mãi", "KhuyenMais", $"Chỉnh sửa KM: {khuyenMai.MaKM}");
-
                     TempData["SuccessMessage"] = "Cập nhật thay đổi thành công!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     await GhiLogHeThong("Lỗi cập nhật khuyến mãi", "KhuyenMais", ex.Message, "Error");
-                    TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
-                    ModelState.AddModelError("", "Lỗi: " + ex.Message);
+                    ModelState.AddModelError("", "Lỗi cập nhật: " + ex.Message);
                 }
             }
             return View(khuyenMai);
@@ -203,39 +195,29 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
 
         #endregion
 
-        #region DELETE (AJAX - Chuyển trạng thái)
+        #region DELETE (AJAX)
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            // Tìm nhanh đối tượng
             var khuyenMai = await _context.KhuyenMais.FindAsync(id);
-
-            if (khuyenMai == null)
-            {
-                return Json(new { success = false, message = "Không tìm thấy chương trình khuyến mãi này." });
-            }
+            if (khuyenMai == null) return Json(new { success = false, message = "Không tìm thấy." });
 
             try
             {
-                // Bỏ qua mọi logic kiểm tra ngày tháng hay điều kiện khác, ép buộc chuyển sang Đã hủy
                 string trangThaiCu = khuyenMai.TrangThai;
                 khuyenMai.TrangThai = "Đã hủy";
 
                 _context.Update(khuyenMai);
                 await _context.SaveChangesAsync();
 
-                // Ghi log nhanh
-                await GhiLogHeThong("Hủy khuyến mãi", "KhuyenMais",
-                    $"Hủy: {khuyenMai.TenChuongTrinh} ({id}). Từ: {trangThaiCu}", "Warning");
-
-                return Json(new { success = true, message = "Đã hủy chương trình khuyến mãi thành công." });
+                await GhiLogHeThong("Hủy khuyến mãi", "KhuyenMais", $"Hủy KM: {id}. Trạng thái cũ: {trangThaiCu}", "Warning");
+                return Json(new { success = true, message = "Đã hủy chương trình khuyến mãi." });
             }
             catch (Exception ex)
             {
-                await GhiLogHeThong("Lỗi hủy khuyến mãi", "KhuyenMais", ex.Message, "Error");
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
             }
         }
 
@@ -251,46 +233,58 @@ namespace WebAppBookingBoat.Areas.Admin.Controllers
             }
         }
 
-        private void DeleteOldImage(string fileName)
+        private void CapNhatTrangThaiTheoNgay(KhuyenMai km)
         {
-            if (string.IsNullOrEmpty(fileName) || fileName == "no-image.png") return;
-            string path = Path.Combine(_hostEnvironment.WebRootPath, "images", "khuyen-mai", fileName);
-            if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+            if (km.TrangThai == "Đã hủy") return;
+
+            var bayGio = DateTime.Now;
+            if (bayGio < km.NgayBatDau)
+                km.TrangThai = "Sắp diễn ra";
+            else if (bayGio >= km.NgayBatDau && bayGio <= km.NgayKetThuc)
+                km.TrangThai = "Đang diễn ra";
+            else
+                km.TrangThai = "Đã kết thúc";
         }
 
-        private async Task<string> SaveImage(IFormFile file)
+        private string? GetPublicIdFromUrl(string? url)
         {
-            string folderPath = Path.Combine(_hostEnvironment.WebRootPath, "images", "khuyen-mai");
-            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+            if (string.IsNullOrEmpty(url) || !url.Contains("res.cloudinary.com") || url == DefaultCloudPromoImg)
+                return null;
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(folderPath, fileName);
-
-            using (var fileStream = new FileStream(fullPath, FileMode.Create))
+            try
             {
-                await file.CopyToAsync(fileStream);
+                var uri = new Uri(url);
+                var segments = uri.AbsolutePath.Split('/');
+                var uploadIndex = Array.IndexOf(segments, "upload");
+                if (uploadIndex != -1)
+                {
+                    var publicIdWithExtension = string.Join("/", segments.Skip(uploadIndex + 2));
+                    return Path.ChangeExtension(publicIdWithExtension, null);
+                }
             }
-            return fileName;
+            catch { }
+            return null;
         }
-
-        private bool KhuyenMaiExists(string id) => _context.KhuyenMais.Any(e => e.MaKM == id);
 
         [NonAction]
         private async Task GhiLogHeThong(string hanhDong, string bang, string chiTiet, string loai = "Info")
         {
-            var userId = _userManager.GetUserId(User);
-            var log = new Log
+            try
             {
-                MaTK = userId ?? "System", // Nếu chưa login thì ghi System
-                HanhDong = hanhDong,
-                BangTacDong = bang,
-                NoiDungChiTiet = chiTiet,
-                LoaiLog = loai,
-                ThoiGian = DateTime.Now,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
-            };
-            _context.Logs.Add(log);
-            await _context.SaveChangesAsync();
+                var log = new Log
+                {
+                    MaTK = _userManager.GetUserId(User) ?? "System",
+                    HanhDong = hanhDong,
+                    BangTacDong = bang,
+                    NoiDungChiTiet = chiTiet,
+                    LoaiLog = loai,
+                    ThoiGian = DateTime.Now,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1"
+                };
+                _context.Logs.Add(log);
+                await _context.SaveChangesAsync();
+            }
+            catch { }
         }
         #endregion
     }

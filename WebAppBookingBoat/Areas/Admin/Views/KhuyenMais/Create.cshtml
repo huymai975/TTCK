@@ -22,7 +22,7 @@
 
                 <div class="card-body px-lg-5 py-4">
                     <form asp-action="Create" method="post" id="createPromotionForm" enctype="multipart/form-data">
-                        @* Giữ lại mã tự động được tạo từ Controller *@
+                        @* Mã khuyến mãi thường được xử lý tự động trong Controller/DB *@
                         <input type="hidden" asp-for="MaKM" />
 
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger small shadow-sm" role="alert"></div>
@@ -32,27 +32,28 @@
                             <div class="col-md-6 border-right">
                                 <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-image mr-2 text-primary"></i>Hình ảnh & Mô tả</h6>
 
-                                <div class="form-group mb-4">
-                                    <label class="small font-weight-bold text-muted text-uppercase">Banner khuyến mãi</label>
+                                <div class="form-group mb-4 text-center">
+                                    <label class="small font-weight-bold text-muted text-uppercase d-block text-left">Banner khuyến mãi</label>
+                                    <div class="preview-wrapper mb-3 border rounded p-2 bg-light">
+                                        <img id="previewImg" src="https://res.cloudinary.com/dzvcaq2xl/image/upload/v1/WebAppBookingBoat/default-promo.jpg"
+                                             class="img-fluid rounded shadow-sm" style="max-height: 180px; width: 100%; object-fit: cover;">
+                                    </div>
                                     <div class="custom-file">
                                         <input type="file" name="ImageFile" class="custom-file-input" id="customFile" accept="image/*">
-                                        <label class="custom-file-label shadow-sm" for="customFile">Chọn ảnh...</label>
-                                    </div>
-                                    <div class="mt-3 text-center">
-                                        <img id="previewImg" src="/images/no-image.png" class="img-thumbnail shadow-sm" style="height: 120px; width: 200px; object-fit: cover;">
+                                        <label class="custom-file-label shadow-sm text-left" for="customFile">Chọn ảnh banner...</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group mb-4">
                                     <label asp-for="TenChuongTrinh" class="small font-weight-bold text-muted text-uppercase">Tên chương trình</label>
                                     <input asp-for="TenChuongTrinh" class="form-control border-left-primary shadow-sm" placeholder="Ví dụ: Ưu đãi Hè rực rỡ" />
-                                    <span asp-validation-for="TenChuongTrinh" class="text-danger small mt-1"></span>
+                                    <span asp-validation-for="TenChuongTrinh" class="text-danger small"></span>
                                 </div>
 
                                 <div class="form-group mb-4">
-                                    <label asp-for="MoTa" class="small font-weight-bold text-muted text-uppercase">Mô tả ngắn</label>
-                                    <textarea asp-for="MoTa" class="form-control shadow-sm" rows="3" placeholder="Chi tiết chương trình..."></textarea>
-                                    <span asp-validation-for="MoTa" class="text-danger small mt-1"></span>
+                                    <label asp-for="MoTa" class="small font-weight-bold text-muted text-uppercase">Mô tả chi tiết</label>
+                                    <textarea asp-for="MoTa" class="form-control shadow-sm" rows="3" placeholder="Nhập nội dung ưu đãi..."></textarea>
+                                    <span asp-validation-for="MoTa" class="text-danger small"></span>
                                 </div>
                             </div>
 
@@ -69,37 +70,32 @@
                                                 <span class="input-group-text bg-light">%</span>
                                             </div>
                                         </div>
-                                        <span asp-validation-for="PhanTramGiam" class="text-danger small mt-1"></span>
+                                        <span asp-validation-for="PhanTramGiam" class="text-danger small"></span>
                                     </div>
                                     <div class="col-6">
                                         <label asp-for="SoTienToiDaGiam" class="small font-weight-bold text-muted text-uppercase">Giảm tối đa</label>
-                                        @* Ô hiển thị cho người dùng nhập *@
-                                        <input type="text" id="SoTienDisplay" class="form-control shadow-sm text-right" placeholder="50,000"
-                                               value="@(Model?.SoTienToiDaGiam.ToString("N0"))" />
-
-                                        @* Ô thực tế gửi về Server (asp-for nằm ở đây) *@
+                                        <input type="text" id="SoTienDisplay" class="form-control shadow-sm text-right font-weight-bold text-danger" placeholder="50,000" />
                                         <input type="hidden" asp-for="SoTienToiDaGiam" id="SoTienReal" />
-
-                                        <span asp-validation-for="SoTienToiDaGiam" class="text-danger small mt-1"></span>
+                                        <span asp-validation-for="SoTienToiDaGiam" class="text-danger small"></span>
                                     </div>
                                 </div>
 
                                 <h6 class="font-weight-bold text-dark mb-3 mt-4"><i class="fas fa-calendar-alt mr-2 text-primary"></i>Thời gian áp dụng</h6>
                                 <div class="row mb-4">
                                     <div class="col-6">
-                                        <label asp-for="NgayBatDau" class="small font-weight-bold text-muted text-uppercase">Bắt đầu</label>
-                                        <input asp-for="NgayBatDau" type="date" class="form-control shadow-sm border-left-success" />
-                                        <span asp-validation-for="NgayBatDau" class="text-danger small mt-1"></span>
+                                        <label asp-for="NgayBatDau" class="small font-weight-bold text-muted text-uppercase">Ngày bắt đầu</label>
+                                        <input asp-for="NgayBatDau" type="date" class="form-control shadow-sm border-left-success" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                        <span asp-validation-for="NgayBatDau" class="text-danger small"></span>
                                     </div>
                                     <div class="col-6">
-                                        <label asp-for="NgayKetThuc" class="small font-weight-bold text-muted text-uppercase">Kết thúc</label>
-                                        <input asp-for="NgayKetThuc" type="date" class="form-control shadow-sm border-left-danger" />
-                                        <span asp-validation-for="NgayKetThuc" class="text-danger small mt-1"></span>
+                                        <label asp-for="NgayKetThuc" class="small font-weight-bold text-muted text-uppercase">Ngày kết thúc</label>
+                                        <input asp-for="NgayKetThuc" type="date" class="form-control shadow-sm border-left-danger" value="@DateTime.Now.AddDays(7).ToString("yyyy-MM-dd")" />
+                                        <span asp-validation-for="NgayKetThuc" class="text-danger small"></span>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Trạng thái ban đầu</label>
+                                    <label asp-for="TrangThai" class="small font-weight-bold text-muted text-uppercase">Trạng thái khởi tạo</label>
                                     <select asp-for="TrangThai" class="form-control shadow-sm border-left-info">
                                         <option value="Sắp diễn ra">Sắp diễn ra</option>
                                         <option value="Đang diễn ra">Đang diễn ra</option>
@@ -110,14 +106,14 @@
 
                         <hr class="my-4">
 
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
-                                <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-light btn-icon-split border shadow-sm">
+                                <span class="icon text-gray-600"><i class="fas fa-arrow-left"></i></span>
                                 <span class="text font-weight-bold">Quay lại</span>
                             </a>
                             <button type="submit" class="btn btn-primary btn-icon-split shadow-sm">
-                                <span class="icon text-white-50"><i class="fas fa-save"></i></span>
-                                <span class="text font-weight-bold">Tạo khuyến mãi</span>
+                                <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                                <span class="text font-weight-bold">Xác nhận tạo mới</span>
                             </button>
                         </div>
                     </form>
@@ -154,59 +150,65 @@
             content: "Duyệt";
         }
 
-        .form-control, .custom-file-label {
+        .form-control {
             border-radius: 8px;
         }
+
+        .preview-wrapper {
+            transition: all 0.3s ease;
+        }
+
+            .preview-wrapper:hover {
+                border-color: #4e73df !important;
+            }
     </style>
 
     <script>
-            $("#customFile").change(function () {
-            const file = this.files[0];
-            if (file) {
-                let reader = new FileReader();
-                reader.onload = function (event) {
-                    $("#previewImg").attr("src", event.target.result);
-                };
-                reader.readAsDataURL(file);
-                $(this).next('.custom-file-label').html(file.name);
-            }
-        });
-
-                $(document).ready(function () {
+        $(document).ready(function () {
             const displayInput = $('#SoTienDisplay');
             const realInput = $('#SoTienReal');
 
-            // Hàm định dạng hiển thị
-            function formatNumber(n) {
-                return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            }
-
-            // Khi người dùng gõ vào ô hiển thị
-            displayInput.on('input', function () {
-                let value = $(this).val();
-
-                // 1. Cập nhật chính nó với dấu phẩy
-                $(this).val(formatNumber(value));
-
-                // 2. Cập nhật ô ẩn với số thuần túy để gửi lên server
-                let rawValue = $(this).val().replace(/,/g, '');
-                realInput.val(rawValue);
+            // 1. Xử lý xem trước ảnh
+            $("#customFile").on('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    let reader = new FileReader();
+                    reader.onload = function (e) {
+                        $("#previewImg").attr("src", e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                    $(this).next('.custom-file-label').html(file.name);
+                }
             });
 
+            // 2. Định dạng tiền tệ
+            displayInput.on('input', function () {
+                let value = $(this).val().replace(/\D/g, "");
+                $(this).val(value.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                realInput.val(value);
+            });
 
-            // 4. Xử lý trước khi gửi Form
+            // 3. Xử lý khi gửi Form
             $('#createPromotionForm').on('submit', function (e) {
-                // Đảm bảo ô ẩn có giá trị trước khi submit
-                let finalValue = displayInput.val().replace(/,/g, '');
-                realInput.val(finalValue);
+                const start = new Date($('#NgayBatDau').val());
+                const end = new Date($('#NgayKetThuc').val());
 
-                // Vô hiệu hóa ô hiển thị để nó không gửi trùng dữ liệu hoặc gây lỗi Format
+                if (end < start) {
+                    Swal.fire('Lỗi', 'Ngày kết thúc không được trước ngày bắt đầu!', 'error');
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Gán giá trị lần cuối cho ô ẩn
+                realInput.val(displayInput.val().replace(/,/g, ''));
+
+                // Tránh gửi dữ liệu từ ô display (ô này không có thuộc tính name nên mặc định không gửi,
+                // nhưng disabled cho chắc chắn nếu bạn có dùng asp-for cho nó)
                 displayInput.prop('disabled', true);
-
                 return true;
             });
 
-            // Nếu Form bị lỗi server-side và load lại, disabled sẽ bị giữ, cần mở lại
+            // Mở lại ô input nếu quay lại từ history hoặc form lỗi
             $(window).on('pageshow', function() {
                 displayInput.prop('disabled', false);
             });

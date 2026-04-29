@@ -17,7 +17,7 @@ namespace WebAppBookingBoat.Repository
                 {
                     MaKM = "KM10",
                     TenChuongTrinh = "Giảm giá khai trương",
-                    HinhAnh = "322b0521-7bf6-40e5-aeea-b28fcfb0c5fd.jpg", // Tên file ảnh mẫu trong wwwroot/images/khuyen-mai/
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777423169/WebAppBookingBoat/KhuyenMai/mqzylxgtpe7afhspqnr4.jpg",
                     MoTa = "Chào mừng hệ thống WebAppBookingBoat đi vào hoạt động. Giảm ngay 50% cho tất cả các tuyến tàu cao tốc.",
                     PhanTramGiam = 50,
                     SoTienToiDaGiam = 200000,
@@ -29,7 +29,7 @@ namespace WebAppBookingBoat.Repository
                 {
                     MaKM = "SUMMER26",
                     TenChuongTrinh = "Ưu đãi mùa hè rực rỡ",
-                    HinhAnh = "9c2fb5b6-9d1e-4a2c-91be-51c61d3d10d9.jpg",
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777423185/WebAppBookingBoat/KhuyenMai/ezhwyslezlz3rfcfanzj.jpg",
                     MoTa = "Tận hưởng kỳ nghỉ hè với ưu đãi cực khủng lên đến 10% khi đặt vé.",
                     PhanTramGiam = 10,
                     SoTienToiDaGiam = 100000,
@@ -41,7 +41,7 @@ namespace WebAppBookingBoat.Repository
                 {
                     MaKM = "SUMMER27",
                     TenChuongTrinh = "Ưu đãi mùa hè hết cỡ",
-                    HinhAnh = "8b779b59-820c-48bd-bc11-b85e27021424.jpg",
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777423198/WebAppBookingBoat/KhuyenMai/b6zrdnmmywdeqr09k7y4.jpg",
                     MoTa = "Tận hưởng kỳ nghỉ hè với ưu đãi cực khủng lên đến 30% khi đặt vé.",
                     PhanTramGiam = 30,
                     SoTienToiDaGiam = 100000,
@@ -53,7 +53,7 @@ namespace WebAppBookingBoat.Repository
                 {
                     MaKM = "TET2026",
                     TenChuongTrinh = "Vui Tết sum vầy",
-                    HinhAnh = "0b00c585-fb35-4462-9b5d-8e1aee28b429.jpg",
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777423230/WebAppBookingBoat/KhuyenMai/o1sh0nzmy24brnrriluo.jpg",
                     MoTa = "Chương trình khuyến mãi đặc biệt dành cho khách hàng về quê ăn Tết hoặc du xuân cùng gia đình.",
                     PhanTramGiam = 30,
                     SoTienToiDaGiam = 300000,
@@ -65,7 +65,7 @@ namespace WebAppBookingBoat.Repository
                 {
                     MaKM = "GIADO304",
                     TenChuongTrinh = "Mừng Đại Lễ - Giảm Giá Mê",
-                    HinhAnh = "a64e7e7d-4495-4950-b2ec-ec62db4cfdbb.jpg",
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777423157/WebAppBookingBoat/KhuyenMai/va9cgbewyqdxcfn3ggna.jpg",
                     MoTa = "Ưu đãi cực lớn dành cho các tuyến tàu cao tốc du lịch trong kỳ nghỉ lễ 30/4 và 1/5.",
                     PhanTramGiam = 30,
                     SoTienToiDaGiam = 400000,
@@ -77,7 +77,7 @@ namespace WebAppBookingBoat.Repository
                 {
                     MaKM = "DONGAM2026",
                     TenChuongTrinh = "Mùa Đông Ấm Áp",
-                    HinhAnh = "215b54dc-a2eb-4d82-8091-e4e885928754.jpg",
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777423145/WebAppBookingBoat/KhuyenMai/hejcsoy1vxd8ooftqlqf.jpg",
                     MoTa = "Ưu đãi sưởi ấm những chuyến đi cuối năm. Giảm giá sâu cho các tuyến tàu ra đảo nghỉ dưỡng.",
                     PhanTramGiam = 25,
                     SoTienToiDaGiam = 250000,
@@ -274,7 +274,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Phú Quý",
                     KhoangCach = 105,
                     ThoiGianDuKien = new TimeSpan(2, 30, 0),
-                    HinhAnh = "04e1440f-0c96-46c6-82b1-c10f63b4db23_phu-quy.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777420178/WebAppBookingBoat/TuyenDuongs/q14qzet524aqqms6kcda.jpg"
                 },
                 new TuyenDuong
                 {
@@ -284,7 +284,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Cát Bà",
                     KhoangCach = 30,
                     ThoiGianDuKien = new TimeSpan(0, 45, 0),
-                    HinhAnh = "f7b2e91a-4c3d-429a-8f6b-1e5c2d3a9b4f.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777420166/WebAppBookingBoat/TuyenDuongs/vzapbdbl0im8kpkm5f2m.jpg"
                 },
                 new TuyenDuong
                 {
@@ -294,7 +294,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Côn Đảo",
                     KhoangCach = 180,
                     ThoiGianDuKien = new TimeSpan(3, 45, 0),
-                    HinhAnh = "7abf98e9-a440-4779-8a3a-529b3a400bbd_con-dao.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777420156/WebAppBookingBoat/TuyenDuongs/vnfyfqqtnqvqg7hrxbha.jpg"
                 },
                 new TuyenDuong
                 {
@@ -304,7 +304,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Hòn Sơn",
                     KhoangCach = 65,
                     ThoiGianDuKien = new TimeSpan(1, 30, 0),
-                    HinhAnh = "c051024a-ca91-4835-8751-6a6b40f5c124_hon-son.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777420134/WebAppBookingBoat/TuyenDuongs/syeveinoy2fsukilmuqr.jpg"
                 },
                 new TuyenDuong
                 {
@@ -314,7 +314,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Lý Sơn",
                     KhoangCach = 30,
                     ThoiGianDuKien = new TimeSpan(0, 45, 0),
-                    HinhAnh = "a3c8c7b7-69df-4c73-9acd-11db5b8433e8_ly-son.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777420123/WebAppBookingBoat/TuyenDuongs/ghxji0xxpn91dggqgypn.jpg"
                 },
                 new TuyenDuong
                 {
@@ -324,7 +324,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Nam Du",
                     KhoangCach = 80,
                     ThoiGianDuKien = new TimeSpan(2, 15, 0),
-                    HinhAnh = "6f1e4c0e-2db1-4540-b7a0-bdafd5a151cd_nam-du.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777420114/WebAppBookingBoat/TuyenDuongs/ijtbq0xjjranxskeawrg.jpg"
                 },
                 new TuyenDuong
                 {
@@ -334,7 +334,7 @@ namespace WebAppBookingBoat.Repository
                     DiemDen = "Phú Quốc",
                     KhoangCach = 45,
                     ThoiGianDuKien = new TimeSpan(1, 15, 0),
-                    HinhAnh = "bcd3de60-2b13-4d14-95c5-37ca27af887d_phu-quoc.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777420103/WebAppBookingBoat/TuyenDuongs/bfocircuvbvg36neglex.jpg"
                 }
             );
 
@@ -346,7 +346,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 1",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "0885ba23-96cd-46c0-9cce-5b739d92c445_Tau-cao-toc-Phu-Quoc-Express-Vung-Tau-Con-Dao.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395965/WebAppBookingBoat/Taus/lavhtb0wfmiqxaest57x.jpg"
                 },
                 new Tau
                 {
@@ -354,7 +354,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 2",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "4f471677-b064-46f6-ba00-1840314b7226_tau-trung-trac-tren-tuyen-cao-toc-phan-thiet-phu-quy-1024x768-1.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395957/WebAppBookingBoat/Taus/gaa2knlpnuvrelshtbhi.jpg"
                 },
                 new Tau
                 {
@@ -362,7 +362,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 3",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "ca4c374d-3d0c-48be-8b36-e79219a62796_Tau-cao-toc-Con-Dao-Express-36-1536x863.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395947/WebAppBookingBoat/Taus/kc65kynwwjci9tg2tbf0.jpg"
                 },
                 new Tau
                 {
@@ -370,7 +370,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 4",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "dfa33889-692e-4f3a-84c2-491e2a402329_Tau-cao-toc-Trung-Nhi.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777419297/WebAppBookingBoat/Taus/qnizabxmp2xhxhm5mqki.jpg"
                 },
                 new Tau
                 {
@@ -378,7 +378,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 5",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "ca4c374d-3d0c-48be-8b36-e79219a62796_Tau-cao-toc-Con-Dao-Express-36-1536x863.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395965/WebAppBookingBoat/Taus/lavhtb0wfmiqxaest57x.jpg"
                 },
                 new Tau
                 {
@@ -386,7 +386,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 6",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "0885ba23-96cd-46c0-9cce-5b739d92c445_Tau-cao-toc-Phu-Quoc-Express-Vung-Tau-Con-Dao.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395957/WebAppBookingBoat/Taus/gaa2knlpnuvrelshtbhi.jpg"
                 },
                 new Tau
                 {
@@ -394,7 +394,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 7",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "0885ba23-96cd-46c0-9cce-5b739d92c445_Tau-cao-toc-Phu-Quoc-Express-Vung-Tau-Con-Dao.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395957/WebAppBookingBoat/Taus/gaa2knlpnuvrelshtbhi.jpg"
                 },
                 new Tau
                 {
@@ -402,7 +402,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 8",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "dfa33889-692e-4f3a-84c2-491e2a402329_Tau-cao-toc-Trung-Nhi.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395957/WebAppBookingBoat/Taus/gaa2knlpnuvrelshtbhi.jpg"
                 },
                 new Tau
                 {
@@ -410,7 +410,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 9",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "4f471677-b064-46f6-ba00-1840314b7226_tau-trung-trac-tren-tuyen-cao-toc-phan-thiet-phu-quy-1024x768-1.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395957/WebAppBookingBoat/Taus/gaa2knlpnuvrelshtbhi.jpg"
                 },
                 new Tau
                 {
@@ -418,7 +418,7 @@ namespace WebAppBookingBoat.Repository
                     TenTau = "Phú Quốc Express 10",
                     TongSoGhe = 20,
                     TrangThai = true,
-                    HinhAnh = "4f471677-b064-46f6-ba00-1840314b7226_tau-trung-trac-tren-tuyen-cao-toc-phan-thiet-phu-quy-1024x768-1.jpg"
+                    HinhAnh = "https://res.cloudinary.com/dzvcaq2xl/image/upload/v1777395957/WebAppBookingBoat/Taus/gaa2knlpnuvrelshtbhi.jpg"
                 }
             );
 

@@ -108,15 +108,7 @@
             @* Bản đồ *@
             <div class="col-md-6 wow fadeIn" data-wow-delay="0.1s">
                 <div class="h-100 w-100 rounded shadow-sm overflow-hidden" style="min-height: 450px;">
-                    <iframe class="w-100 h-100"
-                            @* Link này chứa tham số tọa độ và iwloc=A để hiện ghim đỏ *@
-                            src="https://maps.google.com/maps?q=10.0163,105.0768&hl=vi&z=16&amp;output=embed"
-                            frameborder="0"
-                            style="border:0;"
-                            allowfullscreen=""
-                            aria-hidden="false"
-                            tabindex="0">
-                    </iframe>
+                    <div id="leafletMap" class="w-100 h-100" style="min-height: 450px; border-radius: 8px;"></div>
                 </div>
             </div>
 
@@ -155,6 +147,37 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Tọa độ Cảng Rạch Giá
+            var lat = 9.9467;
+            var lng = 105.0744;
+
+            // 3. Khởi tạo bản đồ
+            var map = L.map('leafletMap').setView([lat, lng], 15);
+
+            // 4. Thêm lớp nền bản đồ (Dùng OpenStreetMap - Miễn phí)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // 5. Thêm Marker (Ghim)
+            var marker = L.marker([lat, lng]).addTo(map);
+
+            // 6. Thêm thông tin khi click vào ghim (Popup)
+            marker.bindPopup("<b>WaterBoat</b><br>Cảng Rạch Giá, Kiên Giang").openPopup();
+
+            // Fix lỗi bản đồ bị vỡ khi nằm trong các thẻ ẩn/hiện hoặc dùng animation
+            setTimeout(function(){ map.invalidateSize()}, 500);
+        });
+    </script>
+}
 
 <style>
     .section-title {

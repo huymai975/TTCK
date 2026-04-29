@@ -13,6 +13,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// --- PHẦN THÊM MỚI: CẤU HÌNH CLOUDINARY ---
+
+// Đọc cấu hình từ appsettings.json
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+
+// Đăng ký PhotoService (Service này bạn sẽ tạo ở bước sau)
+builder.Services.AddScoped<PhotoService>();
+
+// ------------------------------------------
 
 // 1. Cấu hình Identity kết nối với ApplicationDbContext
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>

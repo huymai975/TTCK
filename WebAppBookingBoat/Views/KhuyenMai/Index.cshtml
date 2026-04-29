@@ -172,7 +172,7 @@
     }
 
     .promo-info-card {
-        margin-bottom: 30px; /* Ép khoảng cách dưới mỗi card */
+        margin-bottom: 30px;
     }
 </style>
 
@@ -194,10 +194,8 @@
                         <div class="promo-info-card shadow-sm w-100">
                             <div class="promo-img-wrapper" onclick="location.href='@Url.Action("Details", new { id = item.MaKM })'">
                                 <div class="glass-badge">- @item.PhanTramGiam%</div>
-                                @{
-                                    var imgUrl = string.IsNullOrEmpty(item.HinhAnh) ? "/images/default.jpg" : "/images/khuyen-mai/" + item.HinhAnh;
-                                }
-                                <img src="@imgUrl" alt="@item.TenChuongTrinh">
+                                @* ĐÃ ĐỔI: Lấy thẳng link Cloud từ item.HinhAnh *@
+                                <img src="@(string.IsNullOrEmpty(item.HinhAnh) ? "/images/default.jpg" : item.HinhAnh)" alt="@item.TenChuongTrinh">
                             </div>
 
                             <div class="card-body-premium">
@@ -270,11 +268,9 @@
 <script>
     function copyCode(code) {
         navigator.clipboard.writeText(code).then(() => {
-            // Đổi icon tạm thời
             const icon = document.getElementById('icon-' + code);
             icon.classList.replace('bi-clipboard-plus', 'bi-check-lg');
 
-            // Hiện Toast (nếu dùng Bootstrap 5)
             const toastEl = document.getElementById('copyToast');
             if (toastEl) {
                 const toast = new bootstrap.Toast(toastEl);
